@@ -1,0 +1,17 @@
+# secrets and local environment
+.env
+.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+
+# downloaded telescope data and derived tables (several GB)
+data/
+
+# working state: ledger, evidence, briefs, verdicts, logs, spend
+cases/*
+!cases/known/
+
+# generated pages
+report/
+*.tmp

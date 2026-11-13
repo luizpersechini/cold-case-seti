@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.coldcase.dashboard</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__UV__</string>
+    <string>run</string>
+    <string>--project</string>
+    <string>__PROJECT__</string>
+    <string>python</string>
+    <string>-I</string>
+    <string>-m</string>
+    <string>coldcase.serve</string>
+  </array>
+  <key>WorkingDirectory</key><string>__PROJECT__</string>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>__PROJECT__/cases/serve.log</string>
+  <key>StandardErrorPath</key><string>__PROJECT__/cases/serve.log</string>
+</dict>
+</plist>

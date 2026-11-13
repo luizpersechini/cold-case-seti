@@ -1,0 +1,19 @@
+# Limits for the unattended runner (python -m coldcase.runner run).
+# A run stops at whichever limit it reaches first.
+
+[budget]
+tokens_per_run = 150000       # API tokens for readers in one run
+tokens_per_month = 1000000    # API tokens the runner may use per calendar month (UTC)
+network_gb_per_run = 2.5      # partial downloads from the Breakthrough Listen servers
+minutes_per_run = 45
+
+[idle]
+min_idle_minutes = 10         # no keyboard or mouse input for this long
+require_ac_power = true
+
+[controls]
+per_group = 3                 # blind synthetic signals added to each download group
+
+[jev]
+tokens_per_month = 5000000    # TypeSafe input tokens for ranking open cases
+use_plot = true               # also send the plot image (opt-in feature of their API)

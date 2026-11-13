@@ -1,0 +1,50 @@
+# Spectrum use relevant to GBT L/S band, Parkes UWL and the X-band deep-space band.
+# Written from memory of the US/ITU allocation tables. NOT yet checked against the
+# FCC/NTIA/ACMA tables: treat as a pointer to what to look up, not as authority.
+# kind: sat_down (space-to-Earth), sat_up, radar, aero, terrestrial, passive, ism
+lo_mhz,hi_mhz,kind,service,notes
+703,803,terrestrial,Mobile broadband 700 MHz (Australia APT band 28),uplink 703-748 downlink 758-803
+825,960,terrestrial,Mobile broadband 850/900 MHz,
+960,1164,aero,Aeronautical radionavigation,DME/TACAN pulses; SSR 1030 and 1090; ADS-B 1090
+1164,1215,sat_down,Radionavigation satellite,GPS L5 and Galileo E5a 1176.45; Galileo E5b 1207.14; GLONASS L3 1202.025; also DME
+1215,1240,sat_down,Radionavigation satellite + radar,GPS L2 1227.60; long-range air surveillance radar
+1240,1300,sat_down,Radionavigation satellite + radar + amateur,GLONASS L2 1242.9-1248.6; BeiDou B3 1268.52; Galileo E6 1278.75
+1300,1350,radar,Aeronautical radionavigation radar,long-range air route surveillance radar
+1350,1390,radar,Fixed/mobile/radiolocation,military radar; GPS L3 1381.05
+1390,1400,terrestrial,Fixed/mobile; medical telemetry 1395-1400,
+1400,1427,passive,Radio astronomy and passive sensing (HI line),all emissions prohibited
+1427,1435,terrestrial,Telemetry; medical telemetry 1427-1432,
+1435,1525,aero,Aeronautical mobile telemetry,flight-test telemetry from aircraft
+1525,1559,sat_down,Mobile satellite downlink,Inmarsat and similar geostationary L-band downlinks
+1559,1610,sat_down,Radionavigation satellite,BeiDou B1 1561.098; GPS L1 and Galileo E1 1575.42; GLONASS L1 1598.1-1605.4
+1610,1626.5,sat_down,Mobile satellite,Globalstar uplink 1610-1618.7; Iridium up and down 1616-1626.5; radio astronomy OH 1610.6-1613.8
+1626.5,1660.5,sat_up,Mobile satellite uplink,Inmarsat user terminals including aircraft and ships transmit here
+1660,1670,passive,Radio astronomy (OH 1665/1667),
+1670,1675,terrestrial,Fixed/mobile,
+1675,1695,sat_down,Meteorological satellite downlink,GOES downlinks; radiosondes 1675-1683
+1695,1710,sat_down,Meteorological satellite downlink; mobile uplink,polar weather satellite HRPT 1698-1707
+1710,1780,terrestrial,Mobile broadband uplink (AWS),handsets transmit here
+1780,1850,terrestrial,Federal fixed/mobile; space operations uplink 1761-1842,
+1850,1915,terrestrial,Mobile broadband uplink (PCS),
+1930,1995,terrestrial,Mobile broadband downlink (PCS),base stations
+2000,2020,sat_up,Mobile satellite uplink / AWS-4,
+2025,2110,sat_up,Space operation and research uplink; broadcast auxiliary,also space-to-space links
+2110,2200,terrestrial,Mobile broadband downlink (AWS),base stations; 2180-2200 mobile satellite downlink
+2200,2290,sat_down,Space operation / space research / Earth exploration downlink,spacecraft telemetry and tracking downlinks
+2290,2300,sat_down,Deep-space research downlink,
+2300,2305,terrestrial,Amateur,
+2305,2320,terrestrial,Wireless communications service,
+2320,2345,sat_down,Satellite digital audio radio,satellite radio downlink plus terrestrial repeaters
+2345,2360,terrestrial,Wireless communications service,
+2360,2395,aero,Aeronautical mobile telemetry,
+2400,2483.5,ism,ISM band,Wi-Fi and Bluetooth; microwave ovens near 2450
+2483.5,2500,sat_down,Mobile satellite downlink,Globalstar
+2496,2690,terrestrial,Broadband radio / educational broadband,
+2690,2700,passive,Radio astronomy and passive sensing,
+2700,2900,radar,Aeronautical radionavigation and weather radar,airport surveillance radar; weather radar 2700-3000
+2900,3100,radar,Maritime radionavigation radar,
+3100,3650,radar,Radiolocation,military radar; shared broadband 3550-3700
+3700,4200,sat_down,Fixed satellite downlink / mobile broadband,C-band satellite downlink
+8025,8400,sat_down,Earth exploration satellite downlink,
+8400,8450,sat_down,Deep-space research downlink,deep-space probes transmit to Earth here
+8450,8500,sat_down,Space research downlink (near Earth),

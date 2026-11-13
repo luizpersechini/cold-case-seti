@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img" aria-label="Six scans alternating between the star and empty sky. A signal from the star appears only in the three scans on the star. Interference appears in all six, fainter when off the star.">
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 11px; fill: #7b8794; letter-spacing: .06em; }
+    text.row { font-size: 12px; letter-spacing: 0; fill: #7b8794; font-weight: 600; }
+    .p { fill: #8a97a5; fill-opacity: .18; }
+    .on { fill: #8a97a5; fill-opacity: .18; stroke: #2f89ab; stroke-width: 1.5; }
+    .ln { stroke: #d08a1c; stroke-width: 2.5; stroke-linecap: round; }
+    .faint { stroke: #d08a1c; stroke-width: 1.5; stroke-linecap: round; opacity: .6; }
+  </style>
+  <text x="150" y="16" text-anchor="middle">ON STAR</text><text x="232" y="16" text-anchor="middle">OFF</text>
+  <text x="314" y="16" text-anchor="middle">ON STAR</text><text x="396" y="16" text-anchor="middle">OFF</text>
+  <text x="478" y="16" text-anchor="middle">ON STAR</text><text x="560" y="16" text-anchor="middle">OFF</text>
+  <text class="row" x="0" y="62">From the star</text>
+  <rect class="on" x="114" y="26" width="72" height="66" rx="4"/><rect class="p" x="196" y="26" width="72" height="66" rx="4"/>
+  <rect class="on" x="278" y="26" width="72" height="66" rx="4"/><rect class="p" x="360" y="26" width="72" height="66" rx="4"/>
+  <rect class="on" x="442" y="26" width="72" height="66" rx="4"/><rect class="p" x="524" y="26" width="72" height="66" rx="4"/>
+  <line class="ln" x1="140" y1="32" x2="146" y2="86"/><line class="ln" x1="312" y1="32" x2="318" y2="86"/><line class="ln" x1="484" y1="32" x2="490" y2="86"/>
+  <text class="row" x="0" y="150">Interference</text>
+  <rect class="on" x="114" y="114" width="72" height="66" rx="4"/><rect class="p" x="196" y="114" width="72" height="66" rx="4"/>
+  <rect class="on" x="278" y="114" width="72" height="66" rx="4"/><rect class="p" x="360" y="114" width="72" height="66" rx="4"/>
+  <rect class="on" x="442" y="114" width="72" height="66" rx="4"/><rect class="p" x="524" y="114" width="72" height="66" rx="4"/>
+  <line class="ln" x1="140" y1="120" x2="146" y2="174"/><line class="faint" x1="226" y1="120" x2="232" y2="174"/>
+  <line class="ln" x1="312" y1="120" x2="318" y2="174"/><line class="faint" x1="398" y1="120" x2="404" y2="174"/>
+  <line class="ln" x1="484" y1="120" x2="490" y2="174"/><line class="faint" x1="570" y1="120" x2="576" y2="174"/>
+</svg>
