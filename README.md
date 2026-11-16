@@ -46,14 +46,24 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | Seen toward another star     | The same frequency and drift while the telescope looked elsewhere        |
    | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone |
 
+   A fifth kind of evidence comes from step 5: the signal is back at the same
+   telescope frequency on another day.
+
    The band a signal sits in, or how busy it is, never closes a case. It only
    lowers its rank.
 
-5. **Read and rank what stays open.** Two AI readers (an investigator and a
+5. **Look again on other days.** When the star was observed again in the same
+   band, the same spot is measured on those days at two frequencies: the one
+   the telescope saw, where a local emitter would still be, and the one
+   shifted by the Earth's motion, where a transmitter fixed in the sky would
+   have moved to. A repeat at the first closes the case. A repeat at the
+   second is flagged for a human and never decided by code. Seeing nothing
+   changes nothing. This step is run by hand for now.
+6. **Read and rank what stays open.** Two AI readers (an investigator and a
    challenger) write up each open event and rate it for follow-up. A small
    typed-judgment model, [Jev](https://docs.typesafe.ai/), is being evaluated
    as a cheaper ranker.
-6. **Check itself continuously.** Every batch gets three hidden synthetic
+7. **Check itself continuously.** Every batch gets three hidden synthetic
    signals injected into the same data: two that should stay open and one weak
    leak that should be closed. The running score shows whether the rules still
    behave.
@@ -136,6 +146,9 @@ uv run python -I -m coldcase.runner run --now --max-groups 1
 
 # 5. Watch it
 uv run python -I -m coldcase.serve      # http://localhost:8790
+
+# 6. Look for an open event on the star's other observing days
+uv run python -I -m coldcase.repeat CASE_ID
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -152,7 +165,8 @@ trigger.
 | `coldcase/dedoppler.py`                            | Drift search and forced measurement along a track                   |
 | `coldcase/investigate.py`                          | Evidence bundle and plot for one case                               |
 | `coldcase/checks.py`                               | Lookalikes, clock harmonics, band use, sky geometry, expected drift |
-| `coldcase/triage.py`                               | The four direct-evidence rules                                      |
+| `coldcase/triage.py`                               | The direct-evidence rules                                           |
+| `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
 | `coldcase/jev.py`, `coldcase/rank.py`              | Jev's questions and the rank score                                  |
@@ -165,6 +179,9 @@ trigger.
 
 - A signal seen in one observation can never be confirmed from that data
   alone. "Open" means "not explained by the checks here", nothing more.
+- The repeat check applies to few events: most stars were observed on one day
+  per receiver band. Not seeing a signal again proves little, since a
+  transmitter on an orbiting planet would be shifted by an unknown amount.
 - There is no check against satellite orbits, so a satellite crossing the
   beam during an on-star scan can stay open.
 - The table of radio band uses was written from memory and is not verified.
