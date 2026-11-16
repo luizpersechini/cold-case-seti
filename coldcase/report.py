@@ -36,9 +36,10 @@ def main():
         "## Open cases, ranked",
         "",
         "| Case | Target | MHz | Drift Hz/s | ON scans | Priority (two readers) | "
-        "Context suspicion | Plot |",
-        "|---|---|---|---|---|---|---|---|",
+        "Context suspicion | Other days | Plot |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
+    head = len(lines) - 4  # flagged repeats go above the table
     open_rows = []
     for cid, target, f, d, cls, n_on, snr, status, note in rows:
         if status not in ("open", "open_unread"):
@@ -76,8 +77,13 @@ def main():
             for s in ev["scans"]
             if s["role"] == "ON" and "error" not in s
         ]
+        # repeat check on other days (coldcase/repeat.py), if it was run
+        rp_path = ROOT / "cases" / "evidence" / cid / "repeat.json"
+        rp = json.loads(rp_path.read_text())["summary"] if rp_path.exists() else None
+        again = bool(rp) and rp["outcome"] == "sky_frame_repeat"
         open_rows.append(
             (
+                0 if again else 1,
                 best,
                 -max(on, default=0),
                 cid,
@@ -87,16 +93,30 @@ def main():
                 on,
                 " / ".join(pr) or "not read",
                 cs,
+                rp["text"] if rp else "not checked",
             )
         )
-    for best, _, cid, target, f, d, on, pr, cs in sorted(open_rows):
+    flagged = []
+    for first, best, _, cid, target, f, d, on, pr, cs, other in sorted(open_rows):
         lines.append(
             f"| {cid} | {target} | {f:.6f} | {d:+.3f} | {on} | {pr} | "
-            f"{'-' if not cs else f'{sum(cs) / len(cs):.2f}'} | "
+            f"{'-' if not cs else f'{sum(cs) / len(cs):.2f}'} | {other} | "
             f"cases/evidence/{cid}/waterfall.png |"
         )
+        if first == 0:
+            flagged.append(
+                f"- {cid} {target} {f:.6f} MHz: {other}. Plots: "
+                f"cases/evidence/{cid}/repeat_*.png"
+            )
+    if flagged:
+        lines[head:head] = [
+            "## Look at these first: seen again at the Earth-shifted frequency",
+            "",
+            *flagged,
+            "",
+        ]
     if not open_rows:
-        lines.append("| none yet | | | | | | | |")
+        lines.append("| none yet | | | | | | | | |")
     text = "\n".join(lines) + "\n"
     out = ROOT / "report"
     out.mkdir(exist_ok=True)

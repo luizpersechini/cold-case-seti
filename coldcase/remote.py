@@ -53,8 +53,13 @@ def _counted(url):
     # no overall deadline: a 60 MB chunk can take minutes on a slow line, but
     # give up on a connection that goes silent
     timeout = aiohttp.ClientTimeout(total=None, sock_connect=60, sock_read=180)
-    raw = fsspec.open(url, "rb", block_size=256 * 1024, cache_type="bytes",
-                      client_kwargs={"timeout": timeout}).open()
+    raw = fsspec.open(
+        url,
+        "rb",
+        block_size=256 * 1024,
+        cache_type="bytes",
+        client_kwargs={"timeout": timeout},
+    ).open()
     net = {"bytes": 0, "requests": 0}
     fetch = raw.cache.fetcher
 
@@ -206,7 +211,9 @@ def read_chunk(url, f_center):
     for path in DATA.joinpath("chunks").glob(url.rsplit("/", 1)[-1] + "__k*"):
         z = np.load(path, allow_pickle=False)
         info = json.loads(str(z["info"]))
-        lo, hi = sorted([info["fch1"], info["fch1"] + (z["data"].shape[1] - 1) * info["foff"]])
+        lo, hi = sorted(
+            [info["fch1"], info["fch1"] + (z["data"].shape[1] - 1) * info["foff"]]
+        )
         if lo <= f_center <= hi:
             return {"data": z["data"], **info, "cached": True}
     t0 = time.time()
@@ -214,12 +221,20 @@ def read_chunk(url, f_center):
         try:
             data, fch1, foff, hdr, net = _read_h5(url, f_center, 1.0, whole_chunk=True)
             break
-        except Exception:
-            if attempt == 3:
+        except Exception as e:
+            # a frequency the file does not hold will not appear on a retry
+            if attempt == 3 or "outside the file's band" in str(e):
                 raise
             time.sleep(20 * (attempt + 1))
-    info = {"url": url, "fch1": fch1, "foff": foff, **hdr, "net_bytes": net["bytes"],
-            "net_requests": net["requests"], "seconds": round(time.time() - t0, 1)}
+    info = {
+        "url": url,
+        "fch1": fch1,
+        "foff": foff,
+        **hdr,
+        "net_bytes": net["bytes"],
+        "net_requests": net["requests"],
+        "seconds": round(time.time() - t0, 1),
+    }
     k0 = int(round((fch1 - 0) / abs(foff)))  # unique per chunk start frequency
     np.savez(_chunk_path(url, k0), data=data, info=json.dumps(info))
     return {"data": data, **info, "cached": False}
@@ -247,15 +262,30 @@ def read_cutout(url, f_center, half_khz):
         half = abs(half_khz / 1e3 / ch["foff"])
         k0, k1 = int(np.floor(k_c - half)), int(np.ceil(k_c + half)) + 1
         if k0 >= 0 and k1 <= n:
-            data, fch1, foff = ch["data"][:, k0:k1].copy(), ch["fch1"] + k0 * ch["foff"], ch["foff"]
-            hdr = {k: ch[k] for k in ("tsamp", "tstart", "source_name", "ra_hours", "dec_deg")}
-            net = {"bytes": 0 if ch["cached"] else ch["net_bytes"],
-                   "requests": 0 if ch["cached"] else ch["net_requests"]}
+            data, fch1, foff = (
+                ch["data"][:, k0:k1].copy(),
+                ch["fch1"] + k0 * ch["foff"],
+                ch["foff"],
+            )
+            hdr = {
+                k: ch[k]
+                for k in ("tsamp", "tstart", "source_name", "ra_hours", "dec_deg")
+            }
+            net = {
+                "bytes": 0 if ch["cached"] else ch["net_bytes"],
+                "requests": 0 if ch["cached"] else ch["net_requests"],
+            }
         else:  # cutout straddles a chunk boundary: read it directly
             data, fch1, foff, hdr, net = _read_h5(url, f_center, half_khz)
-    info = {"url": url, "fch1": fch1, "foff": foff, **hdr,
-            "net_bytes": net["bytes"], "net_requests": net["requests"],
-            "seconds": round(time.time() - t0, 1)}
+    info = {
+        "url": url,
+        "fch1": fch1,
+        "foff": foff,
+        **hdr,
+        "net_bytes": net["bytes"],
+        "net_requests": net["requests"],
+        "seconds": round(time.time() - t0, 1),
+    }
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(path, data=data, info=json.dumps(info))
     return {"data": data, **info, "cached": False}
@@ -268,8 +298,14 @@ def read_wide(url, f_center, fil_half_khz=500.0):
     try:
         if url.lower().endswith(".fil"):
             data, fch1, foff, hdr, net = _read_fil(url, f_center, fil_half_khz)
-            return {"data": data, "url": url, "fch1": fch1, "foff": foff, **hdr,
-                    "net_bytes": net["bytes"]}
+            return {
+                "data": data,
+                "url": url,
+                "fch1": fch1,
+                "foff": foff,
+                **hdr,
+                "net_bytes": net["bytes"],
+            }
         ch = read_chunk(url, f_center)
         return {**ch, "net_bytes": 0 if ch["cached"] else ch["net_bytes"]}
     except Exception as e:

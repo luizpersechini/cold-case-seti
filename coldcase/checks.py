@@ -48,7 +48,9 @@ def lookalikes(con, freq_mhz, drift, target, mjd, window_hz=1000.0, top=12):
         """select regexp_replace(upper(s.source), '_OFF$', '') tgt, s.mjd, h.freq,
                   h.drift, h.snr
            from hits_u h join scans s using (file_id)
-           where h.freq between ? and ?""", [freq_mhz - w, freq_mhz + w]).fetchall()
+           where h.freq between ? and ?""",
+        [freq_mhz - w, freq_mhz + w],
+    ).fetchall()
     other = [r for r in rows if r[0] != base]
     own_other_days = [r for r in rows if r[0] == base and abs(r[1] - mjd) >= 0.5]
     same_day = [r for r in other if abs(r[1] - mjd) < 0.5]
@@ -64,9 +66,15 @@ def lookalikes(con, freq_mhz, drift, target, mjd, window_hz=1000.0, top=12):
         "other_targets_similar_drift": len({r[0] for r in same_drift}),
         "other_days": len({int(r[1]) for r in other}),
         "strongest_other": [
-            {"target": r[0], "mjd": round(r[1], 5), "freq_mhz": round(r[2], 6),
-             "drift": round(float(r[3]), 4), "snr": round(float(r[4]), 1)}
-            for r in other[:top]],
+            {
+                "target": r[0],
+                "mjd": round(r[1], 5),
+                "freq_mhz": round(r[2], 6),
+                "drift": round(float(r[3]), 4),
+                "snr": round(float(r[4]), 1),
+            }
+            for r in other[:top]
+        ],
     }
 
 
@@ -79,12 +87,16 @@ def neighbourhood(con, freq_mhz, drift, file_ids, span_khz=50.0):
     rows = con.execute(
         f"""select file_id, freq from hits where file_id in ({ids})
             and freq between ? and ? and abs(freq - ?) > ?""",
-        [freq_mhz - w, freq_mhz + w, freq_mhz, own]).fetchall()
+        [freq_mhz - w, freq_mhz + w, freq_mhz, own],
+    ).fetchall()
     per_scan = {}
     for fid, _ in rows:
         per_scan[fid] = per_scan.get(fid, 0) + 1
-    return {"span_khz": span_khz, "other_hits_in_cadence": len(rows),
-            "other_hits_per_scan": [per_scan.get(i, 0) for i in file_ids]}
+    return {
+        "span_khz": span_khz,
+        "other_hits_in_cadence": len(rows),
+        "other_hits_per_scan": [per_scan.get(i, 0) for i in file_ids],
+    }
 
 
 def harmonics(freq_mhz, tol_khz=5.0):
@@ -154,6 +166,44 @@ def geometry(ra_hours, dec_deg, mjd, site):
         "azimuth_deg": round(az, 2),
         "geo_belt_separation_deg": round(float(sep.min()), 2) if vis.any() else None,
         "low_orbit_check": "not done (needs historical orbit data)",
+    }
+
+
+def observer_velocity(ra_hours, dec_deg, mjds, site):
+    """Velocity (km/s) of the telescope toward the source in the solar system
+    barycentre frame, at each of the given times."""
+    from astropy import units as u
+    from astropy.time import Time
+
+    mjds = np.atleast_1d(np.asarray(mjds, dtype=float))
+    _, _, loc, sc = _altaz(ra_hours, dec_deg, float(mjds[0]), site)
+    v = sc.radial_velocity_correction(
+        "barycentric", obstime=Time(mjds, format="mjd"), location=loc
+    )
+    return np.atleast_1d(v.to(u.km / u.s).value)
+
+
+def sky_frame_prediction(ra_hours, dec_deg, site, mjd_ref, freq_mhz, mjds):
+    """Where a transmitter that keeps a fixed frequency in the solar system
+    barycentre frame, seen at freq_mhz at time mjd_ref, would be seen at each
+    of the times mjds: frequency (MHz) and drift (Hz/s) from the telescope's
+    motion alone. Also the drift that motion gave at mjd_ref. A transmitter
+    that accelerates on its own, for example on an orbiting planet, will be
+    somewhere else."""
+    mjds = np.atleast_1d(np.asarray(mjds, dtype=float))
+    step = 120.0 / 86400.0
+    t = np.concatenate([[mjd_ref, mjd_ref + step], mjds, mjds + step])
+    v = observer_velocity(ra_hours, dec_deg, t, site)
+    n = len(mjds)
+    v_ref, v_ref2, v0, v1 = v[0], v[1], v[2 : 2 + n], v[2 + n :]
+    # approaching raises the frequency: f_seen = f_barycentric * (1 + v / c)
+    freq = freq_mhz * (1 + v0 / C_KMS) / (1 + v_ref / C_KMS)
+    return {
+        "freq_mhz": [float(x) for x in freq],
+        "drift": [float(x) for x in freq * 1e6 * (v1 - v0) / 120.0 / C_KMS],
+        "drift_at_ref": float(freq_mhz * 1e6 * (v_ref2 - v_ref) / 120.0 / C_KMS),
+        "observer_velocity_kms": [float(x) for x in v0],
+        "observer_velocity_ref_kms": float(v_ref),
     }
 
 
