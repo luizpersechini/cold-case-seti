@@ -17,7 +17,6 @@ STEPS = [
     ("decide", "Decide"),
     ("read", "Read"),
     ("controls", "Controls"),
-    ("rank", "Rank"),
 ]
 KINDS = {  # tile kind -> (label, css colour variable)
     "burst": ("burst, not a tone", "--burst"),

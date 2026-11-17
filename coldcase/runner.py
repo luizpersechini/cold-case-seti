@@ -23,7 +23,7 @@ import time
 import tomllib
 from datetime import datetime, timezone
 
-from . import brief, controls, db, investigate, jev, ledger, readers, remote, triage
+from . import brief, controls, db, investigate, ledger, readers, remote, triage
 
 ROOT = remote.ROOT
 CONFIG, LOCK, LOG = (
@@ -41,7 +41,6 @@ DEFAULTS = {
     },
     "idle": {"min_idle_minutes": 10, "require_ac_power": True},
     "controls": {"per_group": 3},
-    "jev": {"tokens_per_month": 5_000_000, "use_plot": True},
 }
 RESERVE = 35_000  # most one reading has cost, with margin
 QUEUE_SQL = f"""
@@ -225,10 +224,6 @@ def status():
     print(
         f"idle now: {idle_seconds() / 60:.1f} min; on mains power: {on_ac_power()}; "
         f"API key present: {readers.api_key() is not None}"
-    )
-    print(
-        f"Jev tokens this month: {jev.month_tokens():,} of "
-        f"{cfg['jev']['tokens_per_month']:,}; Jev key present: {jev.api_key() is not None}"
     )
     print("limits:", json.dumps(cfg))
 
@@ -494,11 +489,6 @@ def _run(force=False, dry=False, max_groups=None, now=False):
 
         client = anthropic.Anthropic(api_key=key)
     system = readers.prompts()
-    jev_client = None
-    if jev.api_key():
-        from typesafe_sdk import TypeSafeClient
-
-        jev_client = TypeSafeClient(api_key=jev.api_key(), model=jev.MODEL)
     log(f"run start: {len(groups)} groups pending; limits {json.dumps(b)}")
 
     def read(case_id):
@@ -622,12 +612,10 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                     cases[case_id] = case
             # open hits seen in the same ON scans are one event: read the strongest
             set_state(step="decide")
-            to_rank = []
             for members in make_families(opened):
                 rep = _set_family(con, members, cases)
                 if rep:
                     read(rep)
-                    to_rank.append(rep)
             # blind controls ride on the chunks already downloaded for this group
             n_ctrl = cfg["controls"]["per_group"]
             if complete and n_ctrl:
@@ -651,27 +639,8 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                             k = json.loads(keyp.read_text()) if keyp.exists() else {}
                             k[code] = str(path)
                             keyp.write_text(json.dumps(k, indent=1))
-                            to_rank.append(ccase["id"])
                 except Exception as e:
                     log(f"controls failed for group {g}: {type(e).__name__}: {e}"[:200])
-            # Jev answers its fixed questions about every open event and open control
-            if jev_client is not None:
-                if to_rank:
-                    set_state(step="rank")
-                for cid in to_rank:
-                    try:
-                        jev.score_case(
-                            cid,
-                            client=jev_client,
-                            use_plot=cfg["jev"]["use_plot"],
-                            cap=cfg["jev"]["tokens_per_month"],
-                        )
-                    except Exception as e:
-                        log(
-                            f"Jev scoring failed for {cid}: {type(e).__name__}: {e}"[
-                                :200
-                            ]
-                        )
             if complete:
                 remote.clear_chunks()
             n_groups += 1

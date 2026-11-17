@@ -161,13 +161,13 @@ def open_cases(con):
         try:
             from . import rank as rank_mod
 
-            rk = rank_mod.rank_case(cid, con)
+            rk = rank_mod.rank_case(cid)
         except Exception:
             rk = None
         disputed = any(v != "unresolved" for v in verd)
         rows.append(
             (
-                -(rk["combined"] if rk else 0),
+                -(rk or 0),
                 best,
                 -max(on, default=0),
                 cid,
@@ -421,8 +421,7 @@ def build():
             prio = esc(" / ".join(pr))
         h.append(
             f"<tr><td>{cid}</td><td>{esc(target)}</td><td>{f:.6f}</td><td>{d:+.3f}</td>"
-            f"<td>{'-' if not rk else f'{rk["combined"]:.2f}'}"
-            f"{'' if not rk or rk['jev'] is not None else ' <span class=muted>(code only)</span>'}</td>"
+            f"<td>{'-' if rk is None else f'{rk:.2f}'}</td>"
             f"<td>{esc(related) or '-'}</td>"
             f"<td>{esc(', '.join(f'{x:.0f}' for x in on))}</td><td>{prio}</td>"
             f"<td>{'-' if not cs else f'{sum(cs) / len(cs):.2f}'}</td>"

@@ -1,11 +1,15 @@
 """Rank open cases. Each case gets features between 0 and 1 where higher
-means "more like a steady signal from the target's direction": some computed
-by code from the evidence bundle, some from Jev's answers. Version 1 combines
-them with the fixed weights below. The rank orders the open list for a human;
-it never opens or closes a case.
+means "more like a steady signal from the target's direction", computed by
+code from the evidence bundle and combined with the fixed weights below. The
+rank orders the open list for a human; it never opens or closes a case.
 
-usage: python -m coldcase.rank backfill   ask Jev about every cached open case
-       python -m coldcase.rank eval       how well each ranking separates the
+Until November 2026 a second block of features came from Jev, a small
+typed-judgment model that answered fixed questions about each open case. On
+399 injected sky-only signals and 27 real open events it ranked no better
+than the code features (0.80 against 0.84) and added 0.02 when combined, so
+it was removed. Commit f0c8a04 holds that version.
+
+usage: python -m coldcase.rank eval       how well each ranking separates the
                                           known injected signals from real ones
 """
 
@@ -13,7 +17,7 @@ import json
 import math
 import sys
 
-from . import brief, jev, ledger, triage
+from . import ledger, triage
 from .investigate import code_for
 from .remote import ROOT
 
@@ -25,14 +29,6 @@ W_CODE = {
     "band_quiet": 0.13,
     "twins_quiet": 0.07,
 }
-W_JEV = {
-    "not_human": 0.40,
-    "band_free": 0.20,
-    "unstructured": 0.20,
-    "line_visible": 0.12,
-    "off_clear": 0.08,
-}
-JEV_SHARE = 0.25  # weight of the Jev block in the combined rank
 
 
 def _presence(b):
@@ -70,48 +66,21 @@ def code_features(b):
     }
 
 
-def jev_features(a):
-    if not a:
-        return None
-    f = {
-        "not_human": 1 - a["human_made"] / 3,
-        "band_free": 1 - a["band_explains"],
-        "unstructured": 1 - a["structure"] / 3,
-    }
-    if "line_visible" in a:
-        f["line_visible"] = a["line_visible"] / 3
-        f["off_clear"] = 1 - a["off_visible"]
-    return f
-
-
 def _blend(feats, weights):
     used = {k: w for k, w in weights.items() if k in feats}
     return sum(feats[k] * w for k, w in used.items()) / sum(used.values())
 
 
-def rank(bundle, jev_answers=None):
-    """Returns code rank, Jev rank (None without answers) and the combined rank."""
-    c = _blend(code_features(bundle), W_CODE)
-    jf = jev_features(jev_answers)
-    if jf is None:
-        return {"code": round(c, 3), "jev": None, "combined": round(c, 3)}
-    j = _blend(jf, W_JEV)
-    j_text = _blend(
-        {k: v for k, v in jf.items() if k not in ("line_visible", "off_clear")}, W_JEV
-    )
-    return {
-        "code": round(c, 3),
-        "jev": round(j, 3),
-        "jev_text_only": round(j_text, 3),
-        "combined": round((1 - JEV_SHARE) * c + JEV_SHARE * j, 3),
-    }
+def rank(bundle):
+    """The rank of one case, between 0 and 1."""
+    return round(_blend(code_features(bundle), W_CODE), 3)
 
 
-def rank_case(case_id, con=None):
+def rank_case(case_id):
     b = json.loads(
         (ROOT / "cases" / "evidence" / case_id / "evidence.json").read_text()
     )
-    return rank(b, jev.answers(case_id, con))
+    return rank(b)
 
 
 def labelled():
@@ -144,39 +113,6 @@ def labelled():
     return keep
 
 
-def backfill():
-    cfg_cap = None
-    try:
-        from . import runner
-
-        j = runner.config().get("jev", {})
-        cfg_cap, use_plot = j.get("tokens_per_month"), j.get("use_plot", True)
-    except Exception:
-        use_plot = True
-    if not jev.api_key():
-        sys.exit("no TYPESAFE_API_KEY in .env; add it and run again")
-    from typesafe_sdk import TypeSafeClient
-
-    client = TypeSafeClient(api_key=jev.api_key(), model=jev.MODEL)
-    keyp = ROOT / "cases" / "briefs" / "KEY.json"
-    asked = 0
-    for cid, kind, path in labelled():
-        if not (ROOT / "cases" / "briefs" / code_for(cid) / "brief.json").exists():
-            code, _ = brief.build(path)
-            k = json.loads(keyp.read_text()) if keyp.exists() else {}
-            k[code] = str(path)
-            keyp.write_text(json.dumps(k, indent=1))
-        try:
-            a = jev.score_case(cid, client=client, use_plot=use_plot, cap=cfg_cap)
-        except Exception as e:
-            print(f"{cid} failed: {type(e).__name__}: {str(e)[:160]}")
-            continue
-        asked += a is not None
-    print(
-        f"asked Jev about {asked} cases; Jev tokens this month: {jev.month_tokens():,}"
-    )
-
-
 def _auc(pos, neg):
     """Chance that a random positive outranks a random negative."""
     if not pos or not neg:
@@ -207,11 +143,9 @@ def sonnet_rank(case_id):
 
 
 def evaluate():
-    con = ledger.connect()
     rows = []
     for cid, kind, _ in labelled():
-        r = rank_case(cid, con)
-        rows.append((kind, cid, r, sonnet_rank(cid)))
+        rows.append((kind, cid, rank_case(cid), sonnet_rank(cid)))
     groups = {
         "sky": [x for x in rows if x[0].startswith("sky")],
         "real": [x for x in rows if x[0] == "real"],
@@ -222,10 +156,7 @@ def evaluate():
         + ", ".join(f"{k} {len(v)}" for k, v in groups.items())
     )
     for name, get in (
-        ("code features only", lambda x: x[2]["code"]),
-        ("Jev only (with plot)", lambda x: x[2]["jev"]),
-        ("Jev only (text)", lambda x: x[2].get("jev_text_only")),
-        ("combined", lambda x: x[2]["combined"] if x[2]["jev"] is not None else None),
+        ("code features", lambda x: x[2]),
         ("Sonnet readers", lambda x: x[3]),
     ):
         line = f"  {name:22}"
@@ -242,13 +173,13 @@ def evaluate():
         "0.50 = no better than chance)"
     )
     for k in ("sky", "real", "leak"):
-        vals = sorted(x[2]["combined"] for x in groups[k])
+        vals = sorted(x[2] for x in groups[k])
         if vals:
             print(
-                f"  combined rank, {k}: median {vals[len(vals) // 2]:.2f}, "
+                f"  rank, {k}: median {vals[len(vals) // 2]:.2f}, "
                 f"range {vals[0]:.2f}-{vals[-1]:.2f}"
             )
 
 
 if __name__ == "__main__":
-    {"backfill": backfill, "eval": evaluate}[sys.argv[1]]()
+    {"eval": evaluate}[sys.argv[1]]()

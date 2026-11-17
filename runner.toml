@@ -13,7 +13,3 @@ require_ac_power = true
 
 [controls]
 per_group = 3                 # blind synthetic signals added to each download group
-
-[jev]
-tokens_per_month = 5000000    # TypeSafe input tokens for ranking open cases
-use_plot = true               # also send the plot image (opt-in feature of their API)

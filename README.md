@@ -62,9 +62,8 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    second is flagged for a human and never decided by code. Seeing nothing
    changes nothing. This step is run by hand for now.
 6. **Read and rank what stays open.** Two AI readers (an investigator and a
-   challenger) write up each open event and rate it for follow-up. A small
-   typed-judgment model, [Jev](https://docs.typesafe.ai/), is being evaluated
-   as a cheaper ranker.
+   challenger) write up each open event and rate it for follow-up. A score
+   computed by code from the measurements orders the open list.
 7. **Check itself continuously.** Every batch gets three hidden synthetic
    signals injected into the same data: two that should stay open and one weak
    leak that should be closed. The running score shows whether the rules still
@@ -109,6 +108,17 @@ most likely?", two AI readers called 12 of 21 injected sky-only signals
 interference, arguing from the band and the surroundings. After the rule
 became "close only on direct evidence", they kept 20 of 21. The open-or-closed
 decision now belongs to code, and the readers only rank.
+
+**A cheaper ranker that did not pay off.** A small typed-judgment model,
+[Jev](https://docs.typesafe.ai/), answered six fixed questions about each
+open case, as a possible replacement for the readers. The test was how often
+it ranks an injected sky-only signal above a real open event (1.00 is
+perfect, 0.50 is chance). On the 399 injected signals and 27 real events it
+answered, Jev scored 0.80, the score computed by code 0.84, and the two
+combined 0.86. On the 20 injections and 18 real events that the readers also
+saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
+cases their instructions were tuned on, so it flatters them. Jev was removed:
+it cost tokens and added 0.02 to a score that is free.
 
 **The queue.** All 762 cases have had a first pass, and 688 are closed: 566
 bursts, 69 with no signal at the catalogue position, 30 seen off the star, 19
@@ -191,8 +201,8 @@ uv run python -I -m coldcase.harmonics
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
-key for the readers and a TypeSafe key for Jev; without them the pipeline
-still gathers evidence and decides open or closed. Spending limits are in
+key for the readers; without it the pipeline still gathers evidence and
+decides open or closed. Spending limits are in
 `runner.toml`. On macOS, `runner/install.sh runner` installs the idle-time
 trigger.
 
@@ -209,7 +219,7 @@ trigger.
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
-| `coldcase/jev.py`, `coldcase/rank.py`              | Jev's questions and the rank score                                  |
+| `coldcase/rank.py`                                 | The rank score for open events                                      |
 | `coldcase/runner.py`, `runner/`                    | Unattended runner, limits, macOS triggers                           |
 | `coldcase/dashboard.py`, `liveview.py`, `serve.py` | The dashboard                                                       |
 | `tools/`                                           | One-off scripts: load hit tables, find cadences, build test sets    |
