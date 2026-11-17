@@ -5,7 +5,9 @@ a case is closed or stays open. A case is closed only on direct evidence:
       1.0 above its control maximum, or one OFF scan 1.5 or more above its control maximum, or two
       or more OFF scans above their controls)
   D2  two or more clock-probe signals match a single mistuned oscillator
-  D3  the same frequency (within 300 Hz) and drift toward another target
+  D3  the same frequency (within 300 Hz) and drift toward two or more other
+      targets (one other target is only flagged: on injected signals a single
+      weak catalogue hit landed that close about once in a hundred)
   D4  half or more of the track's power sits in one time sample: a burst
   D5  back at the same telescope frequency on another day, when the Earth's
       motion would have moved a sky signal well away (needs the repeat check,
@@ -32,6 +34,9 @@ STACK_MARGIN = 1.0
 # ten times SAME_HZ: below this shift the two readings cannot be told apart
 REPEAT_MIN_SHIFT_HZ = 3000.0
 CHANCE_MAX = 0.05
+# set 2026-11-17: with one star, D3 closed 8 of 888 recovered sky-only controls
+# and was the only reason for 1 of 126 real tones, which is the chance rate
+D3_MIN_STARS = 2
 # D6: clock rates tried (whole MHz), how far a crystal may sit from nominal,
 # and how closely the lines of one scan must agree on that offset
 CLOCKS_MHZ = tuple(range(4, 51))
@@ -137,18 +142,23 @@ def decide(b, repeat=None):
         if abs(x["freq_mhz"] - f) * 1e6 <= SAME_HZ
         and abs(x["drift"] - d) <= 0.05 + 0.25 * abs(d)
     ]
+    flags = []
     if same:
         # In a crowded band a similar-drift hit lands within 300 Hz by chance.
         # Expected chance count: similar-drift targets within 10 kHz, scaled to
         # the 600 Hz window. D3 counts only when that is small.
+        stars = sorted({x["target"] for x in same})
         near = (b.get("lookalikes_10khz") or {}).get("other_targets_similar_drift", 0)
-        chance = max(0, near - len({x["target"] for x in same})) * (
-            2 * SAME_HZ / 20000.0
-        )
-        if chance < 0.05:
+        chance = max(0, near - len(stars)) * (2 * SAME_HZ / 20000.0)
+        if chance < 0.05 and len(stars) >= D3_MIN_STARS:
             direct.append(
-                f"D3: same frequency and drift toward {len(same)} other target(s), "
+                f"D3: same frequency and drift toward {len(stars)} other targets, "
                 f"e.g. {same[0]['target']} on MJD {same[0]['mjd']}"
+            )
+        elif chance < 0.05:
+            flags.append(
+                f"one other target at the same frequency and drift ({same[0]['target']} "
+                f"on MJD {same[0]['mjd']}); one is not enough to close a case"
             )
     row = next((s for s in b["scans"] if s["pos"] == seed["seed_pos"]), {})
     share = (row.get("track_time_profile") or {}).get("largest_single_sample_share", 0)
@@ -159,7 +169,12 @@ def decide(b, repeat=None):
         if text:
             direct.append(text)
     if not direct:
-        return {"status": "open", "verdict": "unresolved", "direct_evidence": []}
+        return {
+            "status": "open",
+            "verdict": "unresolved",
+            "direct_evidence": [],
+            "flags": flags,
+        }
     kinds = {x[:2] for x in direct}
     verdict = (
         "rfi_identified"
@@ -168,7 +183,12 @@ def decide(b, repeat=None):
         if kinds == {"D4"}
         else "rfi_probable"
     )
-    return {"status": "closed", "verdict": verdict, "direct_evidence": direct}
+    return {
+        "status": "closed",
+        "verdict": verdict,
+        "direct_evidence": direct,
+        "flags": flags,
+    }
 
 
 def _round_clock(hz, tol=2e-4):

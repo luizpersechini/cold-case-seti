@@ -43,11 +43,14 @@ through the sidelobes and is local interference, however faint it is there.
   happens by chance.
 - **D2, oscillator comb.** `clock_probes.n_matching_one_oscillator` is 2 or
   more: the candidate is one tooth of an electronic comb.
-- **D3, the same signal toward another target.** An entry in
-  `lookalikes_1khz.strongest_other` within 300 Hz of the candidate's frequency
-  whose drift is within 0.05 Hz/s plus a quarter of the candidate's drift. A
-  sky signal's frequency at the telescope moves with the Earth's motion, so
-  the same frequency and drift toward a different star marks a local emitter.
+- **D3, the same signal toward two or more other targets.** Entries in
+  `lookalikes_1khz.strongest_other` from at least two different targets, each
+  within 300 Hz of the candidate's frequency with a drift within 0.05 Hz/s
+  plus a quarter of the candidate's drift. A sky signal's frequency at the
+  telescope moves with the Earth's motion, so the same frequency and drift
+  toward different stars marks a local emitter. One such target is context
+  only: a single weak catalogue hit lands that close to an injected test
+  signal about once in a hundred.
 - **D4, a burst, not a tone.** In the seed scan,
   `track_time_profile.largest_single_sample_share` is 0.5 or more: the "hit"
   is one brief burst that a drift search mistook for a drifting tone.

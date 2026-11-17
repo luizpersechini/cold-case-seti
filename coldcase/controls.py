@@ -7,6 +7,13 @@ examples for judging any ranking.
   sky_persistent    in all three ON scans, nothing in OFF   -> should stay open
   sky_intermittent  in one or two ON scans, nothing in OFF  -> should stay open
   leak              in ON scans and weakly in OFF scans     -> should be closed
+
+A control is "masked" when what was measured at its position is a stronger
+real signal and not the injection; masked controls are counted on their own.
+
+usage: python -m coldcase.controls                    the running score
+       python -m coldcase.controls rescore [--apply]  today's rules on the
+                                                      stored evidence
 """
 
 import hashlib
@@ -26,8 +33,24 @@ def table(con):
     con.execute("""create table if not exists controls(
         case_id text primary key, grp text, kind text, band text, freq_mhz real, drift real,
         inj_snr real, spec text, recovered int, status text, verdict text, direct text,
-        strongest_on real, created text)""")
+        strongest_on real, created text, masked int default 0)""")
+    if "masked" not in [r[1] for r in con.execute("pragma table_info(controls)")]:
+        con.execute("alter table controls add column masked int default 0")
     con.commit()
+
+
+def is_masked(bundle, drift, inj_snr):
+    """True when what was measured at the injected position is not the
+    injection: more than three times its strength, or a different drift. The
+    injection then sits under a stronger real signal, and what the rules do
+    with that signal says nothing about the injection."""
+    seed = bundle["seed"]
+    if not seed.get("recovered"):
+        return False
+    return bool(
+        seed["snr"] > 3 * inj_snr
+        or abs(seed["drift"] - drift) > 0.05 + 0.25 * abs(drift)
+    )
 
 
 def make(grp, avoid_mhz, n=3):
@@ -126,7 +149,7 @@ def run_group(grp, avoid_mhz, n=3):
         DIR.mkdir(parents=True, exist_ok=True)
         (DIR / f"{case['id']}.json").write_text(json.dumps(case))
         led.execute(
-            "insert into controls values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "insert into controls values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 case["id"],
                 grp,
@@ -142,6 +165,7 @@ def run_group(grp, avoid_mhz, n=3):
                 json.dumps(dec["direct_evidence"]),
                 max(on, default=0),
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                int(is_masked(b, case["drift"], case["inject"]["snr"])),
             ),
         )
         led.commit()
@@ -150,25 +174,78 @@ def run_group(grp, avoid_mhz, n=3):
 
 
 def summary(con=None):
-    """Counts for the dashboard: what the code rules did with the controls."""
+    """Counts for the dashboard: what the code rules did with the controls.
+    Masked controls (see is_masked) are counted on their own and left out of
+    the recovered, open and closed counts."""
     con = con or ledger.connect()
     table(con)
     out = {}
-    for kind, band, n, rec, opened in con.execute(
-        "select kind, band, count(*), sum(recovered), sum(status='open') from controls "
-        "group by 1, 2"
+    for kind, band, n, masked, rec, opened, closed in con.execute(
+        "select kind, band, count(*), sum(masked), sum(recovered and not masked), "
+        "sum(status='open' and not masked), "
+        "sum(status='closed' and verdict <> 'not_recovered' and not masked) "
+        "from controls group by 1, 2"
     ).fetchall():
         for key in ((kind, "all"), (kind, band)):
             d = out.setdefault(
-                key, {"n": 0, "recovered": 0, "open": 0, "closed_by_rule": 0}
+                key,
+                {"n": 0, "masked": 0, "recovered": 0, "open": 0, "closed_by_rule": 0},
             )
             d["n"] += n
+            d["masked"] += masked or 0
             d["recovered"] += rec or 0
             d["open"] += opened or 0
-    for kind, band, n in con.execute(
-        "select kind, band, count(*) from controls where status='closed' "
-        "and verdict not in ('not_recovered') group by 1, 2"
-    ).fetchall():
-        for key in ((kind, "all"), (kind, band)):
-            out[key]["closed_by_rule"] += n
+            d["closed_by_rule"] += closed or 0
     return out
+
+
+def rescore(apply=False, say=print):
+    """Run today's rules over the stored evidence of every control and say
+    what changes. With apply, write the new decisions to the controls table."""
+    con = ledger.connect()
+    table(con)
+    changed = n = 0
+    for cid, kind, status, direct, drift, inj_snr, masked in con.execute(
+        "select case_id, kind, status, direct, drift, inj_snr, masked from controls"
+    ).fetchall():
+        p = remote.ROOT / "cases" / "evidence" / cid / "evidence.json"
+        if not p.exists():
+            continue
+        b = json.loads(p.read_text())
+        dec = triage.decide(b)
+        m = int(is_masked(b, drift, inj_snr))
+        n += 1
+        if dec["status"] != status or m != (masked or 0):
+            changed += 1
+            say(
+                f"{cid} {kind}: {status} -> {dec['status']}"
+                + (" (masked)" if m else "")
+                + (f"; was {direct}" if dec["status"] != status else "")
+            )
+        if apply:
+            con.execute(
+                "update controls set status=?, verdict=?, direct=?, masked=? where case_id=?",
+                (
+                    dec["status"],
+                    dec["verdict"],
+                    json.dumps(dec["direct_evidence"]),
+                    m,
+                    cid,
+                ),
+            )
+    if apply:
+        con.commit()
+    say(f"{n} controls rescored, {changed} changed" + ("" if apply else " (dry run)"))
+    for (kind, band), d in sorted(summary(con).items()):
+        if band == "all" and apply:
+            say(f"  {kind}: {d}")
+
+
+if __name__ == "__main__":
+    import sys
+
+    if sys.argv[1:2] == ["rescore"]:
+        rescore(apply="--apply" in sys.argv)
+    else:
+        for key, d in sorted(summary().items()):
+            print(key, d)

@@ -43,7 +43,7 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | ---------------------------- | --------------------------------------------------------------------------------------------------- |
    | Seen off the star            | The same signal is measurable in scans pointed at empty sky                                         |
    | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                |
-   | Seen toward another star     | The same frequency and drift while the telescope looked elsewhere                                   |
+   | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                  |
    | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone                            |
    | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
 
@@ -82,7 +82,7 @@ Snapshot of 17 November 2026, after the first full pass over the queue.
 | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Voyager 1 (GBT, 2016)                                                                               | A real, distant spacecraft                                                                                                     | Left open, as it should be. Measured drift -0.37 to -0.39 Hz/s against -0.374 predicted from Earth's motion alone |
 | BLC1 (Parkes, 2019)                                                                                 | A famous false alarm toward Proxima Centauri, [traced to site electronics](https://www.nature.com/articles/s41550-021-01508-8) | Closed. Five other lines sit exactly where harmonics of one 2 MHz oscillator running 2.5 ppm fast would be        |
-| Eight signals of interest from [Ma et al. 2023](https://www.nature.com/articles/s41550-022-01872-z) | Found by a deep-learning search; not re-detected in follow-up                                                                  | Five closed (four are measurable off the star, one recurs toward another star), three left open                   |
+| Eight signals of interest from [Ma et al. 2023](https://www.nature.com/articles/s41550-022-01872-z) | Found by a deep-learning search; not re-detected in follow-up                                                                  | Four closed, all measurable off the star; four left open                                                          |
 
 **Blind tests with injected signals**
 
@@ -90,15 +90,24 @@ Snapshot of 17 November 2026, after the first full pass over the queue.
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,410 over the whole queue       | 875 of 940                 | 13                       | 339 of 470        |
+| Running controls, 1,410 over the whole queue       | 880 of 940                 | 3                        | 335 of 470        |
 
 In the first two tests, every sky-only signal that was not left open was too
-weak to recover at all. Over the whole queue that is true of 52 of the 65. The
-other 13 were recovered and then closed by a rule: 8 as seen toward another
-star, 3 as seen off the star, 2 as bursts. That is 1.5% of the 888 recovered.
-An injected signal exists only in the on-star scans, so in each of these the
-rule reacted to something else at the same place in the data. They have not
-been examined one by one.
+weak to recover at all. Over the whole queue, 60 were not left open: 52 too
+weak to recover, 5 hidden under a much stronger real signal at the same
+place, and 3 closed by a rule. Those 3 were closed as seen off the star, all
+in crowded satellite bands, where real interference crossed the track in an
+off-star scan. That is 0.3% of the 883 recovered.
+
+The count was 13 before the controls were examined one by one. Eight had
+been closed as seen toward another star, each on a single weak catalogue hit
+toward one other star that happened to lie within 300 Hz. On real signals
+that rule alone had closed one case, which is what chance predicts, so it
+now needs two other stars and a single one is only flagged. Two more were
+scoring errors: the measurement had locked onto a stronger real signal
+beside the injection. The two-star threshold was chosen on these same
+controls and has not been tested on fresh ones. The known case MLc2 had
+been closed on one such star and is open again.
 
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
@@ -120,12 +129,12 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 688 are closed: 566
-bursts, 69 with no signal at the catalogue position, 30 seen off the star, 19
-lines of two clocks (below), 4 seen toward another star. One case has no
-public data. The other 73 hits stay open and form 57 events. The AI readers
-have rated 14 of those so far: none high, and one got a medium from one of
-the two readers. The other 43 wait for the next month's reading budget.
+**The queue.** All 762 cases have had a first pass, and 687 are closed: 579
+bursts, 59 with no signal at the catalogue position, 30 seen off the star, 19
+lines of two clocks (below). One case has no public data. The other 74 hits
+stay open and form 58 events. The AI readers have rated 14 of those so far:
+none high, and one got a medium from one of the two readers. The other 44
+wait for the next month's reading budget.
 
 **Other days.** For 22 of the events that stayed open, the star was observed
 again in the same band. The signal was absent every time, at the telescope
@@ -242,9 +251,10 @@ trigger.
   beam during an on-star scan can stay open.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them: the rules closed 13 of 888 recovered
-  sky-only signals that should have stayed open, and missed 131 of 470 weak
-  leaks.
+  controls are the real test of them: the rules closed 3 of 883 recovered
+  sky-only signals that should have stayed open, and missed 131 of 466 weak
+  leaks. The two-star threshold of the other-star rule was chosen on those
+  same controls.
 - There are no unit tests yet.
 
 ## Data and credit

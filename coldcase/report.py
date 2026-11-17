@@ -7,7 +7,7 @@ usage: python -m coldcase.report
 import json
 from collections import Counter
 
-from . import ledger
+from . import ledger, triage
 from .remote import ROOT
 
 PRIORITY = {"high": 0, "medium": 1, "low": 2}
@@ -129,6 +129,21 @@ def main():
             )
             + f", all {f['ppm']:+.2f} ppm from nominal"
             for f in fams
+        ]
+    # one other star at the same frequency and drift: not evidence, but worth a look
+    one_star = []
+    for r in sorted(open_rows):
+        try:
+            for fl in triage.decide_case(r[3]).get("flags", []):
+                one_star.append(f"- {r[3]} {r[4]} {r[5]:.6f} MHz: {fl}")
+        except Exception:
+            pass
+    if one_star:
+        lines += [
+            "",
+            "## Flagged, not closed: seen toward one other star",
+            "",
+            *one_star,
         ]
     still_open = {r[3] for r in open_rows}
     flags = [x for x in hz.get("flags", []) if x["id"] in still_open]

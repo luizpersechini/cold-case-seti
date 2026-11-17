@@ -357,7 +357,7 @@ def build():
     h.append(
         "<div class='card' style='margin-bottom:14px'><h2>Blind controls (synthetic signals "
         "added to each download group)</h2><table><tr><th>Kind</th><th>Band</th>"
-        "<th>Injected</th><th>Recovered</th><th>Left open</th>"
+        "<th>Injected</th><th>Masked</th><th>Recovered</th><th>Left open</th>"
         "<th>Closed by a rule</th><th>What is wanted</th></tr>"
     )
     want = {
@@ -376,12 +376,13 @@ def build():
         h.append(
             f"<tr><td>{names.get(kind, kind) if band == 'all' else ''}</td>"
             f"<td>{'all' if band == 'all' else esc(band)}</td><td>{d['n']}</td>"
+            f"<td>{d.get('masked', 0)}</td>"
             f"<td>{d['recovered']}</td><td>{d['open']}</td><td>{d['closed_by_rule']}</td>"
             f"<td class='muted'>{want.get(kind, '') if band == 'all' else ''}</td></tr>"
         )
     if not cs_sum:
         h.append(
-            "<tr><td class='muted' colspan='7'>No controls yet; they start with the next "
+            "<tr><td class='muted' colspan='8'>No controls yet; they start with the next "
             "runner batch</td></tr>"
         )
     h.append("</table></div>")

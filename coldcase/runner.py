@@ -9,6 +9,7 @@ download volume per run, or minutes per run. Limits are in runner.toml.
 usage: python -m coldcase.runner build-queue
        python -m coldcase.runner status
        python -m coldcase.runner run [--now] [--force] [--dry-run] [--max-groups N]
+       python -m coldcase.runner recheck [--apply]   today's rules on stored evidence
 
 --now starts a batch while the Mac is in use (the power rule still applies);
 --force skips both the idle and the power rule.
@@ -394,6 +395,80 @@ def _case_from_queue(con, case_id):
     }
 
 
+def recheck(apply=False, say=print):
+    """Run today's rules over the stored evidence of the cases that were
+    closed one at a time, and say what changes. A case whose reason no longer
+    counts is reopened as an unread open event; one that stays closed for a
+    different reason gets the new reason recorded. Cases closed by a rule
+    that compares several cases (the comb of one event, clock harmonics) are
+    left alone. Nothing is downloaded. Without apply it only reports what
+    would change."""
+    con = queue_db()
+    led = ledger.connect()
+    reopened = reworded = 0
+    for case_id, note in con.execute(
+        "select case_id, note from queue where status='closed' order by case_id"
+    ).fetchall():
+        if not (ROOT / "cases" / "evidence" / case_id / "evidence.json").exists():
+            continue
+        last = led.execute(
+            "select rationale from verdicts where case_id=? and role='triage' "
+            "order by rowid desc limit 1",
+            (case_id,),
+        ).fetchone()
+        why = last[0] if last else ""
+        if why.startswith("D6:") or "lines of this event" in why:
+            continue
+        dec = triage.decide_case(case_id)
+        new_why = "; ".join(dec["direct_evidence"]) or "no direct evidence"
+        if dec["status"] == "open":
+            reopened += 1
+            say(f"{case_id}: reopened; it was closed on: {why}")
+            if apply:
+                flags = "; ".join(dec.get("flags", []))
+                ledger.add_verdict(
+                    led,
+                    {
+                        "case_id": case_id,
+                        "role": "triage",
+                        "agent": "code",
+                        "verdict": "unresolved",
+                        "confidence": 1.0,
+                        "rationale": "reopened: the earlier reason no longer closes a case"
+                        + (f" ({flags})" if flags else ""),
+                        "evidence_refs": [],
+                    },
+                )
+                set_status(con, case_id, "open_unread", "reopened by a rule change")
+                _publish_brief(_case_from_queue(con, case_id))
+                log(f"{case_id} reopened: no longer closed by: {why}"[:200])
+        elif dec["verdict"] != note or new_why != why:
+            reworded += 1
+            say(f"{case_id}: stays closed ({dec['verdict']}); reason now: {new_why}")
+            if apply:
+                ledger.add_verdict(
+                    led,
+                    {
+                        "case_id": case_id,
+                        "role": "triage",
+                        "agent": "code",
+                        "verdict": dec["verdict"],
+                        "confidence": 1.0,
+                        "rationale": new_why,
+                        "evidence_refs": dec["direct_evidence"],
+                    },
+                )
+                set_status(con, case_id, "closed", dec["verdict"])
+    say(
+        f"{reopened} reopened, {reworded} closed for a different reason"
+        + ("" if apply else " (dry run)")
+    )
+    if apply and reopened:
+        from . import harmonics
+
+        harmonics.apply(say=say)
+
+
 def regroup():
     """Apply the family rule to open cases that were handled one by one."""
     con = queue_db()
@@ -686,6 +761,8 @@ def main():
         status()
     elif cmd == "regroup":
         regroup()
+    elif cmd == "recheck":
+        recheck(apply="--apply" in sys.argv)
     elif cmd == "run":
         mg = (
             int(sys.argv[sys.argv.index("--max-groups") + 1])
