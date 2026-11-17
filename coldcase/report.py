@@ -6,6 +6,7 @@ usage: python -m coldcase.report
 
 import json
 from collections import Counter
+from pathlib import Path
 
 from . import ledger, triage
 from .remote import ROOT
@@ -41,6 +42,11 @@ def main():
     ]
     head = len(lines) - 4  # flagged repeats go above the table
     open_rows = []
+    # verdict files are named by blind code; KEY.json says which case each is
+    keyp = ROOT / "cases" / "briefs" / "KEY.json"
+    codes = {}
+    for code, path in (json.loads(keyp.read_text()) if keyp.exists() else {}).items():
+        codes.setdefault(Path(path).stem, []).append(code)
     for cid, target, f, d, cls, n_on, snr, status, note in rows:
         if status not in ("open", "open_unread"):
             continue
@@ -54,20 +60,23 @@ def main():
         )
         pr, cs = [], []
         for role in ("investigator", "challenger"):
-            p = ROOT / "cases" / "verdicts"
-            for path in p.glob(f"*_{role}.json"):
+            for code in codes.get(cid, []):
+                path = ROOT / "cases" / "verdicts" / f"{code}_{role}.json"
+                if not path.exists():
+                    continue
                 v = json.loads(path.read_text())
-                if v.get("case_id") == cid:
-                    pr.append(
+                pr.append(
+                    (
                         str(v.get("followup_priority", "")).lower()
                         + (
                             ""
                             if v.get("verdict") == "unresolved"
                             else f" ({v.get('verdict')})"
                         )
-                    )
-                    if isinstance(v.get("context_suspicion"), (int, float)):
-                        cs.append(v["context_suspicion"])
+                    ).strip()
+                )
+                if isinstance(v.get("context_suspicion"), (int, float)):
+                    cs.append(v["context_suspicion"])
         best = min((PRIORITY.get(x.split(" ")[0], 3) for x in pr), default=3)
         ev = json.loads(
             (ROOT / "cases" / "evidence" / cid / "evidence.json").read_text()
