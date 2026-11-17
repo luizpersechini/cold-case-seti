@@ -18,6 +18,10 @@ from . import dedoppler as dd
 ON_POS = (0, 2, 4)
 
 
+class NoData(Exception):
+    """The public archive lists no file for any scan of the case."""
+
+
 def tol_hz(dt, drift):
     return 20.0 + 0.02 * abs(dt) + 0.1 * abs(drift) * abs(dt)
 
@@ -76,8 +80,11 @@ def _freq(cut, chan):
 
 def _brightest(cu, f_pred):
     i, k, z = dd.brightest_sample(cu["data"])
-    return {"noise_units": round(z, 1), "at_time_s": round(i * cu["tsamp"], 1),
-            "offset_from_prediction_hz": round((_freq(cu, k) - f_pred) * 1e6, 1)}
+    return {
+        "noise_units": round(z, 1),
+        "at_time_s": round(i * cu["tsamp"], 1),
+        "offset_from_prediction_hz": round((_freq(cu, k) - f_pred) * 1e6, 1),
+    }
 
 
 def pick_seed(case, scans, cuts, half_khz):
@@ -106,11 +113,24 @@ def pick_seed(case, scans, cuts, half_khz):
         if exact:
             # look only where the catalogue says, so a crowded cutout cannot
             # push the candidate out of the list of strongest hits
-            hits = dd.search(c["data"], fo, c["tsamp"], snr_min=6, top=200,
-                             drift_center=d0, drift_half=0.05 + 0.3 * abs(d0))
+            hits = dd.search(
+                c["data"],
+                fo,
+                c["tsamp"],
+                snr_min=6,
+                top=200,
+                drift_center=d0,
+                drift_half=0.05 + 0.3 * abs(d0),
+            )
         else:
-            hits = dd.search(c["data"], fo, c["tsamp"], max_drift=_max_drift(c, half_khz),
-                             snr_min=6, top=30)
+            hits = dd.search(
+                c["data"],
+                fo,
+                c["tsamp"],
+                max_drift=_max_drift(c, half_khz),
+                snr_min=6,
+                top=30,
+            )
         comp = []
         for h in hits:
             off = (_freq(c, h["chan"]) - f0) * 1e6
@@ -152,20 +172,30 @@ def pick_seed(case, scans, cuts, half_khz):
         ctol = (100 + 300 * abs(d0)) / abs(fo)
         width = 2 * int(np.ceil(ctol)) + 3
         ctrl = [k + m * width for m in range(-25, 26) if abs(m) >= 3]
-        res = dd.track_multi(c["data"], fo, c["tsamp"], [k] + ctrl, d0, chan_tol=ctol,
-                             drift_tol=0.05 + 0.3 * abs(d0))
+        res = dd.track_multi(
+            c["data"],
+            fo,
+            c["tsamp"],
+            [k] + ctrl,
+            d0,
+            chan_tol=ctol,
+            drift_tol=0.05 + 0.3 * abs(d0),
+        )
         tr = res[0]
         cmax = max((r["snr"] for r in res[1:] if r["in_cutout"]), default=float("inf"))
         if tr["in_cutout"] and tr["snr"] >= 6 and tr["snr"] > cmax:
             f_found = _freq(c, tr["chan"])
             return by_time, {
-                "seed_pos": scans[by_time]["pos"], "recovered": True,
+                "seed_pos": scans[by_time]["pos"],
+                "recovered": True,
                 "method": "measured at the catalogue position; the blind search found no "
-                          "hit with a matching drift there, so the drift is poorly defined",
+                "hit with a matching drift there, so the drift is poorly defined",
                 "seed_is_scan_nearest_catalogue_time": True,
-                "snr": round(tr["snr"], 1), "freq_mhz": round(f_found, 6),
+                "snr": round(tr["snr"], 1),
+                "freq_mhz": round(f_found, 6),
                 "drift": round(tr["drift"], 4),
-                "catalogue_freq_mhz": f0, "catalogue_drift": d0,
+                "catalogue_freq_mhz": f0,
+                "catalogue_drift": d0,
                 "offset_from_catalogue_hz": round((f_found - f0) * 1e6, 1),
                 "drift_sign_differs_from_catalogue": bool(tr["drift"] * d0 < 0),
                 "controls_max_snr": round(cmax, 1),
@@ -253,10 +283,13 @@ def measure(scans, cuts, seed, info, half_khz):
                         tr.get("window_channels", 0) * abs(fo), 1
                     ),
                 },
-                "track_time_profile": None if tr["chan"] is None
-            else dd.time_profile(cu["data"], fo, cu["tsamp"], tr["chan"], tr["drift"]),
-            "brightest_sample_in_cutout": _brightest(cu, f_pred),
-            "control_windows": None
+                "track_time_profile": None
+                if tr["chan"] is None
+                else dd.time_profile(
+                    cu["data"], fo, cu["tsamp"], tr["chan"], tr["drift"]
+                ),
+                "brightest_sample_in_cutout": _brightest(cu, f_pred),
+                "control_windows": None
                 if len(ctrl) == 0
                 else {
                     "n": int(len(ctrl)),
@@ -301,8 +334,15 @@ def off_stack(scans, cuts, seed, info):
         ctol = max(3, tol_hz(dt, d) / abs(fo))
         width = 2 * int(np.ceil(ctol)) + 3
         ms = [m for m in range(-25, 26) if abs(m) >= 3]
-        res = dd.track_multi(cu["data"], fo, cu["tsamp"], [k] + [k + m * width for m in ms], d,
-                             chan_tol=ctol, drift_tol=0.05 + 0.25 * abs(d))
+        res = dd.track_multi(
+            cu["data"],
+            fo,
+            cu["tsamp"],
+            [k] + [k + m * width for m in ms],
+            d,
+            chan_tol=ctol,
+            drift_tol=0.05 + 0.25 * abs(d),
+        )
         per.append((res[0], dict(zip(ms, res[1:]))))
     if len(per) < 2 or any(r[0]["snr"] is None for r in per):
         return None
@@ -312,8 +352,10 @@ def off_stack(scans, cuts, seed, info):
         return None
     sums = np.array([sum(q[1][m]["snr"] for q in per) for m in common])
     return {
-        "n_off_scans": len(per), "sum_track_snr": round(float(total), 1),
-        "n_controls": int(len(sums)), "control_sum_median": round(float(np.median(sums)), 1),
+        "n_off_scans": len(per),
+        "sum_track_snr": round(float(total), 1),
+        "n_controls": int(len(sums)),
+        "control_sum_median": round(float(np.median(sums)), 1),
         "control_sum_p95": round(float(np.percentile(sums, 95)), 1),
         "control_sum_max": round(float(sums.max()), 1),
         "margin_over_control_max": round(float(total - sums.max()), 1),
@@ -413,40 +455,70 @@ def clock_probes(scans, cuts, seed, info):
     frequency and drifts every harmonic by the same fraction."""
     c = cuts[seed]
     if "band_mhz" not in c:
-        return {"done": False, "reason": "only done for filterbank files; in HDF5 files "
-                "each probe costs a full 60 MB chunk per scan"}
+        return {
+            "done": False,
+            "reason": "only done for filterbank files; in HDF5 files "
+            "each probe costs a full 60 MB chunk per scan",
+        }
     f, d = info["freq_mhz"], info["drift"]
-    offs = [i for i, s in enumerate(scans) if s["role"] == "OFF" and "error" not in cuts[i]]
-    near_off = min(offs, key=lambda i: abs(cuts[i]["tstart"] - c["tstart"]), default=None)
+    offs = [
+        i for i, s in enumerate(scans) if s["role"] == "OFF" and "error" not in cuts[i]
+    ]
+    near_off = min(
+        offs, key=lambda i: abs(cuts[i]["tstart"] - c["tstart"]), default=None
+    )
     half = 0.02 + 0.1 * abs(d)
     lo, hi = c["band_mhz"]
     flagged = [h for h in checks.harmonics(f) if h["within_tol"]]
     best = min(flagged, key=lambda h: h["p_chance"], default=None)
-    ppm = None if best is None else best["residual_khz"] * 1e3 / (best["multiple"] * best["clock_mhz"])
+    ppm = (
+        None
+        if best is None
+        else best["residual_khz"] * 1e3 / (best["multiple"] * best["clock_mhz"])
+    )
 
     def probe(fp):
         on = _fetch((scans[seed]["url"], fp, 2.0))
         if "error" in on:
             return None
         fo = on["foff"] * 1e6
-        hits = dd.search(on["data"], fo, on["tsamp"], snr_min=8, top=3,
-                         drift_center=d, drift_half=half)
+        hits = dd.search(
+            on["data"],
+            fo,
+            on["tsamp"],
+            snr_min=8,
+            top=3,
+            drift_center=d,
+            drift_half=half,
+        )
         if not hits:
             return {}
         h = hits[0]
         fh = _freq(on, h["chan"])
-        row = {"found_freq_mhz": round(fh, 6), "offset_hz": round((fh - fp) * 1e6, 1),
-               "drift": round(h["drift"], 4), "snr": round(h["snr"], 1), "off_snr": None,
-               "chan_hz": abs(fo),
-               "drift_step": dd.drift_step(fo, on["tsamp"], on["data"].shape[0])}
+        row = {
+            "found_freq_mhz": round(fh, 6),
+            "offset_hz": round((fh - fp) * 1e6, 1),
+            "drift": round(h["drift"], 4),
+            "snr": round(h["snr"], 1),
+            "off_snr": None,
+            "chan_hz": abs(fo),
+            "drift_step": dd.drift_step(fo, on["tsamp"], on["data"].shape[0]),
+        }
         if near_off is not None:
             of = _fetch((scans[near_off]["url"], fp, 2.0))
             if "error" not in of:
                 fo2 = of["foff"] * 1e6
                 dt = (of["tstart"] - on["tstart"]) * 86400.0
                 k = ((fh + h["drift"] * dt * 1e-6) - of["fch1"]) / of["foff"]
-                r = dd.track(of["data"], fo2, of["tsamp"], k, d,
-                             chan_tol=max(3, tol_hz(dt, d) / abs(fo2)), drift_tol=half + 0.03)
+                r = dd.track(
+                    of["data"],
+                    fo2,
+                    of["tsamp"],
+                    k,
+                    d,
+                    chan_tol=max(3, tol_hz(dt, d) / abs(fo2)),
+                    drift_tol=half + 0.03,
+                )
                 row["off_snr"] = None if r["snr"] is None else round(r["snr"], 1)
         return row
 
@@ -471,7 +543,8 @@ def clock_probes(scans, cuts, seed, info):
                 row["expected_offset_if_one_oscillator_hz"] = round(exp_off, 1)
                 row["matches_one_oscillator"] = bool(
                     abs(r["offset_hz"] - exp_off) <= 2 * chan
-                    and abs(r["drift"] - exp_drift) <= 2 * step)
+                    and abs(r["drift"] - exp_drift) <= 2 * step
+                )
             found.append(row)
     rng = np.random.default_rng(1)
     ctrl_found = ctrl_done = 0
@@ -485,20 +558,37 @@ def clock_probes(scans, cuts, seed, info):
         ctrl_done += 1
         ctrl_found += bool(r)
     return {
-        "done": True, "drift_window_hz_s": [round(d - half, 4), round(d + half, 4)],
+        "done": True,
+        "drift_window_hz_s": [round(d - half, 4), round(d + half, 4)],
         "off_scan": None if near_off is None else scans[near_off]["source"],
-        "n_probe_frequencies": n_done, "n_with_same_drift_signal": len(found),
-        "control_random_frequencies": {"n": ctrl_done, "n_with_same_drift_signal": ctrl_found},
-        "candidate_clock": None if best is None else {
-            "clock_mhz": best["clock_mhz"], "multiple": best["multiple"],
-            "candidate_offset_ppm": round(ppm, 3)},
-        "n_matching_one_oscillator": sum(1 for r in found if r.get("matches_one_oscillator")),
+        "n_probe_frequencies": n_done,
+        "n_with_same_drift_signal": len(found),
+        "control_random_frequencies": {
+            "n": ctrl_done,
+            "n_with_same_drift_signal": ctrl_found,
+        },
+        "candidate_clock": None
+        if best is None
+        else {
+            "clock_mhz": best["clock_mhz"],
+            "multiple": best["multiple"],
+            "candidate_offset_ppm": round(ppm, 3),
+        },
+        "n_matching_one_oscillator": sum(
+            1 for r in found if r.get("matches_one_oscillator")
+        ),
         # chance that an unrelated same-drift signal in a probe cutout lands on the
         # one-oscillator prediction: (4 channels / 4 kHz cutout) x (4 drift steps / window)
         "p_chance_match_per_probe": round(
             (4 * c["foff"] * 1e6 / 4000.0).__abs__()
-            * min(1.0, 4 * dd.drift_step(c["foff"] * 1e6, c["tsamp"], c["data"].shape[0])
-                  / (2 * half)), 5),
+            * min(
+                1.0,
+                4
+                * dd.drift_step(c["foff"] * 1e6, c["tsamp"], c["data"].shape[0])
+                / (2 * half),
+            ),
+            5,
+        ),
         "found": found,
     }
 
@@ -537,14 +627,22 @@ def plot(case, scans, cuts, info, seed, path):
         # mark where the track is predicted with triangles on the panel edges
         # only: a line drawn through the data gets read as a signal
         ax.plot([d_seed * dt * 1e-3], [0], marker="v", color="red", ms=6, clip_on=False)
-        ax.plot([d_seed * (dt + dur) * 1e-3], [dur], marker="^", color="red", ms=6,
-                clip_on=False)
+        ax.plot(
+            [d_seed * (dt + dur) * 1e-3],
+            [dur],
+            marker="^",
+            color="red",
+            ms=6,
+            clip_on=False,
+        )
         ax.set_xlim(-2.5, 2.5)
         ax.set_ylabel(f"{s['role']} {c['source_name']}\nt (s)", fontsize=7)
         ax.tick_params(labelsize=7)
     axes[-1, 0].set_xlabel(
         f"offset from {f_seed:.6f} MHz (kHz). Red triangles on panel edges = predicted "
-        "track start/end (annotation, not data)", fontsize=8)
+        "track start/end (annotation, not data)",
+        fontsize=8,
+    )
     fig.suptitle(
         f"{case['id']}  {case['target']}  drift {d_seed:+.4f} Hz/s", fontsize=10
     )
@@ -585,7 +683,9 @@ def apply_injection(case, scans, cuts):
         if "error" in cu:
             continue
         nt, nf = cu["data"].shape
-        gains = np.clip(1 + flicker * rng.standard_normal(nt), 0.0, None)  # drawn for every scan
+        gains = np.clip(
+            1 + flicker * rng.standard_normal(nt), 0.0, None
+        )  # drawn for every scan
         if amp <= 0:
             continue
         data = cu["data"]
@@ -595,14 +695,16 @@ def apply_injection(case, scans, cuts):
         dt0 = (cu["tstart"] - t0) * 86400.0
         for i in range(nt):
             fa, fb = freq(dt0 + i * cu["tsamp"]), freq(dt0 + (i + 1) * cu["tsamp"])
-            ka, kb = sorted(((fa - cu["fch1"]) / cu["foff"], (fb - cu["fch1"]) / cu["foff"]))
+            ka, kb = sorted(
+                ((fa - cu["fch1"]) / cu["foff"], (fb - cu["fch1"]) / cu["foff"])
+            )
             lo, hi = int(np.floor(ka)), int(np.floor(kb))
             if lo < 0 or hi >= nf:
                 continue
             # share the row's power among the channels crossed during the row
             w = np.diff(np.clip(np.arange(lo, hi + 2), ka, kb))
             w = w / w.sum() if w.sum() > 0 else np.ones(hi - lo + 1) / (hi - lo + 1)
-            data[i, lo:hi + 1] += power * gains[i] * w
+            data[i, lo : hi + 1] += power * gains[i] * w
 
 
 def run(case, verbose=True):
@@ -612,10 +714,18 @@ def run(case, verbose=True):
     missing = [s["name"] for s in scans if not s.get("url")]
     half = case.get("half_khz", max(5.0, abs(case.get("drift", 0.0)) * 2.5 + 3.0))
     jobs = [(s["url"], case["freq_mhz"], half) for s in scans if s.get("url")]
-    with ProcessPoolExecutor(max_workers=min(6, len(jobs)), initializer=_quiet_worker) as ex:
+    if not jobs:
+        raise NoData(
+            f"the public archive lists no file for any of the {len(scans)} scans"
+        )
+    with ProcessPoolExecutor(
+        max_workers=min(6, len(jobs)), initializer=_quiet_worker
+    ) as ex:
         got = iter(list(ex.map(_fetch, jobs)))
-    cuts = [next(got) if s.get("url") else {"error": "no public file found", "url": None}
-            for s in scans]
+    cuts = [
+        next(got) if s.get("url") else {"error": "no public file found", "url": None}
+        for s in scans
+    ]
     if "inject" in case:
         apply_injection(case, scans, cuts)
     seed, info = pick_seed(case, scans, cuts, half)
@@ -624,23 +734,39 @@ def run(case, verbose=True):
     f, d = info["freq_mhz"], info["drift"]
     bundle = {
         "case": {k: v for k, v in case.items() if k != "scans"},
-        "site": site, "seed": info, "scans": rows, "files_missing": missing,
+        "site": site,
+        "seed": info,
+        "scans": rows,
+        "files_missing": missing,
         "harmonics_within_5khz": [h for h in checks.harmonics(f) if h["within_tol"]],
         "allocation": checks.allocation(f),
     }
     if c.get("ra_hours") is not None:
-        bundle["pointing"] = {"ra_hours": round(c["ra_hours"], 5),
-                              "dec_deg": round(c["dec_deg"], 4), "note": c.get("dec_note")}
-        bundle["geometry"] = checks.geometry(c["ra_hours"], c["dec_deg"], c["tstart"], site)
+        bundle["pointing"] = {
+            "ra_hours": round(c["ra_hours"], 5),
+            "dec_deg": round(c["dec_deg"], 4),
+            "note": c.get("dec_note"),
+        }
+        bundle["geometry"] = checks.geometry(
+            c["ra_hours"], c["dec_deg"], c["tstart"], site
+        )
         bundle["expected_drift_barycentric_rest"] = checks.expected_drift(
-            c["ra_hours"], c["dec_deg"], c["tstart"], site, f)
+            c["ra_hours"], c["dec_deg"], c["tstart"], site, f
+        )
     if con is not None:
-        bundle["lookalikes_1khz"] = checks.lookalikes(con, f, d, case["target"], c["tstart"])
-        wide = checks.lookalikes(con, f, d, case["target"], c["tstart"], window_hz=10000.0, top=0)
-        bundle["lookalikes_10khz"] = {k: v for k, v in wide.items() if k != "strongest_other"}
+        bundle["lookalikes_1khz"] = checks.lookalikes(
+            con, f, d, case["target"], c["tstart"]
+        )
+        wide = checks.lookalikes(
+            con, f, d, case["target"], c["tstart"], window_hz=10000.0, top=0
+        )
+        bundle["lookalikes_10khz"] = {
+            k: v for k, v in wide.items() if k != "strongest_other"
+        }
         if cad:
             bundle["neighbourhood"] = checks.neighbourhood(
-                con, f, d, [s["file_id"] for s in cad])
+                con, f, d, [s["file_id"] for s in cad]
+            )
     if info["recovered"]:
         bundle["off_scans_stacked"] = off_stack(scans, cuts, seed, info)
     if info["recovered"] and case.get("twins", True):
@@ -657,36 +783,56 @@ def run(case, verbose=True):
             blind_cuts.append(cu)
             continue
         n_off += s_["role"] == "OFF"
-        blind_cuts.append({**cu, "source_name": "target" if s_["role"] == "ON"
-                           else f"pointing {n_off}"})
-    plot({"id": code_for(case["id"]), "target": ""}, scans, blind_cuts, info, seed,
-         out / "waterfall_blind.png")
+        blind_cuts.append(
+            {
+                **cu,
+                "source_name": "target" if s_["role"] == "ON" else f"pointing {n_off}",
+            }
+        )
+    plot(
+        {"id": code_for(case["id"]), "target": ""},
+        scans,
+        blind_cuts,
+        info,
+        seed,
+        out / "waterfall_blind.png",
+    )
     (out / "evidence.json").write_text(json.dumps(bundle, indent=1))
     led = ledger.connect()
     ledger.add_case(led, {**case, "site": site})
     ledger.add_evidence(led, case["id"], out / "evidence.json", info)
     if verbose:
-        print(f"{case['id']}: seed pos {info['seed_pos']} recovered={info['recovered']} "
-              f"snr={info['snr']} f={f:.6f} d={d:+.4f} "
-              f"offset={info.get('offset_from_catalogue_hz')}Hz")
+        print(
+            f"{case['id']}: seed pos {info['seed_pos']} recovered={info['recovered']} "
+            f"snr={info['snr']} f={f:.6f} d={d:+.4f} "
+            f"offset={info.get('offset_from_catalogue_hz')}Hz"
+        )
         for r in rows:
             if "error" in r:
-                print(f"  {r['pos']} {r['role']:3} {str(r['source']):12} ERROR {r['error']}")
+                print(
+                    f"  {r['pos']} {r['role']:3} {str(r['source']):12} ERROR {r['error']}"
+                )
             else:
                 cw = r["control_windows"] or {}
-                print(f"  {r['pos']} {r['role']:3} {str(r['source']):12} dt={r['dt_s']:>8} "
-                      f"track_snr={r['track']['snr']} controls_max={cw.get('max_snr')} "
-                      f"exceeds={r['track_exceeds_all_controls']}")
+                print(
+                    f"  {r['pos']} {r['role']:3} {str(r['source']):12} dt={r['dt_s']:>8} "
+                    f"track_snr={r['track']['snr']} controls_max={cw.get('max_snr')} "
+                    f"exceeds={r['track_exceeds_all_controls']}"
+                )
         tw = bundle.get("same_drift_twins")
         if tw and "error" not in tw:
-            print(f"  twins: {tw['n_twins_on']} in ON, {tw['n_twins_also_in_off']} also in OFF")
+            print(
+                f"  twins: {tw['n_twins_on']} in ON, {tw['n_twins_also_in_off']} also in OFF"
+            )
         cp = bundle.get("clock_probes")
         if cp and cp.get("done"):
             cr = cp["control_random_frequencies"]
-            print(f"  clock probes: {cp['n_with_same_drift_signal']} of "
-                  f"{cp['n_probe_frequencies']} show a same-drift signal; random controls "
-                  f"{cr['n_with_same_drift_signal']} of {cr['n']}; "
-                  f"{cp['n_matching_one_oscillator']} match one oscillator")
+            print(
+                f"  clock probes: {cp['n_with_same_drift_signal']} of "
+                f"{cp['n_probe_frequencies']} show a same-drift signal; random controls "
+                f"{cr['n_with_same_drift_signal']} of {cr['n']}; "
+                f"{cp['n_matching_one_oscillator']} match one oscillator"
+            )
     return bundle
 
 

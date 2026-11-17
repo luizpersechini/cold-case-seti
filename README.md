@@ -73,7 +73,7 @@ limits for download volume, time and AI spending.
 
 ## What it has shown so far
 
-Snapshot of 12 November 2026.
+Snapshot of 16 November 2026, after the first full pass over the queue.
 
 **Known answers**
 
@@ -89,9 +89,16 @@ Snapshot of 12 November 2026.
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 60 so far                        | 35 of 40                   | 0                        | 16 of 20          |
+| Running controls, 1,410 over the whole queue       | 875 of 940                 | 13                       | 339 of 470        |
 
-The sky-only signals that were not left open were too weak to recover at all.
+In the first two tests, every sky-only signal that was not left open was too
+weak to recover at all. Over the whole queue that is true of 52 of the 65. The
+other 13 were recovered and then closed by a rule: 8 as seen toward another
+star, 3 as seen off the star, 2 as bursts. That is 1.5% of the 888 recovered.
+An injected signal exists only in the on-star scans, so in each of these the
+rule reacted to something else at the same place in the data. They have not
+been examined one by one.
+
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
 
@@ -101,11 +108,14 @@ interference, arguing from the band and the surroundings. After the rule
 became "close only on direct evidence", they kept 20 of 21. The open-or-closed
 decision now belongs to code, and the readers only rank.
 
-**The queue.** 131 of 762 cases closed so far: 88 bursts, 33 with no signal at
-the catalogue position, 8 lines of one comb, 2 seen off the star. Six events
-are open, all rated low priority. One group of eight "candidates" turned out
-to be lines spaced by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a
-digital clock rate.
+**The queue.** All 762 cases have had a first pass, and 677 are closed: 566
+bursts, 69 with no signal at the catalogue position, 30 seen off the star, 8
+lines of one comb, 4 seen toward another star. One case has no public data.
+The other 84 hits stay open and form 68 events. The AI readers have rated 22
+of those so far: none high, and one got a medium from one of the two readers.
+The other 46 wait for the next month's reading budget. One group of eight
+"candidates" turned out to be lines spaced by exactly 131.072 kHz, which is
+2<sup>17</sup> Hz: a digital clock rate.
 
 <p align="center">
   <img src="docs/img/dashboard.jpg" width="720" alt="The runner's dashboard: queue progress, budget, the cases of the last run as tiles, the latest plot, and the queue laid out along the spectrum.">
@@ -186,7 +196,9 @@ trigger.
   beam during an on-star scan can stay open.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them.
+  controls are the real test of them: the rules closed 13 of 888 recovered
+  sky-only signals that should have stayed open, and missed 131 of 470 weak
+  leaks.
 - There are no unit tests yet.
 
 ## Data and credit

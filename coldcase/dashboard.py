@@ -152,7 +152,11 @@ def open_cases(con):
                 if s["role"] == "ON" and "error" not in s
             ]
         fam = b.get("family") if ev.exists() else None
-        related = "" if not fam else f"+{fam['n_lines'] - 1} over {fam['span_khz'] / 1e3:.2f} MHz"
+        related = (
+            ""
+            if not fam
+            else f"+{fam['n_lines'] - 1} over {fam['span_khz'] / 1e3:.2f} MHz"
+        )
         best = min((PRIORITY.get(x, 3) for x in pr), default=4)
         try:
             from . import rank as rank_mod
@@ -245,8 +249,11 @@ def build():
         f"<style>{CSS}{liveview.CSS}</style></head><body><main>",
         "<h1>Cold Case runner</h1>",
         f"<div class='sub'>Updated {datetime.now().astimezone().strftime('%d %b %Y %H:%M:%S')}. "
-        + ("A batch is running: the page reloads every 5 seconds.</div>" if g["running"]
-           else "The page reloads every minute; the runner rewrites it at every check.</div>"),
+        + (
+            "A batch is running: the page reloads every 5 seconds.</div>"
+            if g["running"]
+            else "The page reloads every minute; the runner rewrites it at every check.</div>"
+        ),
         "<div class='grid'>",
     ]
     # state
@@ -264,8 +271,11 @@ def build():
         )
     h.append(
         "<div id='ctl' style='display:none;margin-top:12px'>"
-        + ("<button class='stop' onclick=\"act('stop')\">Stop the run</button>" if g["running"]
-           else "<button onclick=\"act('run')\">Run a batch now</button>")
+        + (
+            "<button class='stop' onclick=\"act('stop')\">Stop the run</button>"
+            if g["running"]
+            else "<button onclick=\"act('run')\">Run a batch now</button>"
+        )
         + " <span id='ctlmsg' class='muted' style='margin-left:8px'></span></div>"
         "<div id='ctlhint' class='muted' style='margin-top:8px;font-size:13px'>To start a "
         "batch now, double-click <b>Run now.command</b> in the project folder.</div>"
@@ -275,7 +285,8 @@ def build():
         "function act(w){fetch('/'+w,{method:'POST',headers:{'X-ColdCase':'1'}})"
         ".then(function(r){return r.text()}).then(function(t){"
         "document.getElementById('ctlmsg').textContent=t;"
-        "setTimeout(function(){location.reload()},2500);});}</script>")
+        "setTimeout(function(){location.reload()},2500);});}</script>"
+    )
     h.append("</div>")
     # queue
     h.append(
@@ -290,7 +301,8 @@ def build():
         f"{f' ({unread} not yet read)' if unread else ''}</span>"
         f"<span><i class='dot' style='background:var(--retry)'></i>retry {n['retry']}</span>"
         f"<span><i class='dot' style='background:var(--pending)'></i>pending {n['pending']}"
-        "</span></div></div>"
+        f"</span>{f'<span>no public data {n["no_data"]}</span>' if n['no_data'] else ''}"
+        "</div></div>"
     )
     # budget
     h.append(
@@ -342,22 +354,36 @@ def build():
         cs_sum = controls_mod.summary(con)
     except Exception:
         cs_sum = {}
-    h.append("<div class='card' style='margin-bottom:14px'><h2>Blind controls (synthetic signals "
-             "added to each download group)</h2><table><tr><th>Kind</th><th>Band</th>"
-             "<th>Injected</th><th>Recovered</th><th>Left open</th>"
-             "<th>Closed by a rule</th><th>What is wanted</th></tr>")
-    want = {"sky_persistent": "left open", "sky_intermittent": "left open",
-            "leak": "closed by a rule"}
-    names = {"sky_persistent": "Sky-only, all scans", "sky_intermittent": "Sky-only, some scans",
-             "leak": "Weak leak off-target"}
-    for (kind, band), d in sorted(cs_sum.items(), key=lambda kv: (kv[0][0], kv[0][1] != "all")):
-        h.append(f"<tr><td>{names.get(kind, kind) if band == 'all' else ''}</td>"
-                 f"<td>{'all' if band == 'all' else esc(band)}</td><td>{d['n']}</td>"
-                 f"<td>{d['recovered']}</td><td>{d['open']}</td><td>{d['closed_by_rule']}</td>"
-                 f"<td class='muted'>{want.get(kind, '') if band == 'all' else ''}</td></tr>")
+    h.append(
+        "<div class='card' style='margin-bottom:14px'><h2>Blind controls (synthetic signals "
+        "added to each download group)</h2><table><tr><th>Kind</th><th>Band</th>"
+        "<th>Injected</th><th>Recovered</th><th>Left open</th>"
+        "<th>Closed by a rule</th><th>What is wanted</th></tr>"
+    )
+    want = {
+        "sky_persistent": "left open",
+        "sky_intermittent": "left open",
+        "leak": "closed by a rule",
+    }
+    names = {
+        "sky_persistent": "Sky-only, all scans",
+        "sky_intermittent": "Sky-only, some scans",
+        "leak": "Weak leak off-target",
+    }
+    for (kind, band), d in sorted(
+        cs_sum.items(), key=lambda kv: (kv[0][0], kv[0][1] != "all")
+    ):
+        h.append(
+            f"<tr><td>{names.get(kind, kind) if band == 'all' else ''}</td>"
+            f"<td>{'all' if band == 'all' else esc(band)}</td><td>{d['n']}</td>"
+            f"<td>{d['recovered']}</td><td>{d['open']}</td><td>{d['closed_by_rule']}</td>"
+            f"<td class='muted'>{want.get(kind, '') if band == 'all' else ''}</td></tr>"
+        )
     if not cs_sum:
-        h.append("<tr><td class='muted' colspan='7'>No controls yet; they start with the next "
-                 "runner batch</td></tr>")
+        h.append(
+            "<tr><td class='muted' colspan='7'>No controls yet; they start with the next "
+            "runner batch</td></tr>"
+        )
     h.append("</table></div>")
     # open cases
     h.append(
@@ -367,7 +393,24 @@ def build():
         "<th>Context suspicion</th><th>Plot</th></tr>"
     )
     oc = open_cases(con)
-    for _, _, _, cid, target, f, d, on, pr, cs, status, note, disputed, verd, related, rk in oc:
+    for (
+        _,
+        _,
+        _,
+        cid,
+        target,
+        f,
+        d,
+        on,
+        pr,
+        cs,
+        status,
+        note,
+        disputed,
+        verd,
+        related,
+        rk,
+    ) in oc:
         if status == "open_unread":
             prio = f"<span class='muted'>not read yet ({esc(note)})</span>"
         elif disputed:

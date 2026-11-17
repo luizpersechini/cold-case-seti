@@ -226,8 +226,10 @@ def status():
         f"idle now: {idle_seconds() / 60:.1f} min; on mains power: {on_ac_power()}; "
         f"API key present: {readers.api_key() is not None}"
     )
-    print(f"Jev tokens this month: {jev.month_tokens():,} of "
-          f"{cfg['jev']['tokens_per_month']:,}; Jev key present: {jev.api_key() is not None}")
+    print(
+        f"Jev tokens this month: {jev.month_tokens():,} of "
+        f"{cfg['jev']['tokens_per_month']:,}; Jev key present: {jev.api_key() is not None}"
+    )
     print("limits:", json.dumps(cfg))
 
 
@@ -266,15 +268,24 @@ def _presence(bundle):
     """Which ON scans hold the signal: track S/N of at least 6 and at least
     15% of the case's strongest scan. Control windows are not used here,
     because inside a family the neighbouring lines sit in them."""
-    snrs = [s["track"].get("snr") or 0 for s in bundle["scans"]
-            if s["role"] == "ON" and "error" not in s]
+    snrs = [
+        s["track"].get("snr") or 0
+        for s in bundle["scans"]
+        if s["role"] == "ON" and "error" not in s
+    ]
     top = max(snrs, default=0)
     return tuple(x >= 6 and x >= 0.15 * top for x in snrs)
 
 
 def _strength(bundle):
-    return max((s["track"]["snr"] or 0 for s in bundle["scans"]
-                if s["role"] == "ON" and "error" not in s), default=0)
+    return max(
+        (
+            s["track"]["snr"] or 0
+            for s in bundle["scans"]
+            if s["role"] == "ON" and "error" not in s
+        ),
+        default=0,
+    )
 
 
 def make_families(items):
@@ -295,12 +306,17 @@ def family_info(members):
         "n_lines": len(members),
         "span_khz": round((max(freqs) - min(freqs)) * 1e3, 1),
         "on_scans_present": list(_presence(rep)),
-        "other_lines": [{"offset_khz": round((b["seed"]["freq_mhz"] - f0) * 1e3, 3),
-                         "drift": b["seed"]["drift"],
-                         "strongest_on_snr": round(_strength(b), 1)} for _, b in members[1:41]],
+        "other_lines": [
+            {
+                "offset_khz": round((b["seed"]["freq_mhz"] - f0) * 1e3, 3),
+                "drift": b["seed"]["drift"],
+                "strongest_on_snr": round(_strength(b), 1),
+            }
+            for _, b in members[1:41]
+        ],
         "note": "other catalogue hits in the same data chunk that are open and appear in the "
-                "same ON scans as this one; all are treated as one event and this is the "
-                "strongest line",
+        "same ON scans as this one; all are treated as one event and this is the "
+        "strongest line",
     }
 
 
@@ -324,26 +340,41 @@ def _set_family(con, members, cases):
     comb = None
     if len(members) >= 4:
         f0 = rep_b["seed"]["freq_mhz"]
-        comb = triage.family_comb([(b["seed"]["freq_mhz"] - f0) * 1e6 for _, b in members[1:]])
+        comb = triage.family_comb(
+            [(b["seed"]["freq_mhz"] - f0) * 1e6 for _, b in members[1:]]
+        )
         if comb and comb["round_clock"]:
-            why = (f"D2: {comb['lines_on_comb'] + 1} of {len(members)} lines of this event are "
-                   f"spaced by multiples of {comb['spacing_khz']} kHz ({comb['round_clock']}), "
-                   "a human clock rate")
+            why = (
+                f"D2: {comb['lines_on_comb'] + 1} of {len(members)} lines of this event are "
+                f"spaced by multiples of {comb['spacing_khz']} kHz ({comb['round_clock']}), "
+                "a human clock rate"
+            )
             for cid, _ in members:
-                ledger.add_verdict(ledger.connect(), {
-                    "case_id": cid, "role": "triage", "agent": "code",
-                    "verdict": "rfi_identified", "confidence": 1.0, "rationale": why,
-                    "evidence_refs": [why]})
+                ledger.add_verdict(
+                    ledger.connect(),
+                    {
+                        "case_id": cid,
+                        "role": "triage",
+                        "agent": "code",
+                        "verdict": "rfi_identified",
+                        "confidence": 1.0,
+                        "rationale": why,
+                        "evidence_refs": [why],
+                    },
+                )
                 set_status(con, cid, "closed", "rfi_identified")
-            log(f"{rep_id} closed with {len(members) - 1} related lines: rfi_identified, "
-                f"comb at {comb['spacing_khz']} kHz ({comb['round_clock']})")
+            log(
+                f"{rep_id} closed with {len(members) - 1} related lines: rfi_identified, "
+                f"comb at {comb['spacing_khz']} kHz ({comb['round_clock']})"
+            )
             return None
     if len(members) > 1:
         rep_b["family"] = family_info(members)
         if comb:
             rep_b["family"]["comb"] = comb
         (ROOT / "cases" / "evidence" / rep_id / "evidence.json").write_text(
-            json.dumps(rep_b, indent=1))
+            json.dumps(rep_b, indent=1)
+        )
         for cid, _ in members[1:]:
             set_status(con, cid, "open_member", rep_id)
             log(f"{cid} open; same event as {rep_id}")
@@ -354,21 +385,45 @@ def _set_family(con, members, cases):
 def _case_from_queue(con, case_id):
     target, f, d, mjd, cls, n_on = con.execute(
         "select target, freq_mhz, drift, mjd, cls, n_on from queue where case_id=?",
-        (case_id,)).fetchone()
-    return {"id": case_id, "origin": f"queue: {cls}, {n_on} ON scan(s)", "target": target,
-            "site": "GBT", "freq_mhz": f, "drift": d, "mjd": mjd, "freq_exact": True}
+        (case_id,),
+    ).fetchone()
+    return {
+        "id": case_id,
+        "origin": f"queue: {cls}, {n_on} ON scan(s)",
+        "target": target,
+        "site": "GBT",
+        "freq_mhz": f,
+        "drift": d,
+        "mjd": mjd,
+        "freq_exact": True,
+    }
 
 
 def regroup():
     """Apply the family rule to open cases that were handled one by one."""
     con = queue_db()
-    grps = [r[0] for r in con.execute(
-        "select distinct grp from queue where status in ('open', 'open_unread')").fetchall()]
+    grps = [
+        r[0]
+        for r in con.execute(
+            "select distinct grp from queue where status in ('open', 'open_unread')"
+        ).fetchall()
+    ]
     for g in grps:
-        ids = [r[0] for r in con.execute(
-            "select case_id from queue where grp=? and status like 'open%'", (g,)).fetchall()]
-        items = [(cid, json.loads((ROOT / "cases" / "evidence" / cid / "evidence.json").read_text()))
-                 for cid in ids]
+        ids = [
+            r[0]
+            for r in con.execute(
+                "select case_id from queue where grp=? and status like 'open%'", (g,)
+            ).fetchall()
+        ]
+        items = [
+            (
+                cid,
+                json.loads(
+                    (ROOT / "cases" / "evidence" / cid / "evidence.json").read_text()
+                ),
+            )
+            for cid in ids
+        ]
         cases = {cid: _case_from_queue(con, cid) for cid in ids}
         for members in make_families(items):
             if len(members) < 2:
@@ -400,22 +455,35 @@ def _run(force=False, dry=False, max_groups=None, now=False):
             print("on battery; nothing done")
             return
     con = queue_db()
-    groups = [r[0] for r in con.execute(
-        "select grp from queue where status in ('pending', 'retry') group by grp "
-        "order by min(rank)").fetchall()]
+    groups = [
+        r[0]
+        for r in con.execute(
+            "select grp from queue where status in ('pending', 'retry') group by grp "
+            "order by min(rank)"
+        ).fetchall()
+    ]
     if dry:
-        print(f"would work on up to {max_groups or 'all'} of {len(groups)} pending groups; "
-              f"first: {groups[:3]}; runner tokens this month {month_tokens():,}")
+        print(
+            f"would work on up to {max_groups or 'all'} of {len(groups)} pending groups; "
+            f"first: {groups[:3]}; runner tokens this month {month_tokens():,}"
+        )
         return
     if LOCK.exists():
         pid = LOCK.read_text().strip()
-        if pid.isdigit() and subprocess.run(["kill", "-0", pid], capture_output=True).returncode == 0:
+        if (
+            pid.isdigit()
+            and subprocess.run(["kill", "-0", pid], capture_output=True).returncode == 0
+        ):
             print(f"another run is active (pid {pid}); nothing done")
             return
     LOCK.write_text(str(os.getpid()))
     _state.clear()
-    set_state(pid=os.getpid(), step="starting", groups_done=0,
-              run_started=datetime.now(timezone.utc).isoformat(timespec="seconds"))
+    set_state(
+        pid=os.getpid(),
+        step="starting",
+        groups_done=0,
+        run_started=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    )
     stop_refresh = threading.Event()
     threading.Thread(target=_refresher, args=(stop_refresh,), daemon=True).start()
     t0, net_mb, tokens, n_groups, n_cases = time.time(), 0.0, 0, 0, 0
@@ -443,18 +511,28 @@ def _run(force=False, dry=False, max_groups=None, now=False):
         try:
             used, done = read_open_case(client, system, case_id, tokens, cfg)
         except Exception as e:
-            set_status(con, case_id, "open_unread", f"reader failed: {type(e).__name__}")
+            set_status(
+                con, case_id, "open_unread", f"reader failed: {type(e).__name__}"
+            )
             log(f"{case_id} open; reader failed: {type(e).__name__}: {e}"[:200])
             return True
         tokens += used
-        set_status(con, case_id, "open" if done else "open_unread", "" if done else "token limit")
-        log(f"{case_id} open; {'read' if done else 'not read, token limit'} ({used} tokens)")
+        set_status(
+            con,
+            case_id,
+            "open" if done else "open_unread",
+            "" if done else "token limit",
+        )
+        log(
+            f"{case_id} open; {'read' if done else 'not read, token limit'} ({used} tokens)"
+        )
         return done
 
     try:
         # open cases left unread earlier come first
         for (case_id,) in con.execute(
-                "select case_id from queue where status='open_unread' order by case_id").fetchall():
+            "select case_id from queue where status='open_unread' order by case_id"
+        ).fetchall():
             if not read(case_id):
                 break
         for g in groups:
@@ -470,18 +548,40 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                 log("stopping: the Mac is in use again")
                 break
             complete, opened, cases = True, [], {}
-            ids = [r[0] for r in con.execute(
-                "select case_id from queue where grp=? and status in ('pending', 'retry') "
-                "order by case_id", (g,)).fetchall()]
+            ids = [
+                r[0]
+                for r in con.execute(
+                    "select case_id from queue where grp=? and status in ('pending', 'retry') "
+                    "order by case_id",
+                    (g,),
+                ).fetchall()
+            ]
             if ids:
                 first = _case_from_queue(con, ids[0])
-                set_state(group=g, target=first["target"], freq_mhz=first["freq_mhz"],
-                          n_cases=len(ids), i_case=0, step="download", groups_done=n_groups)
+                set_state(
+                    group=g,
+                    target=first["target"],
+                    freq_mhz=first["freq_mhz"],
+                    n_cases=len(ids),
+                    i_case=0,
+                    step="download",
+                    groups_done=n_groups,
+                )
             for i_case, case_id in enumerate(ids):
-                set_state(case=case_id, i_case=i_case, step="download" if i_case == 0 else "measure")
+                set_state(
+                    case=case_id,
+                    i_case=i_case,
+                    step="download" if i_case == 0 else "measure",
+                )
                 case = _case_from_queue(con, case_id)
                 try:
                     bundle = investigate.run(case, verbose=False)
+                except investigate.NoData as e:
+                    # nothing to measure and nothing to retry: record it and move on
+                    set_status(con, case_id, "no_data", str(e))
+                    log(f"{case_id} no data: {e}")
+                    complete = False  # no chunks, so no controls for this group
+                    continue
                 except BaseException as e:
                     if isinstance(e, KeyboardInterrupt):
                         raise
@@ -492,18 +592,28 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                     complete = False
                     continue
                 set_state(last_case=case_id)
-                net_mb += sum(s.get("net_mb", 0) for s in bundle["scans"] if "error" not in s)
+                net_mb += sum(
+                    s.get("net_mb", 0) for s in bundle["scans"] if "error" not in s
+                )
                 if any("error" in s for s in bundle["scans"]):
                     set_status(con, case_id, "retry", "a scan could not be read")
                     complete = False
                     continue
                 n_cases += 1
                 dec = triage.decide(bundle)
-                ledger.add_verdict(ledger.connect(), {
-                    "case_id": case_id, "role": "triage", "agent": "code",
-                    "verdict": dec["verdict"], "confidence": 1.0,
-                    "rationale": "; ".join(dec["direct_evidence"]) or "no direct evidence",
-                    "evidence_refs": dec["direct_evidence"]})
+                ledger.add_verdict(
+                    ledger.connect(),
+                    {
+                        "case_id": case_id,
+                        "role": "triage",
+                        "agent": "code",
+                        "verdict": dec["verdict"],
+                        "confidence": 1.0,
+                        "rationale": "; ".join(dec["direct_evidence"])
+                        or "no direct evidence",
+                        "evidence_refs": dec["direct_evidence"],
+                    },
+                )
                 if dec["status"] == "closed":
                     set_status(con, case_id, "closed", dec["verdict"])
                     log(f"{case_id} closed: {dec['verdict']}")
@@ -523,11 +633,17 @@ def _run(force=False, dry=False, max_groups=None, now=False):
             if complete and n_ctrl:
                 set_state(step="controls")
             if complete and n_ctrl:
-                avoid = [r[0] for r in con.execute(
-                    "select freq_mhz from queue where grp=?", (g,)).fetchall()]
+                avoid = [
+                    r[0]
+                    for r in con.execute(
+                        "select freq_mhz from queue where grp=?", (g,)
+                    ).fetchall()
+                ]
                 try:
                     for ccase, _, cdec in controls.run_group(g, avoid, n_ctrl):
-                        log(f"control {ccase['id']}: {cdec['status']} ({cdec['verdict']})")
+                        log(
+                            f"control {ccase['id']}: {cdec['status']} ({cdec['verdict']})"
+                        )
                         if cdec["status"] == "open":
                             path = controls.DIR / f"{ccase['id']}.json"
                             code, _ = brief.build(path)
@@ -544,10 +660,18 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                     set_state(step="rank")
                 for cid in to_rank:
                     try:
-                        jev.score_case(cid, client=jev_client, use_plot=cfg["jev"]["use_plot"],
-                                       cap=cfg["jev"]["tokens_per_month"])
+                        jev.score_case(
+                            cid,
+                            client=jev_client,
+                            use_plot=cfg["jev"]["use_plot"],
+                            cap=cfg["jev"]["tokens_per_month"],
+                        )
                     except Exception as e:
-                        log(f"Jev scoring failed for {cid}: {type(e).__name__}: {e}"[:200])
+                        log(
+                            f"Jev scoring failed for {cid}: {type(e).__name__}: {e}"[
+                                :200
+                            ]
+                        )
             if complete:
                 remote.clear_chunks()
             n_groups += 1
@@ -557,8 +681,10 @@ def _run(force=False, dry=False, max_groups=None, now=False):
         stop_refresh.set()
         set_state(step="idle")
         LOCK.unlink(missing_ok=True)
-        log(f"run end: {n_groups} groups, {n_cases} cases, {net_mb / 1000:.2f} GB, "
-            f"{tokens:,} tokens, {(time.time() - t0) / 60:.1f} min")
+        log(
+            f"run end: {n_groups} groups, {n_cases} cases, {net_mb / 1000:.2f} GB, "
+            f"{tokens:,} tokens, {(time.time() - t0) / 60:.1f} min"
+        )
 
 
 def run(force=False, dry=False, max_groups=None, now=False):
@@ -589,8 +715,12 @@ def main():
             if "--max-groups" in sys.argv
             else None
         )
-        run(force="--force" in sys.argv, dry="--dry-run" in sys.argv, max_groups=mg,
-            now="--now" in sys.argv)
+        run(
+            force="--force" in sys.argv,
+            dry="--dry-run" in sys.argv,
+            max_groups=mg,
+            now="--now" in sys.argv,
+        )
 
 
 if __name__ == "__main__":
