@@ -39,15 +39,17 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    noise floor. Off-star scans get the same careful look, and are also summed.
 4. **Close only on direct evidence.** Code closes a case when it finds one of:
 
-   | Evidence                     | Meaning                                                                  |
-   | ---------------------------- | ------------------------------------------------------------------------ |
-   | Seen off the star            | The same signal is measurable in scans pointed at empty sky              |
-   | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics     |
-   | Seen toward another star     | The same frequency and drift while the telescope looked elsewhere        |
-   | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone |
+   | Evidence                     | Meaning                                                                                             |
+   | ---------------------------- | --------------------------------------------------------------------------------------------------- |
+   | Seen off the star            | The same signal is measurable in scans pointed at empty sky                                         |
+   | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                |
+   | Seen toward another star     | The same frequency and drift while the telescope looked elsewhere                                   |
+   | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone                            |
+   | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
 
-   A fifth kind of evidence comes from step 5: the signal is back at the same
-   telescope frequency on another day.
+   The last row compares open events with each other, so it runs over the
+   open list after each batch. One more kind of evidence comes from step 5:
+   the signal is back at the same telescope frequency on another day.
 
    The band a signal sits in, or how busy it is, never closes a case. It only
    lowers its rank.
@@ -73,7 +75,7 @@ limits for download volume, time and AI spending.
 
 ## What it has shown so far
 
-Snapshot of 16 November 2026, after the first full pass over the queue.
+Snapshot of 17 November 2026, after the first full pass over the queue.
 
 **Known answers**
 
@@ -108,14 +110,38 @@ interference, arguing from the band and the surroundings. After the rule
 became "close only on direct evidence", they kept 20 of 21. The open-or-closed
 decision now belongs to code, and the readers only rank.
 
-**The queue.** All 762 cases have had a first pass, and 677 are closed: 566
-bursts, 69 with no signal at the catalogue position, 30 seen off the star, 8
-lines of one comb, 4 seen toward another star. One case has no public data.
-The other 84 hits stay open and form 68 events. The AI readers have rated 22
-of those so far: none high, and one got a medium from one of the two readers.
-The other 46 wait for the next month's reading budget. One group of eight
-"candidates" turned out to be lines spaced by exactly 131.072 kHz, which is
-2<sup>17</sup> Hz: a digital clock rate.
+**The queue.** All 762 cases have had a first pass, and 688 are closed: 566
+bursts, 69 with no signal at the catalogue position, 30 seen off the star, 19
+lines of two clocks (below), 4 seen toward another star. One case has no
+public data. The other 73 hits stay open and form 57 events. The AI readers
+have rated 14 of those so far: none high, and one got a medium from one of
+the two readers. The other 43 wait for the next month's reading budget.
+
+**Other days.** For 22 of the events that stayed open, the star was observed
+again in the same band. The signal was absent every time, at the telescope
+frequency and at the Earth-shifted one, so none of them closed and none was
+flagged.
+
+**Two clocks.** One group of eight "candidates" turned out to be lines spaced
+by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
+
+A second clock was hiding across the whole band. Eleven events that had
+stayed open turned out to be one device. In five scans toward three stars,
+between 29 February and 3 March 2016, the lines sit at whole multiples of
+24 MHz (59, 62, 69 and 77 times). Within a scan every line is the same
+fraction below nominal, to 0.1 ppm or better: a 24 MHz crystal running 70 to
+103 ppm slow. The comb test had missed it because these lines are 72 to 240
+MHz apart, far outside one download. The AI readers had read eight of the
+eleven, one line at a time, and left all eight open.
+
+The rule for this was written after the pattern was noticed, so it was
+checked on data it had not used. At three other multiples of 24 MHz per scan,
+the raw data hold a line at the predicted frequency in 13 of 15 measurements,
+11 of them within 10 Hz. The survey's own hit table has a hit at 48 of 144
+other predicted multiples, against 3 of 2,880 at shifted control positions.
+The lines are also in some off-star scans, 200 to 300 Hz from the track and
+outside the narrow window the off-star test follows, which would explain why
+that test never saw them.
 
 <p align="center">
   <img src="docs/img/dashboard.jpg" width="720" alt="The runner's dashboard: queue progress, budget, the cases of the last run as tiles, the latest plot, and the queue laid out along the spectrum.">
@@ -159,6 +185,9 @@ uv run python -I -m coldcase.serve      # http://localhost:8790
 
 # 6. Look for an open event on the star's other observing days
 uv run python -I -m coldcase.repeat CASE_ID
+
+# 7. Look for harmonics of one clock among the open events (dry run)
+uv run python -I -m coldcase.harmonics
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -177,6 +206,7 @@ trigger.
 | `coldcase/checks.py`                               | Lookalikes, clock harmonics, band use, sky geometry, expected drift |
 | `coldcase/triage.py`                               | The direct-evidence rules                                           |
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
+| `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
 | `coldcase/jev.py`, `coldcase/rank.py`              | Jev's questions and the rank score                                  |
@@ -192,6 +222,12 @@ trigger.
 - The repeat check applies to few events: most stars were observed on one day
   per receiver band. Not seeing a signal again proves little, since a
   transmitter on an orbiting planet would be shifted by an unknown amount.
+- The off-star test follows the track predicted from the on-star scan, within
+  tens of hertz. A local line that wanders a few hundred hertz between scans
+  escapes it, as the 24 MHz clock did.
+- The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
+  in one scan. Four single lines near a multiple of the same clock are
+  flagged and stay open.
 - There is no check against satellite orbits, so a satellite crossing the
   beam during an on-star scan can stay open.
 - The table of radio band uses was written from memory and is not verified.

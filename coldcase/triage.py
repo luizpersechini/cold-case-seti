@@ -10,6 +10,10 @@ a case is closed or stays open. A case is closed only on direct evidence:
   D5  back at the same telescope frequency on another day, when the Earth's
       motion would have moved a sky signal well away (needs the repeat check,
       coldcase/repeat.py; it is not part of the first pass)
+  D6  two or more lines of one scan sit at different whole multiples of one
+      clock rate, all the same fraction off nominal: harmonics of a single
+      oscillator (coldcase/harmonics.py; it compares events, so it runs
+      over the open list and not inside decide())
 
 Context (band, drift, neighbours) never closes a case; readers use it to rank
 the open ones.
@@ -28,6 +32,11 @@ STACK_MARGIN = 1.0
 # ten times SAME_HZ: below this shift the two readings cannot be told apart
 REPEAT_MIN_SHIFT_HZ = 3000.0
 CHANCE_MAX = 0.05
+# D6: clock rates tried (whole MHz), how far a crystal may sit from nominal,
+# and how closely the lines of one scan must agree on that offset
+CLOCKS_MHZ = tuple(range(4, 51))
+CLOCK_PPM_MAX = 200.0
+CLOCK_AGREE_PPM = 0.3
 
 
 def repeat_rule(b, rp):

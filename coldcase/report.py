@@ -117,6 +117,30 @@ def main():
         ]
     if not open_rows:
         lines.append("| none yet | | | | | | | | |")
+    # harmonics of one clock across events (coldcase/harmonics.py), if it was run
+    hp = ROOT / "cases" / "harmonics.json"
+    hz = json.loads(hp.read_text()) if hp.exists() else {}
+    fams = [f for f in hz.get("families", []) if f.get("applied")]
+    if fams:
+        lines += ["", "## Closed as harmonics of one clock (D6)", ""] + [
+            f"- {f['target']} MJD {f['mjd']:.3f}: "
+            + ", ".join(
+                f"{x['id']} at {x['n']} x {f['clock_mhz']} MHz" for x in f["lines"]
+            )
+            + f", all {f['ppm']:+.2f} ppm from nominal"
+            for f in fams
+        ]
+    still_open = {r[3] for r in open_rows}
+    flags = [x for x in hz.get("flags", []) if x["id"] in still_open]
+    if flags:
+        lines += [
+            "",
+            "## Flagged, not closed: one line near a multiple of an identified clock",
+            "",
+        ] + [
+            f"- {x['id']} {x['target']} {x['freq_mhz']:.6f} MHz: {x['text']}"
+            for x in flags
+        ]
     text = "\n".join(lines) + "\n"
     out = ROOT / "report"
     out.mkdir(exist_ok=True)

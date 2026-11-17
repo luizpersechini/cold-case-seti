@@ -675,6 +675,14 @@ def _run(force=False, dry=False, max_groups=None, now=False):
             if complete:
                 remote.clear_chunks()
             n_groups += 1
+        # D6 compares open events across groups, so it runs once per batch
+        if n_cases:
+            try:
+                from . import harmonics
+
+                harmonics.apply(say=lambda *_: None)
+            except Exception as e:
+                log(f"harmonic check failed: {type(e).__name__}: {e}"[:200])
     except KeyboardInterrupt:
         log("stopping: stopped by request")
     finally:
