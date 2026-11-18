@@ -83,7 +83,8 @@ def events(con):
             flags = list(triage.decide_case(cid).get("flags", []))
         except Exception:
             flags = []
-        rp = ev / "repeat.json"
+        rp, sp = ev / "repeat.json", ev / "session.json"
+        tp = ev / "satellites.json"
         try:
             from . import rank
 
@@ -107,6 +108,13 @@ def events(con):
                 "flags": flags + clock.get(cid, []),
                 "repeat": json.loads(rp.read_text())["summary"]["text"]
                 if rp.exists()
+                else "not checked",
+                "session": json.loads(sp.read_text())["summary"]["text"]
+                if sp.exists()
+                else "not checked",
+                "session_plot": sp.exists() and (ev / "session.png").exists(),
+                "satellites": json.loads(tp.read_text())["summary"]["text"]
+                if tp.exists()
                 else "not checked",
                 "members": con.execute(
                     "select case_id, freq_mhz from queue where status='open_member' "
@@ -190,6 +198,8 @@ def _facts(e):
             f"{l10.get('other_targets', 0)} within 10 kHz",
         ),
         ("Other days", e["repeat"]),
+        ("Other stars, same half hour", e["session"]),
+        ("Satellites near the line of sight", e["satellites"]),
         ("Rank score", "-" if e["rank"] is None else f"{e['rank']:.2f}"),
     ]
     if e["members"]:
@@ -261,6 +271,12 @@ def card(e, n):
         f"<a href='{plot}'><img loading='lazy' src='{plot}' alt='Frequency against "
         f"time for the six scans of {e['id']}'></a>"
     )
+    if e["session_plot"]:
+        h.append(
+            f"<div style='font-size:13.5px'><a href='../cases/evidence/{e['id']}/"
+            "session.png'>Plot of the same frequency toward the other stars observed "
+            "within half an hour</a></div>"
+        )
     for label, v in e["reads"]:
         h.append(_reader(label, v))
     if not e["reads"]:

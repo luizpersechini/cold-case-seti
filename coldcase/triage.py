@@ -20,9 +20,15 @@ a case is closed or stays open. A case is closed only on direct evidence:
       clock rate, all the same fraction off nominal: harmonics of a single
       oscillator (coldcase/harmonics.py; it compares events, so it runs
       over the open list and not inside decide())
+  D7  the same line, at the same telescope frequency, while the telescope
+      pointed at other stars within half an hour (needs the session check,
+      coldcase/session.py; it is not part of the first pass)
 
 Context (band, drift, neighbours) never closes a case; readers use it to rank
-the open ones.
+the open ones. The satellite check (coldcase/satellites.py) is context too: a
+payload passing close to the line of sight when the signal peaked is flagged.
+Over the 52 open events checked on 2026-11-18, two had a pass rarer than 5%,
+where chance alone gives two or three, and both payloads were long dead.
 
 usage: python -m coldcase.triage CASE_ID ...     (prints the decision)
 """
@@ -58,6 +64,10 @@ WIDE_BASE = 0.01
 # the sky-only controls, where no steady tone kept less than 0.82 of it (0.74
 # in the other half).
 FLASH_KEEP = 0.70
+# D7: the least chance per scan of another star that a given position holds an
+# unrelated line standing OFF_MARGIN above its control windows. Provisional
+# until `python -m coldcase.session --rate` has been run over all open events.
+SESSION_BASE = 0.01
 
 
 def flash(row):
@@ -184,7 +194,91 @@ def repeat_rule(b, rp):
     ), stats
 
 
-def decide(b, repeat=None):
+def session_scans(sess):
+    """The scans of a session check that count: read, measured against at
+    least two control windows, and pointed a degree or more from the event."""
+    return [
+        r
+        for r in sess.get("scans", [])
+        if "error" not in r
+        and r.get("margin_over_control_max") is not None
+        and (r.get("controls") or {}).get("second_snr") is not None
+        and (r.get("separation_deg") or 0) >= 1.0
+    ]
+
+
+def session_rule(b, sess):
+    """D7, from a session check (coldcase/session.py). A scan of another star
+    is a match when it holds a signal within SAME_HZ of the event's telescope
+    frequency, at its drift, OFF_MARGIN or more above its control windows. An
+    unrelated line does that by chance: the chance per scan is the share of
+    this event's scans whose strongest control window leads the others by the
+    same margin, spread over the windows, and never below SESSION_BASE. The
+    rule needs the chance of this many matches to be small. Returns (text or
+    None, numbers)."""
+    from math import comb
+
+    rows = session_scans(sess)
+    hits = [r for r in rows if r["margin_over_control_max"] >= OFF_MARGIN]
+    n, k = len(rows), len(hits)
+    lead = sum(
+        1
+        for r in rows
+        if r["controls"]["max_snr"] - r["controls"]["second_snr"] >= OFF_MARGIN
+    )
+    windows = sum(r["controls"]["n"] for r in rows)
+    p = min(1.0, max(SESSION_BASE, lead / windows)) if windows else 1.0
+    tail = (
+        sum(comb(n, i) * p**i * (1 - p) ** (n - i) for i in range(k, n + 1))
+        if k
+        else 1.0
+    )
+    stats = {
+        "scans_counted": n,
+        "scans_matched": k,
+        "chance_per_scan": round(p, 4),
+        "chance_of_this_many": round(tail, 4),
+    }
+    if not k or tail >= CHANCE_MAX:
+        return None, stats
+    best = max(hits, key=lambda r: r["margin_over_control_max"])
+    return (
+        f"D7: the same line toward other stars in {k} of {n} scans within half an "
+        f"hour (e.g. {best['source']}, {best['minutes_from_event']:+.0f} min: "
+        f"+{best['margin_over_control_max']} over controls at "
+        f"{best['offset_hz']:+.0f} Hz); chance of unrelated lines {tail:.3f}"
+    ), stats
+
+
+def satellite_rule(sat):
+    """From a satellite check (coldcase/satellites.py): a flag, not evidence.
+    The check gives the smallest angle between the line of sight and any
+    payload in the window around the signal's peak, and the share of other
+    windows of the same night in which some payload came at least that
+    close. The flag is raised when that share is small. Returns (text or
+    None, numbers)."""
+    null, near = sat.get("null") or {}, sat.get("closest") or []
+    share = null.get("share_this_close")
+    if share is None or not near or null.get("windows", 0) < 50:
+        return None, {}
+    c = near[0]
+    stats = {
+        "closest_deg": c["separation_deg"],
+        "share_this_close": share,
+        "windows": null["windows"],
+    }
+    if share >= CHANCE_MAX:
+        return None, stats
+    return (
+        f"the payload {c['name']} (catalogue number {c['norad']}) passed "
+        f"{c['separation_deg']} deg from the line of sight {c['seconds_from_peak']:+.0f} s "
+        f"from the signal's peak; a payload came that close in {share:.1%} of "
+        f"{null['windows']} other times that night. Not counted as evidence: the "
+        "catalogue does not say whether it was still working"
+    ), stats
+
+
+def decide(b, repeat=None, session=None, satellites=None):
     seed = b["seed"]
     if not seed.get("recovered"):
         # no tone at the catalogue position; say so more precisely when the
@@ -279,6 +373,14 @@ def decide(b, repeat=None):
         text, _ = repeat_rule(b, repeat)
         if text:
             direct.append(text)
+    if session:
+        text, _ = session_rule(b, session)
+        if text:
+            direct.append(text)
+    if satellites:
+        text, _ = satellite_rule(satellites)
+        if text:
+            flags.append(text)
     if not direct:
         return {
             "status": "open",
@@ -352,10 +454,13 @@ def family_comb(offsets_hz, tol_hz=120.0):
 
 def decide_case(case_id):
     folder = ROOT / "cases" / "evidence" / case_id
-    rp = folder / "repeat.json"
+    rp, sp = folder / "repeat.json", folder / "session.json"
+    tp = folder / "satellites.json"
     return decide(
         json.loads((folder / "evidence.json").read_text()),
         repeat=json.loads(rp.read_text()) if rp.exists() else None,
+        session=json.loads(sp.read_text()) if sp.exists() else None,
+        satellites=json.loads(tp.read_text()) if tp.exists() else None,
     )
 
 

@@ -172,6 +172,9 @@ def _measure(scans, cuts, freqs, drifts, dtol):
                     "n": int(len(ctrl)),
                     "median_snr": round(float(np.median(ctrl)), 1),
                     "max_snr": round(float(ctrl.max()), 1),
+                    "second_snr": round(float(np.sort(ctrl)[-2]), 1)
+                    if len(ctrl) > 1
+                    else None,
                 },
                 "margin_over_control_max": round(float(tr["snr"] - ctrl.max()), 1)
                 if ok
@@ -338,11 +341,7 @@ def _summarise(bundle, out):
         on_only = sum(1 for d in days if not d["off_scans_available"])
         parts.append(
             f"absent in {len(days)} other observation{'s' if len(days) != 1 else ''}"
-            + (
-                f" ({on_only} with on-star scans only)"
-                if on_only
-                else ""
-            )
+            + (f" ({on_only} with on-star scans only)" if on_only else "")
         )
     if sky:
         parts.append(

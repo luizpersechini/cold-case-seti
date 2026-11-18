@@ -23,7 +23,9 @@ from .remote import ROOT
 HOST, PORT = "127.0.0.1", 8790
 ALLOWED_HOSTS = {f"localhost:{PORT}", f"127.0.0.1:{PORT}"}
 LOCK = ROOT / "cases" / "runner.lock"
-PLOT = re.compile(r"/cases/evidence/([A-Za-z0-9_]+)/(waterfall(?:_blind)?\.png)")
+PLOT = re.compile(
+    r"/cases/evidence/([A-Za-z0-9_]+)/(waterfall(?:_blind)?\.png|session\.png)"
+)
 
 
 def runner_pid():

@@ -37,8 +37,8 @@ def main():
         "## Open cases, ranked",
         "",
         "| Case | Target | MHz | Drift Hz/s | ON scans | Priority (two readers) | "
-        "Context suspicion | Other days | Plot |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "Context suspicion | Other days | Other stars, same half hour | Plot |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     head = len(lines) - 4  # flagged repeats go above the table
     open_rows = []
@@ -90,6 +90,8 @@ def main():
         rp_path = ROOT / "cases" / "evidence" / cid / "repeat.json"
         rp = json.loads(rp_path.read_text())["summary"] if rp_path.exists() else None
         again = bool(rp) and rp["outcome"] == "sky_frame_repeat"
+        # session check on other stars around the event (coldcase/session.py)
+        sp_path = ROOT / "cases" / "evidence" / cid / "session.json"
         open_rows.append(
             (
                 0 if again else 1,
@@ -103,13 +105,18 @@ def main():
                 " / ".join(pr) or "not read",
                 cs,
                 rp["text"] if rp else "not checked",
+                json.loads(sp_path.read_text())["summary"]["text"]
+                if sp_path.exists()
+                else "not checked",
             )
         )
     flagged = []
-    for first, best, _, cid, target, f, d, on, pr, cs, other in sorted(open_rows):
+    for first, best, _, cid, target, f, d, on, pr, cs, other, sess in sorted(
+        open_rows
+    ):
         lines.append(
             f"| {cid} | {target} | {f:.6f} | {d:+.3f} | {on} | {pr} | "
-            f"{'-' if not cs else f'{sum(cs) / len(cs):.2f}'} | {other} | "
+            f"{'-' if not cs else f'{sum(cs) / len(cs):.2f}'} | {other} | {sess} | "
             f"cases/evidence/{cid}/waterfall.png |"
         )
         if first == 0:
@@ -125,7 +132,7 @@ def main():
             "",
         ]
     if not open_rows:
-        lines.append("| none yet | | | | | | | | |")
+        lines.append("| none yet | | | | | | | | | |")
     # harmonics of one clock across events (coldcase/harmonics.py), if it was run
     hp = ROOT / "cases" / "harmonics.json"
     hz = json.loads(hp.read_text()) if hp.exists() else {}
