@@ -389,7 +389,9 @@ def build():
     # open cases
     h.append(
         "<div class='card' style='margin-bottom:14px'><h2>Open cases, ranked for follow-up"
-        "</h2><table><tr><th>Case</th><th>Target</th><th>MHz</th><th>Drift Hz/s</th>"
+        "</h2><div style='font-size:13.5px;margin-bottom:8px'><a href='dossier.html'>"
+        "Dossier: every open event with its plot, measurements and the readers' notes"
+        "</a></div><table><tr><th>Case</th><th>Target</th><th>MHz</th><th>Drift Hz/s</th>"
         "<th>Rank</th><th>Related lines</th><th>On-target S/N per scan</th><th>Priority (two readers)</th>"
         "<th>Context suspicion</th><th>Plot</th></tr>"
     )

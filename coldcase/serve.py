@@ -17,7 +17,7 @@ import signal
 import subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import dashboard, liveview
+from . import dashboard, dossier, liveview
 from .remote import ROOT
 
 HOST, PORT = "127.0.0.1", 8790
@@ -114,6 +114,13 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send(500, f"dashboard failed: {type(e).__name__}: {e}")
             return self._send(200, out.read_bytes(), "text/html; charset=utf-8")
+        if path == "/report/dossier.html":
+            try:
+                importlib.reload(dossier)
+                out = dossier.build()
+            except Exception as e:
+                return self._send(500, f"dossier failed: {type(e).__name__}: {e}")
+            return self._send(200, out.read_bytes(), "text/html; charset=utf-8")
         m = PLOT.fullmatch(path)
         if m:
             f = ROOT / "cases" / "evidence" / m[1] / m[2]
@@ -140,8 +147,10 @@ def main():
         server = ThreadingHTTPServer((HOST, PORT), Handler)
     except OSError as e:
         if e.errno == 48:  # address already in use
-            print(f"A dashboard server is already running at http://localhost:{PORT}. "
-                  "Use that one, or stop it first (Ctrl-C in its terminal tab).")
+            print(
+                f"A dashboard server is already running at http://localhost:{PORT}. "
+                "Use that one, or stop it first (Ctrl-C in its terminal tab)."
+            )
             return
         raise
     print(f"dashboard at http://localhost:{PORT}", flush=True)

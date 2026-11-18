@@ -239,6 +239,9 @@ uv run python -I -m coldcase.repeat CASE_ID
 
 # 7. Look for harmonics of one clock among the open events (dry run)
 uv run python -I -m coldcase.harmonics
+
+# 8. Review every open event on one page (also linked from the dashboard)
+uv run python -I -m coldcase.dossier    # writes report/dossier.html
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -264,6 +267,7 @@ trigger.
 | `coldcase/rank.py`                                 | The rank score for open events                                      |
 | `coldcase/runner.py`, `runner/`                    | Unattended runner, limits, macOS triggers                           |
 | `coldcase/dashboard.py`, `liveview.py`, `serve.py` | The dashboard                                                       |
+| `coldcase/dossier.py`                              | Every open event on one page, for a person to review                |
 | `tools/`                                           | One-off scripts: load hit tables, find cadences, build test sets    |
 | `cases/known/`                                     | Case definitions for the known answers                              |
 
