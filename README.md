@@ -48,8 +48,9 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
 
    The last row compares open events with each other, so it runs over the
-   open list after each batch. One more kind of evidence comes from step 5:
-   the signal is back at the same telescope frequency on another day.
+   open list after each batch. Two more kinds of evidence come from steps 5
+   and 6: the signal is back at the same telescope frequency on another day,
+   or it is there toward other stars in the same half hour.
 
    The band a signal sits in, or how busy it is, never closes a case. It only
    lowers its rank.
@@ -61,10 +62,18 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    have moved to. A repeat at the first closes the case. A repeat at the
    second is flagged for a human and never decided by code. Seeing nothing
    changes nothing. This step is run by hand for now.
-6. **Read and rank what stays open.** Two AI readers (an investigator and a
+6. **Look at the same half hour.** The telescope moves to another star every
+   few minutes. The event's frequency is measured in the scans of other stars
+   made in the same band within 30 minutes of it. A line that is still there
+   with the telescope pointed degrees away is local, and the case closes when
+   unrelated lines are unlikely to explain the match. Seeing nothing changes
+   nothing. A second check compares the line of sight, at the moment the
+   signal was strongest, with the orbits of catalogued satellites. A close
+   pass is flagged and never closes a case. Both are run by hand for now.
+7. **Read and rank what stays open.** Two AI readers (an investigator and a
    challenger) write up each open event and rate it for follow-up. A score
    computed by code from the measurements orders the open list.
-7. **Check itself continuously.** Every batch gets three hidden synthetic
+8. **Check itself continuously.** Every batch gets three hidden synthetic
    signals injected into the same data: two that should stay open and one weak
    leak that should be closed. The running score shows whether the rules still
    behave.
@@ -155,11 +164,12 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 693 are closed: 583
-bursts, 59 with no signal at the catalogue position, 32 seen off the star, 19
-lines of two clocks (below). One case has no public data. The other 68 hits
-stay open and form 53 events. The AI readers have rated all 53: none high,
-two got a medium from both readers and one from one of them. In 14 more, at
+**The queue.** All 762 cases have had a first pass, and 698 are closed: 583
+bursts, 59 with no signal at the catalogue position, 32 seen off the star, 5
+seen toward other stars in the same half hour, 19 lines of two clocks
+(below). One case has no public data. The other 63 hits stay open and form 48
+events. The AI readers have rated all 48: none high, two got a medium from
+both readers and one from one of them. In 14 more, at
 least one reader saw interference or a burst that the code rules do not
 confirm, so they stay open. The wider off-star test closed two
 of the 32; three more events have a line near the predicted place in an
@@ -170,6 +180,27 @@ flagged in the report.
 again in the same band. The signal was absent every time, at the telescope
 frequency and at the Earth-shifted one, so none of them closed and none was
 flagged.
+
+**The same half hour.** This check ran on the 53 events that were open
+before it. For 43 of them another star had been observed in the same band
+within 30 minutes, 170 scans in all. The line was absent in 36 events. In
+five it was there toward another star, 3 to 42 degrees away, and those
+closed. One of the five has two matching scans; the other four have one
+each, at a chance of 4 to 5% that an unrelated line explains it. In two more
+events a scan holds a line at the same frequency, but stand-out lines are
+common enough near them that one match does not count, and they stay open.
+All five closed events had been left open by both AI readers.
+
+The chance of an unrelated line was measured on the same scans: a given
+position holds a line that stands out in 0.3% of scans (25 in 7,820 control
+windows). The rule uses 1% or the event's own rate, whichever is higher.
+
+**Satellites.** The line of sight of each of those 53 events, at its
+strongest moment, was compared with the orbit of every catalogued payload.
+In two events a satellite was closer than it is in 95% of other moments of
+the same night: Landsat 1 at 0.07 degrees and KazSat-1 at 0.11 degrees. Two
+in 53 is what chance gives, and both satellites had been dead for years. So
+the check found nothing, and it only flags.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
 by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
@@ -242,6 +273,15 @@ uv run python -I -m coldcase.harmonics
 
 # 8. Review every open event on one page (also linked from the dashboard)
 uv run python -I -m coldcase.dossier    # writes report/dossier.html
+
+# 9. Look for an open event's line toward other stars in the same half hour
+uv run python -I -m coldcase.session CASE_ID
+
+# 10. Compare an open event with satellite orbits. Needs the yearly element
+#     files from Space-Track (free account) and CelesTrak's satcat.csv in
+#     data/satellites/
+uv run python -I -m coldcase.satellites index
+uv run python -I -m coldcase.satellites CASE_ID
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -261,6 +301,8 @@ trigger.
 | `coldcase/triage.py`                               | The direct-evidence rules                                           |
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
+| `coldcase/session.py`                              | The same line toward other stars within half an hour                |
+| `coldcase/satellites.py`                           | Catalogued satellites near the line of sight at the signal's peak   |
 | `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
@@ -285,10 +327,15 @@ trigger.
 - The flash test leaves out one time sample. A signal that is on for two or
   three samples and off for the rest is not caught by it.
 - The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
-  in one scan. Four single lines near a multiple of the same clock are
-  flagged and stay open.
-- There is no check against satellite orbits, so a satellite crossing the
-  beam during an on-star scan can stay open.
+  in one scan. Four single lines near a multiple of the same clock were
+  flagged and stayed open; the session check later closed two of them.
+- The session check needs another star observed within 30 minutes: 10 of 53
+  events had none. Four of its five closures rest on one matching scan, the
+  weakest of them only 1.7 above its control windows.
+- The satellite check knows catalogued payloads only, from orbits published
+  up to 7 days from the observation. It cannot tell a working satellite from
+  a dead one, and it cannot see one picked up far from the beam by the
+  telescope's sidelobes.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
   controls are the real test of them: the rules closed 3 of 883 recovered

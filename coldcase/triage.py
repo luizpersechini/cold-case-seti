@@ -65,8 +65,10 @@ WIDE_BASE = 0.01
 # in the other half).
 FLASH_KEEP = 0.70
 # D7: the least chance per scan of another star that a given position holds an
-# unrelated line standing OFF_MARGIN above its control windows. Provisional
-# until `python -m coldcase.session --rate` has been run over all open events.
+# unrelated line standing OFF_MARGIN above its control windows. Measured
+# 2026-11-18 over the 53 open events (`python -m coldcase.session --rate`):
+# 25 such lines in 7,820 control windows of 170 scans, 0.0032. The floor is
+# kept at three times that; the same events close with either value.
 SESSION_BASE = 0.01
 
 
