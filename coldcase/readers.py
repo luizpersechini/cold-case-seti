@@ -22,6 +22,10 @@ MODEL = os.environ.get("COLDCASE_MODEL", "claude-sonnet-5-5")
 BRIEFS, VERDICTS = ROOT / "cases" / "briefs", ROOT / "cases" / "verdicts"
 SPEND = ROOT / "cases" / "spend.jsonl"
 DEFAULT_CAP = 2_000_000
+# A ceiling on one reply, not a target. Replies run about 1,200 to 1,900
+# tokens, but 12 of 111 runner readings ran into the earlier ceiling of 3,000
+# and were lost, so there is room to spare now.
+MAX_OUT = 8000
 INLINE = (
     "\n\nIn this run the files are attached to the message instead of sitting in a "
     "folder: the plot is the image and brief.json follows it as text."
@@ -99,11 +103,20 @@ def read_case(client, code, role, system, source="manual"):
         # used about 5k tokens per reply in a test and truncated the answer.
         # Readers write their reasoning in the reply, so it is off unless asked.
         # (This model rejects type "disabled" and asks for "between_tools".)
-        extra = {} if os.environ.get("COLDCASE_THINKING") else {"thinking": {"type": "between_tools"}}
+        extra = (
+            {}
+            if os.environ.get("COLDCASE_THINKING")
+            else {"thinking": {"type": "between_tools"}}
+        )
         resp = client.messages.create(
-            model=MODEL, max_tokens=3000,
-            system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-            messages=msgs, **extra)
+            model=MODEL,
+            max_tokens=MAX_OUT,
+            system=[
+                {"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}
+            ],
+            messages=msgs,
+            **extra,
+        )
         u = resp.usage
         usage = {
             "input_tokens": u.input_tokens,
@@ -128,7 +141,13 @@ def read_case(client, code, role, system, source="manual"):
             )
         text = "".join(b.text for b in resp.content if b.type == "text")
         if resp.stop_reason == "max_tokens":
-            raise RuntimeError("reply cut off at the output limit")
+            made_of = ", ".join(
+                f"{b.type} {len(getattr(b, 'text', None) or getattr(b, 'thinking', None) or '')} chars"
+                for b in resp.content
+            )
+            raise RuntimeError(
+                f"reply cut off at the output limit of {MAX_OUT} tokens ({made_of})"
+            )
         try:
             v = parse(text)
             break
