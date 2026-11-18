@@ -10,7 +10,9 @@ a case is closed or stays open. A case is closed only on direct evidence:
   D3  the same frequency (within 300 Hz) and drift toward two or more other
       targets (one other target is only flagged: on injected signals a single
       weak catalogue hit landed that close about once in a hundred)
-  D4  half or more of the track's power sits in one time sample: a burst
+  D4  half or more of the track's power sits in one time sample: a burst;
+      or nothing is left of the track above its control windows when its
+      strongest time sample is taken out: see flash
   D5  back at the same telescope frequency on another day, when the Earth's
       motion would have moved a sky signal well away (needs the repeat check,
       coldcase/repeat.py; it is not part of the first pass)
@@ -51,6 +53,33 @@ CLOCK_AGREE_PPM = 0.3
 # of 1,290 OFF scans; 1% is the 95% upper limit of that rate.
 WIDE_SNR_MIN = 8.0
 WIDE_BASE = 0.01
+# D4, second part: the largest share of its S/N a track may keep without its
+# strongest time sample and still count as a flash. Set 2026-11-17 on half of
+# the sky-only controls, where no steady tone kept less than 0.82 of it (0.74
+# in the other half).
+FLASH_KEEP = 0.70
+
+
+def flash(row):
+    """D4, second part, on the seed scan's row: is anything left of the track
+    when its strongest time sample is taken out? It is a flash when the track
+    stood above its control windows on the whole scan, does not without that
+    sample, and kept less than FLASH_KEEP of its S/N. A track that loses that
+    much but still stands above its controls varies strongly and is flagged.
+    Returns (text or None, flag or None)."""
+    w = row.get("track_without_strongest_sample")
+    if not w or w["share_of_full_snr"] >= FLASH_KEEP:
+        return None, None
+    change = f"S/N {w['full_snr']} on the whole scan, {w['snr']} without it"
+    if w["full_snr"] > w["full_control_max_snr"] and w["snr"] <= w["control_max_snr"]:
+        return (
+            f"D4: nothing is left of the track without its strongest time sample "
+            f"({change}, against {w['control_max_snr']} in its control windows): a flash"
+        ), None
+    return None, (
+        f"the track keeps {w['share_of_full_snr']:.0%} of its S/N without its "
+        f"strongest time sample ({change}); steady test signals kept 74% or more"
+    )
 
 
 def off_wide(b, floor=WIDE_SNR_MIN):
@@ -241,6 +270,11 @@ def decide(b, repeat=None):
     share = (row.get("track_time_profile") or {}).get("largest_single_sample_share", 0)
     if share >= BURST_SHARE:
         direct.append(f"D4: {share:.0%} of the track's power is in one time sample")
+    text, flag = flash(row)
+    if text:
+        direct.append(text)
+    elif flag:
+        flags.append(flag)
     if repeat:
         text, _ = repeat_rule(b, repeat)
         if text:

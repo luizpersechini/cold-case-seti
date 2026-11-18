@@ -214,6 +214,79 @@ def pick_seed(case, scans, cuts, half_khz):
     }
 
 
+def without_peak(cu, ks, drift, ctol, dtol, tr, ctrl_max):
+    """What is left of a track, and of its control windows, when its strongest
+    time sample is taken out. A steady tone keeps nearly all of its S/N; a hit
+    that was one flash keeps nothing above its controls. ks: the track's
+    predicted channel followed by the control channels; tr and ctrl_max: the
+    track and the control maximum measured on the whole scan."""
+    fo = cu["foff"] * 1e6
+    if not tr["snr"] or tr["snr"] <= 0:
+        return None
+    tp = dd.time_profile(cu["data"], fo, cu["tsamp"], tr["chan"], tr["drift"])
+    if tp is None:
+        return None
+    i = int(round(tp["at_time_s"] / cu["tsamp"]))
+    res = dd.track_multi(
+        dd.without_sample(cu["data"], i),
+        fo,
+        cu["tsamp"],
+        ks,
+        drift,
+        chan_tol=ctol,
+        drift_tol=dtol,
+    )
+    ctrl = [r["snr"] for r in res[1:] if r["in_cutout"]]
+    if res[0]["snr"] is None or not ctrl:
+        return None
+    return {
+        "sample_left_out_at_s": tp["at_time_s"],
+        "full_snr": round(tr["snr"], 2),
+        "full_control_max_snr": round(ctrl_max, 2),
+        "snr": round(res[0]["snr"], 2),
+        "control_max_snr": round(max(ctrl), 2),
+        "share_of_full_snr": round(res[0]["snr"] / tr["snr"], 2),
+    }
+
+
+def backfill_without_peak(case, bundle):
+    """without_peak for the seed scan of a stored bundle, measured again from
+    the cutouts in the cache. Returns None when a cutout it needs is not in
+    the cache (nothing is downloaded) or the scan cannot be measured."""
+    half = case.get("half_khz", max(5.0, abs(case.get("drift", 0.0)) * 2.5 + 3.0))
+    rows = bundle["scans"]
+    seed = next(i for i, s in enumerate(rows) if s["pos"] == bundle["seed"]["seed_pos"])
+    need = range(len(rows)) if "inject" in case else [seed]
+    scans, cuts = [], []
+    for i, s in enumerate(rows):
+        scans.append({"pos": s["pos"], "role": s["role"]})
+        if i not in need:
+            cuts.append({"error": "not read"})
+            continue
+        if "error" in s or not s.get("url"):
+            return None
+        if not remote._cache_path(s["url"], case["freq_mhz"], half).exists():
+            return None
+        cuts.append(dict(remote.read_cutout(s["url"], case["freq_mhz"], half)))
+    if "inject" in case:
+        apply_injection(case, scans, cuts)
+    cu = cuts[seed]
+    f, d = bundle["seed"]["freq_mhz"], bundle["seed"]["drift"]
+    fo = cu["foff"] * 1e6
+    k = (f - cu["fch1"]) / cu["foff"]
+    ctol = max(3, tol_hz(0.0, d) / abs(fo))
+    dtol = 0.05 + 0.25 * abs(d)
+    width = 2 * int(np.ceil(ctol)) + 3
+    ks = [k] + [k + m * width for m in range(-25, 26) if abs(m) >= 3]
+    res = dd.track_multi(
+        cu["data"], fo, cu["tsamp"], ks, d, chan_tol=ctol, drift_tol=dtol
+    )
+    ctrl = [r["snr"] for r in res[1:] if r["in_cutout"]]
+    if res[0]["snr"] is None or res[0]["chan"] is None or not ctrl:
+        return None
+    return without_peak(cu, ks, d, ctol, dtol, res[0], max(ctrl))
+
+
 def measure(scans, cuts, seed, info, half_khz):
     c = cuts[seed]
     f_seed, d_seed = info["freq_mhz"], info["drift"]
@@ -314,6 +387,10 @@ def measure(scans, cuts, seed, info, half_khz):
                 "net_mb": round(cu.get("net_bytes", 0) / 1e6, 1),
             }
         )
+        if s is scans[seed] and tr["chan"] is not None and len(ctrl):
+            row["track_without_strongest_sample"] = without_peak(
+                cu, [k_pred] + ctrl_k, d_seed, ctol, dtol, tr, float(ctrl.max())
+            )
         rows.append(row)
     return rows
 

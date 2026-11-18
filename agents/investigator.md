@@ -58,7 +58,12 @@ through the sidelobes and is local interference, however faint it is there.
   signal about once in a hundred.
 - **D4, a burst, not a tone.** In the seed scan,
   `track_time_profile.largest_single_sample_share` is 0.5 or more: the "hit"
-  is one brief burst that a drift search mistook for a drifting tone.
+  is one brief burst that a drift search mistook for a drifting tone. Also
+  D4: in `track_without_strongest_sample`, `full_snr` is above
+  `full_control_max_snr`, `snr` is not above `control_max_snr`, and
+  `share_of_full_snr` is under 0.70: nothing is left of the track without
+  its strongest sample. A share under 0.70 with `snr` still above its
+  controls is a strongly varying signal: context only.
 
 ## Context (never closes a case; goes into `context_suspicion`)
 
@@ -95,7 +100,12 @@ through the sidelobes and is local interference, however faint it is there.
 - `scans[].track_time_profile`: share of the track's power in its strongest
   time sample; a steady signal gives about `even_share_would_be`.
   `brightest_sample_in_cutout`: the strongest single sample anywhere in the
-  cutout, in noise units.
+  cutout, in noise units. `track_without_strongest_sample` (seed scan only):
+  the track and its control windows measured again with the track's
+  strongest time sample taken out. `full_snr` and `full_control_max_snr` are
+  the whole-scan values, `snr` and `control_max_snr` the values without that
+  sample, `share_of_full_snr` their ratio. Steady test signals kept 0.74 or
+  more.
 - `off_scans_stacked`: the OFF-scan track values summed, against the same sum
   at control positions.
 - `clock_probes`: only for some files. `control_random_frequencies` is the

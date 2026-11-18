@@ -44,7 +44,7 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | Seen off the star            | The same signal is measurable in scans pointed at empty sky, on its track or within 300 Hz of it    |
    | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                |
    | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                  |
-   | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone                            |
+   | A burst, not a tone          | The power sits in one instant and nothing is left without it; the search mistook a flash for a tone |
    | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
 
    The last row compares open events with each other, so it runs over the
@@ -123,6 +123,18 @@ window was also moved to places around the real cases where nothing is
 predicted. There it fired in 16 of 3,642 tries, and in 9 of 402 for slow
 drifts, all 9 beside cases that were already closed.
 
+The burst rule was extended next. It closed a case when half or more of the
+track's power sat in one time sample of about 18 seconds. Every case was then
+measured again with its strongest sample left out. A steady signal barely
+changes: no sky-only control kept less than 74% of its strength, and none
+less than 82% in the half used to set the rule. The rule now also closes a
+case when the track stood above its control windows on the whole scan, does
+not without that one sample, and kept less than 70% of its strength. It
+fires on none of the 883 recovered sky-only controls, in either half, and it
+closed four more hits in the queue. Eight open events lose more than 30% but
+still stand above their controls. They vary strongly, which is flagged in
+the report and closes nothing.
+
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
 
@@ -143,12 +155,13 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 689 are closed: 579
+**The queue.** All 762 cases have had a first pass, and 693 are closed: 583
 bursts, 59 with no signal at the catalogue position, 32 seen off the star, 19
-lines of two clocks (below). One case has no public data. The other 72 hits
-stay open and form 56 events. The AI readers have rated 14 of those so far:
-none high, and one got a medium from one of the two readers. The other 42
-wait for the next month's reading budget. The wider off-star test closed two
+lines of two clocks (below). One case has no public data. The other 68 hits
+stay open and form 53 events. The AI readers have rated all 53: none high,
+two got a medium from both readers and one from one of them. In 14 more, at
+least one reader saw interference or a burst that the code rules do not
+confirm, so they stay open. The wider off-star test closed two
 of the 32; three more events have a line near the predicted place in an
 off-star scan but sit in bands too crowded for one match to count, and are
 flagged in the report.
@@ -245,6 +258,7 @@ trigger.
 | `coldcase/triage.py`                               | The direct-evidence rules                                           |
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
+| `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
 | `coldcase/rank.py`                                 | The rank score for open events                                      |
@@ -264,6 +278,8 @@ trigger.
   for a line of the same drift within 300 Hz of it. A local line whose drift
   changes between scans escapes it, as the 24 MHz clock did. In a crowded
   band one nearby line is not enough, and the event stays open.
+- The flash test leaves out one time sample. A signal that is on for two or
+  three samples and off for the rest is not caught by it.
 - The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
   in one scan. Four single lines near a multiple of the same clock are
   flagged and stay open.

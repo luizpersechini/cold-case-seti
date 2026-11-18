@@ -266,14 +266,25 @@ def halves(say=print):
             continue
         dec = triage.decide(b)
         wide = bool(triage.off_wide(b)[0])
+        seed_row = next(s for s in b["scans"] if s["pos"] == b["seed"]["seed_pos"])
+        text, flag = triage.flash(seed_row)
         d = out.setdefault(
             (half(grp), "leak" if kind == "leak" else "sky_only"),
-            {"n": 0, "closed": 0, "wide": 0, "wide_only": 0},
+            {
+                "n": 0,
+                "closed": 0,
+                "wide": 0,
+                "wide_only": 0,
+                "flash": 0,
+                "flash_flag": 0,
+            },
         )
         d["n"] += 1
         d["closed"] += dec["status"] == "closed"
         d["wide"] += wide
         d["wide_only"] += wide and len(dec["direct_evidence"]) == 1
+        d["flash"] += bool(text)
+        d["flash_flag"] += bool(flag)
     for key, d in sorted(out.items()):
         say(f"half {key[0]} {key[1]}: {d}")
     return out

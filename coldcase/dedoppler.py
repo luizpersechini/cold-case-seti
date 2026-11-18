@@ -5,10 +5,8 @@ import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 
-def flatten(data, win=257):
-    """Divide out the bandpass estimated from the time-averaged spectrum with
-    a median along frequency. Narrow lines (even non-drifting ones) survive."""
-    spec = data.mean(axis=0)
+def bandpass(spec, win=257):
+    """The bandpass level along frequency: a running median of a spectrum."""
     nf = len(spec)
     if nf > 20000:  # wide data: block medians, linearly interpolated
         nb = nf // win
@@ -19,7 +17,21 @@ def flatten(data, win=257):
         w = min(win, (nf // 2) * 2 - 1)
         padded = np.pad(spec, w // 2, mode="reflect")
         base = np.median(sliding_window_view(padded, w), axis=1)
-    return data / np.clip(base, 1e-30, None)
+    return base
+
+
+def flatten(data, win=257):
+    """Divide out the bandpass estimated from the time-averaged spectrum with
+    a median along frequency. Narrow lines (even non-drifting ones) survive."""
+    return data / np.clip(bandpass(data.mean(axis=0), win), 1e-30, None)
+
+
+def without_sample(data, i):
+    """A copy of the cutout in which time sample i holds the bandpass level of
+    the other samples, so that it adds nothing to any track."""
+    out = np.array(data, dtype=np.float64)
+    out[i] = bandpass(np.delete(out, i, axis=0).mean(axis=0))
+    return out
 
 
 def _dedrift(data, shifts):
@@ -116,8 +128,14 @@ def track_multi(data, foff_hz, tsamp, chans, drift, chan_tol=3, drift_tol=0.03):
         c0, c1 = int(np.floor(c - tol)), int(np.ceil(c + tol)) + 1
         ok = c0 - span >= 0 and c1 + span <= nf
         wins.append((c0, c1, ok))
-        res.append({"in_cutout": ok, "snr": -np.inf if ok else None, "chan": None,
-                    "drift": None})
+        res.append(
+            {
+                "in_cutout": ok,
+                "snr": -np.inf if ok else None,
+                "chan": None,
+                "drift": None,
+            }
+        )
         per.append([])
     for j in range(-nd, nd + 1):
         dr = (round(drift / step) + j) * step  # same grid as the blind search
@@ -153,14 +171,17 @@ def time_profile(data, foff_hz, tsamp, chan, drift):
     t = np.arange(nt) * tsamp
     ks = np.clip(int(chan) + np.rint(drift * t / foff_hz).astype(int), 1, nf - 2)
     # take the strongest of three neighbouring channels in each sample
-    vals = np.array([flat[i, k - 1:k + 2].max() for i, k in enumerate(ks)]) - med
+    vals = np.array([flat[i, k - 1 : k + 2].max() for i, k in enumerate(ks)]) - med
     pos = np.clip(vals, 0, None)
     if pos.sum() <= 0:
         return None
     i = int(np.argmax(pos))
-    return {"largest_single_sample_share": round(float(pos[i] / pos.sum()), 2),
-            "even_share_would_be": round(1 / nt, 2), "at_time_s": round(float(t[i]), 1),
-            "n_samples": int(nt)}
+    return {
+        "largest_single_sample_share": round(float(pos[i] / pos.sum()), 2),
+        "even_share_would_be": round(1 / nt, 2),
+        "at_time_s": round(float(t[i]), 1),
+        "n_samples": int(nt),
+    }
 
 
 def brightest_sample(data):
