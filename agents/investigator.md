@@ -40,7 +40,12 @@ through the sidelobes and is local interference, however faint it is there.
   `track_vs_controls.margin_over_control_max` of 1.5 or more; two or more OFF
   scans have `track_exceeds_all_controls` true. One OFF scan barely above its
   controls (margin under 1.5) does not count: with about 45 controls that
-  happens by chance.
+  happens by chance. Also D1: an OFF scan's `strongest_in_cutout` holds an
+  entry within 300 Hz of the prediction (`offset_from_prediction_hz`) whose
+  drift is within 0.05 Hz/s plus a quarter of the candidate's drift, and no
+  OFF scan lists another entry of that drift farther away. If such entries
+  exist farther away the band is crowded and one near the prediction is
+  context only, unless two or more OFF scans each hold one.
 - **D2, oscillator comb.** `clock_probes.n_matching_one_oscillator` is 2 or
   more: the candidate is one tooth of an electronic comb.
 - **D3, the same signal toward two or more other targets.** Entries in

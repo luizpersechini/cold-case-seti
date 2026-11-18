@@ -400,12 +400,14 @@ def recheck(apply=False, say=print):
     closed one at a time, and say what changes. A case whose reason no longer
     counts is reopened as an unread open event; one that stays closed for a
     different reason gets the new reason recorded. Cases closed by a rule
-    that compares several cases (the comb of one event, clock harmonics) are
-    left alone. Nothing is downloaded. Without apply it only reports what
+    that compares several cases (the comb of one event, clock harmonics), or
+    closed along with the strongest line of their event, are left alone. An
+    open case that today's rules close is closed, and the other lines of its
+    event with it. Nothing is downloaded. Without apply it only reports what
     would change."""
     con = queue_db()
     led = ledger.connect()
-    reopened = reworded = 0
+    reopened = reworded = closed_now = 0
     for case_id, note in con.execute(
         "select case_id, note from queue where status='closed' order by case_id"
     ).fetchall():
@@ -417,7 +419,11 @@ def recheck(apply=False, say=print):
             (case_id,),
         ).fetchone()
         why = last[0] if last else ""
-        if why.startswith("D6:") or "lines of this event" in why:
+        if (
+            why.startswith("D6:")
+            or "lines of this event" in why
+            or "this line belongs to the event of" in why
+        ):
             continue
         dec = triage.decide_case(case_id)
         new_why = "; ".join(dec["direct_evidence"]) or "no direct evidence"
@@ -459,9 +465,60 @@ def recheck(apply=False, say=print):
                     },
                 )
                 set_status(con, case_id, "closed", dec["verdict"])
+    for (case_id,) in con.execute(
+        "select case_id from queue where status in "
+        "('open','open_unread','open_member') order by case_id"
+    ).fetchall():
+        status = con.execute(
+            "select status from queue where case_id=?", (case_id,)
+        ).fetchone()[0]
+        if not status.startswith("open") or not (
+            ROOT / "cases" / "evidence" / case_id / "evidence.json"
+        ).exists():
+            continue
+        dec = triage.decide_case(case_id)
+        if dec["status"] != "closed":
+            continue
+        why = "; ".join(dec["direct_evidence"])
+        members = (
+            []
+            if status == "open_member"
+            else [
+                r[0]
+                for r in con.execute(
+                    "select case_id from queue where status='open_member' and note=?",
+                    (case_id,),
+                ).fetchall()
+            ]
+        )
+        closed_now += 1 + len(members)
+        say(
+            f"{case_id}: closed ({dec['verdict']}): {why}"
+            + (f"; with it {', '.join(members)}" if members else "")
+        )
+        if not apply:
+            continue
+        for cid in [case_id] + members:
+            text = why + (
+                "" if cid == case_id else f"; this line belongs to the event of {case_id}"
+            )
+            ledger.add_verdict(
+                led,
+                {
+                    "case_id": cid,
+                    "role": "triage",
+                    "agent": "code",
+                    "verdict": dec["verdict"],
+                    "confidence": 1.0,
+                    "rationale": text,
+                    "evidence_refs": dec["direct_evidence"],
+                },
+            )
+            set_status(con, cid, "closed", dec["verdict"])
+            log(f"{cid} closed by a rule change: {text}"[:200])
     say(
-        f"{reopened} reopened, {reworded} closed for a different reason"
-        + ("" if apply else " (dry run)")
+        f"{reopened} reopened, {reworded} closed for a different reason, "
+        f"{closed_now} open closed" + ("" if apply else " (dry run)")
     )
     if apply and reopened:
         from . import harmonics

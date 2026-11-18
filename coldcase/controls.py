@@ -14,6 +14,7 @@ real signal and not the injection; masked controls are counted on their own.
 usage: python -m coldcase.controls                    the running score
        python -m coldcase.controls rescore [--apply]  today's rules on the
                                                       stored evidence
+       python -m coldcase.controls halves             the same, by fixed half
 """
 
 import hashlib
@@ -241,11 +242,50 @@ def rescore(apply=False, say=print):
             say(f"  {kind}: {d}")
 
 
+def half(grp):
+    """Which half of the controls a download group falls in, 0 or 1. The split
+    is fixed, so a threshold can be set on half 0 and checked on half 1."""
+    return int(hashlib.sha1(("split:" + grp).encode()).hexdigest()[:8], 16) % 2
+
+
+def halves(say=print):
+    """Today's rules on the stored evidence, half by half: of the recovered,
+    unmasked controls, how many are closed, how many the wide part of D1
+    (triage.off_wide) fires on, and how many only it closes."""
+    con = ledger.connect()
+    table(con)
+    out = {}
+    for cid, grp, kind, drift, inj_snr in con.execute(
+        "select case_id, grp, kind, drift, inj_snr from controls"
+    ).fetchall():
+        p = remote.ROOT / "cases" / "evidence" / cid / "evidence.json"
+        if not p.exists():
+            continue
+        b = json.loads(p.read_text())
+        if not b["seed"].get("recovered") or is_masked(b, drift, inj_snr):
+            continue
+        dec = triage.decide(b)
+        wide = bool(triage.off_wide(b)[0])
+        d = out.setdefault(
+            (half(grp), "leak" if kind == "leak" else "sky_only"),
+            {"n": 0, "closed": 0, "wide": 0, "wide_only": 0},
+        )
+        d["n"] += 1
+        d["closed"] += dec["status"] == "closed"
+        d["wide"] += wide
+        d["wide_only"] += wide and len(dec["direct_evidence"]) == 1
+    for key, d in sorted(out.items()):
+        say(f"half {key[0]} {key[1]}: {d}")
+    return out
+
+
 if __name__ == "__main__":
     import sys
 
     if sys.argv[1:2] == ["rescore"]:
         rescore(apply="--apply" in sys.argv)
+    elif sys.argv[1:2] == ["halves"]:
+        halves()
     else:
         for key, d in sorted(summary().items()):
             print(key, d)

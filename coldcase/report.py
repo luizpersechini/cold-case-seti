@@ -139,20 +139,22 @@ def main():
             + f", all {f['ppm']:+.2f} ppm from nominal"
             for f in fams
         ]
-    # one other star at the same frequency and drift: not evidence, but worth a look
-    one_star = []
+    # evidence that fell short of closing a case (one other star at the same
+    # frequency, a line near the predicted place in an OFF scan of a crowded
+    # band): worth a look
+    short = []
     for r in sorted(open_rows):
         try:
             for fl in triage.decide_case(r[3]).get("flags", []):
-                one_star.append(f"- {r[3]} {r[4]} {r[5]:.6f} MHz: {fl}")
+                short.append(f"- {r[3]} {r[4]} {r[5]:.6f} MHz: {fl}")
         except Exception:
             pass
-    if one_star:
+    if short:
         lines += [
             "",
-            "## Flagged, not closed: seen toward one other star",
+            "## Flagged, not closed: evidence that fell short",
             "",
-            *one_star,
+            *short,
         ]
     still_open = {r[3] for r in open_rows}
     flags = [x for x in hz.get("flags", []) if x["id"] in still_open]

@@ -41,7 +41,7 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
 
    | Evidence                     | Meaning                                                                                             |
    | ---------------------------- | --------------------------------------------------------------------------------------------------- |
-   | Seen off the star            | The same signal is measurable in scans pointed at empty sky                                         |
+   | Seen off the star            | The same signal is measurable in scans pointed at empty sky, on its track or within 300 Hz of it    |
    | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                |
    | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                  |
    | A burst, not a tone          | All the power sits in one instant; the search mistook a flash for a tone                            |
@@ -90,7 +90,7 @@ Snapshot of 17 November 2026, after the first full pass over the queue.
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,410 over the whole queue       | 880 of 940                 | 3                        | 335 of 470        |
+| Running controls, 1,410 over the whole queue       | 880 of 940                 | 3                        | 336 of 470        |
 
 In the first two tests, every sky-only signal that was not left open was too
 weak to recover at all. Over the whole queue, 60 were not left open: 52 too
@@ -108,6 +108,20 @@ scoring errors: the measurement had locked onto a stronger real signal
 beside the injection. The two-star threshold was chosen on these same
 controls and has not been tested on fresh ones. The known case MLc2 had
 been closed on one such star and is open again.
+
+The off-star test was widened after that. It used to look only within tens
+of hertz of the predicted track. It now also closes a case when an off-star
+scan's own detections hold a line at the candidate's drift within 300 Hz of
+the predicted place, and an unrelated line that close is unlikely: under 5%,
+counting the other lines of that drift in the off-star scans and never
+assuming less than 1% per scan. The strength floor was set on one fixed half
+of the controls and checked on the other. In the held-out half it fired on 1
+of 453 sky-only signals, one the older test had already closed, and caught 1
+more leak. The controls say little about slow drifts, where an ordinary
+undrifting line counts as a match: only 66 of them drift that slowly. So the
+window was also moved to places around the real cases where nothing is
+predicted. There it fired in 16 of 3,642 tries, and in 9 of 402 for slow
+drifts, all 9 beside cases that were already closed.
 
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
@@ -129,12 +143,15 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 687 are closed: 579
-bursts, 59 with no signal at the catalogue position, 30 seen off the star, 19
-lines of two clocks (below). One case has no public data. The other 74 hits
-stay open and form 58 events. The AI readers have rated 14 of those so far:
-none high, and one got a medium from one of the two readers. The other 44
-wait for the next month's reading budget.
+**The queue.** All 762 cases have had a first pass, and 689 are closed: 579
+bursts, 59 with no signal at the catalogue position, 32 seen off the star, 19
+lines of two clocks (below). One case has no public data. The other 72 hits
+stay open and form 56 events. The AI readers have rated 14 of those so far:
+none high, and one got a medium from one of the two readers. The other 42
+wait for the next month's reading budget. The wider off-star test closed two
+of the 32; three more events have a line near the predicted place in an
+off-star scan but sit in bands too crowded for one match to count, and are
+flagged in the report.
 
 **Other days.** For 22 of the events that stayed open, the star was observed
 again in the same band. The signal was absent every time, at the telescope
@@ -159,8 +176,10 @@ the raw data hold a line at the predicted frequency in 13 of 15 measurements,
 11 of them within 10 Hz. The survey's own hit table has a hit at 48 of 144
 other predicted multiples, against 3 of 2,880 at shifted control positions.
 The lines are also in some off-star scans, 200 to 300 Hz from the track and
-outside the narrow window the off-star test follows, which would explain why
-that test never saw them.
+outside the narrow window the off-star test followed then. The wider test
+added since still does not see them: in 5 of the 11 lines an off-star scan
+holds a strong line within 300 Hz, but drifting the other way, so the clock's
+rate was changing from scan to scan.
 
 <p align="center">
   <img src="docs/img/dashboard.jpg" width="720" alt="The runner's dashboard: queue progress, budget, the cases of the last run as tiles, the latest plot, and the queue laid out along the spectrum.">
@@ -241,9 +260,10 @@ trigger.
 - The repeat check applies to few events: most stars were observed on one day
   per receiver band. Not seeing a signal again proves little, since a
   transmitter on an orbiting planet would be shifted by an unknown amount.
-- The off-star test follows the track predicted from the on-star scan, within
-  tens of hertz. A local line that wanders a few hundred hertz between scans
-  escapes it, as the 24 MHz clock did.
+- The off-star test looks on the track predicted from the on-star scan and
+  for a line of the same drift within 300 Hz of it. A local line whose drift
+  changes between scans escapes it, as the 24 MHz clock did. In a crowded
+  band one nearby line is not enough, and the event stays open.
 - The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
   in one scan. Four single lines near a multiple of the same clock are
   flagged and stay open.

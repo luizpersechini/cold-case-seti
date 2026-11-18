@@ -3,7 +3,9 @@ a case is closed or stays open. A case is closed only on direct evidence:
 
   D1  the candidate itself is detected off-target (stacked OFF test more than
       1.0 above its control maximum, or one OFF scan 1.5 or more above its control maximum, or two
-      or more OFF scans above their controls)
+      or more OFF scans above their controls; or a line at its drift within
+      300 Hz of the predicted place among an OFF scan's blind detections,
+      when an unrelated line that close is unlikely: see off_wide)
   D2  two or more clock-probe signals match a single mistuned oscillator
   D3  the same frequency (within 300 Hz) and drift toward two or more other
       targets (one other target is only flagged: on injected signals a single
@@ -42,6 +44,71 @@ D3_MIN_STARS = 2
 CLOCKS_MHZ = tuple(range(4, 51))
 CLOCK_PPM_MAX = 200.0
 CLOCK_AGREE_PPM = 0.3
+# D1, wide part. Weakest blind detection that counts (the blind search keeps
+# nothing below 8), and the least chance per OFF scan that an unrelated line
+# sits within SAME_HZ of a given place. Set 2026-11-17 on half of the sky-only
+# controls: a line of any drift lay that close to the injected position in 7
+# of 1,290 OFF scans; 1% is the 95% upper limit of that rate.
+WIDE_SNR_MIN = 8.0
+WIDE_BASE = 0.01
+
+
+def off_wide(b, floor=WIDE_SNR_MIN):
+    """D1, wide part: is the candidate among the blind detections of an OFF
+    scan? The forced track only looks within tens of Hz of the predicted
+    place, so a line that sits a few hundred Hz away there is missed. A scan
+    counts when its blind detections hold a line within SAME_HZ of the
+    prediction at the candidate's drift. An unrelated line lands that close
+    by chance: the chance per scan is taken from the lines of that drift seen
+    farther away in the OFF cutouts, and never below WIDE_BASE; the rule
+    needs the chance of this many scans to be small. Returns (text or None,
+    numbers)."""
+    from math import comb
+
+    seed = b["seed"]
+    d = seed["drift"]
+    tol = 0.05 + 0.25 * abs(d)
+    case = b.get("case") or {}
+    half_khz = case.get("half_khz") or max(5.0, abs(case.get("drift", d)) * 2.5 + 3.0)
+    width = 2e3 * half_khz - 2 * SAME_HZ
+    near, far, n = [], 0, 0
+    for s in b["scans"]:
+        if s["role"] != "OFF" or "error" in s:
+            continue
+        n += 1
+        best = None
+        for h in s.get("strongest_in_cutout") or []:
+            if abs(h["drift"] - d) > tol:
+                continue
+            if abs(h["offset_from_prediction_hz"]) > SAME_HZ:
+                far += 1
+            elif h["snr"] >= floor and (best is None or h["snr"] > best["snr"]):
+                best = h
+        if best:
+            near.append((s["pos"], best))
+    k = len(near)
+    p = min(1.0, max(WIDE_BASE, far * 2 * SAME_HZ / (n * width))) if n else 1.0
+    tail = (
+        sum(comb(n, i) * p**i * (1 - p) ** (n - i) for i in range(k, n + 1))
+        if k
+        else 1.0
+    )
+    stats = {
+        "off_scans": n,
+        "off_scans_with_line": k,
+        "same_drift_lines_farther_away": far,
+        "chance_per_scan": round(p, 3),
+        "chance_of_this_many": round(tail, 4),
+    }
+    if not k or tail >= CHANCE_MAX:
+        return None, stats
+    pos, h = max(near, key=lambda x: x[1]["snr"])
+    return (
+        f"D1: a line at the candidate's drift within {SAME_HZ:.0f} Hz of the "
+        f"predicted place in {k} of {n} OFF scans (scan {pos}: S/N {h['snr']} at "
+        f"{h['offset_from_prediction_hz']:+.0f} Hz); chance of an unrelated line "
+        f"{tail:.3f}"
+    ), stats
 
 
 def repeat_rule(b, rp):
@@ -128,6 +195,17 @@ def decide(b, repeat=None):
         )
     if sum(1 for _, m in margins if m > 0) >= 2:
         direct.append("D1: two or more OFF scans above their controls")
+    flags = []
+    text, ws = off_wide(b)
+    if text:
+        direct.append(text)
+    elif ws["off_scans_with_line"]:
+        flags.append(
+            f"a line at the candidate's drift within {SAME_HZ:.0f} Hz of the predicted "
+            f"place in {ws['off_scans_with_line']} of {ws['off_scans']} OFF scans, but "
+            f"{ws['same_drift_lines_farther_away']} more such lines farther away put "
+            f"the chance of an unrelated line at {ws['chance_of_this_many']:.2f}"
+        )
     cp = b.get("clock_probes") or {}
     if cp.get("done") and cp.get("n_matching_one_oscillator", 0) >= 2:
         direct.append(
@@ -142,7 +220,6 @@ def decide(b, repeat=None):
         if abs(x["freq_mhz"] - f) * 1e6 <= SAME_HZ
         and abs(x["drift"] - d) <= 0.05 + 0.25 * abs(d)
     ]
-    flags = []
     if same:
         # In a crowded band a similar-drift hit lands within 300 Hz by chance.
         # Expected chance count: similar-drift targets within 10 kHz, scaled to
