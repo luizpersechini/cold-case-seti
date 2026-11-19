@@ -89,8 +89,10 @@ def _brightest(cu, f_pred):
 
 def pick_seed(case, scans, cuts, half_khz):
     """Find the candidate in the data. Catalogues differ in conventions, so
-    unless the case says freq_exact, accept the strongest signal in the cutout
-    whose drift magnitude matches the catalogue (either sign)."""
+    accept the strongest signal whose drift magnitude matches the catalogue,
+    at either sign: the survey's hit tables give the drift with the opposite
+    sign to the data (tools/drift_sign.py). With freq_exact the search stays
+    near the catalogue frequency."""
     f0, d0 = case["freq_mhz"], case.get("drift", 0.0)
     exact = case.get("freq_exact", False)
     ok = [i for i, c in enumerate(cuts) if "error" not in c]
@@ -113,15 +115,17 @@ def pick_seed(case, scans, cuts, half_khz):
         if exact:
             # look only where the catalogue says, so a crowded cutout cannot
             # push the candidate out of the list of strongest hits
-            hits = dd.search(
-                c["data"],
-                fo,
-                c["tsamp"],
-                snr_min=6,
-                top=200,
-                drift_center=d0,
-                drift_half=0.05 + 0.3 * abs(d0),
-            )
+            hits = []
+            for sign in (1, -1) if d0 else (1,):
+                hits += dd.search(
+                    c["data"],
+                    fo,
+                    c["tsamp"],
+                    snr_min=6,
+                    top=200,
+                    drift_center=sign * d0,
+                    drift_half=0.05 + 0.3 * abs(d0),
+                )
         else:
             hits = dd.search(
                 c["data"],
@@ -136,11 +140,23 @@ def pick_seed(case, scans, cuts, half_khz):
             off = (_freq(c, h["chan"]) - f0) * 1e6
             if abs(abs(h["drift"]) - abs(d0)) > 0.05 + 0.3 * abs(d0):
                 continue
-            if exact and (abs(off) > 100 + 300 * abs(d0) or h["drift"] * d0 < 0):
+            if exact and abs(off) > 100 + 300 * abs(d0):
                 continue
             comp.append({**h, "offset_hz": off})
+        # a line also shows, weaker, where a path of the other sign crosses it;
+        # that is the same signal, not a second one
+        reach = abs(d0) * c["data"].shape[0] * c["tsamp"] + 30.0
+        kept = []
+        for h in sorted(comp, key=lambda h: -h["snr"]):
+            if not any(
+                abs(h["offset_hz"] - g["offset_hz"]) <= reach
+                and (h["drift"] * g["drift"] < 0 or h["chan"] == g["chan"])
+                for g in kept
+            ):
+                kept.append(h)
+        comp = kept
         if comp:
-            best = max(comp, key=lambda h: h["snr"])
+            best = comp[0]
             return i, {
                 "seed_pos": scans[i]["pos"],
                 "recovered": True,
@@ -159,7 +175,7 @@ def pick_seed(case, scans, cuts, half_khz):
                         "drift": round(h["drift"], 4),
                         "snr": round(h["snr"], 1),
                     }
-                    for h in sorted(comp, key=lambda h: -h["snr"])[1:4]
+                    for h in comp[1:4]
                 ],
             }
     if exact:
@@ -172,18 +188,25 @@ def pick_seed(case, scans, cuts, half_khz):
         ctol = (100 + 300 * abs(d0)) / abs(fo)
         width = 2 * int(np.ceil(ctol)) + 3
         ctrl = [k + m * width for m in range(-25, 26) if abs(m) >= 3]
-        res = dd.track_multi(
-            c["data"],
-            fo,
-            c["tsamp"],
-            [k] + ctrl,
-            d0,
-            chan_tol=ctol,
-            drift_tol=0.05 + 0.3 * abs(d0),
-        )
-        tr = res[0]
-        cmax = max((r["snr"] for r in res[1:] if r["in_cutout"]), default=float("inf"))
-        if tr["in_cutout"] and tr["snr"] >= 6 and tr["snr"] > cmax:
+        tr, cmax = None, float("inf")
+        for sign in (1, -1) if d0 else (1,):
+            res = dd.track_multi(
+                c["data"],
+                fo,
+                c["tsamp"],
+                [k] + ctrl,
+                sign * d0,
+                chan_tol=ctol,
+                drift_tol=0.05 + 0.3 * abs(d0),
+            )
+            top = max(
+                (r["snr"] for r in res[1:] if r["in_cutout"]), default=float("inf")
+            )
+            r0 = res[0]
+            if r0["in_cutout"] and r0["snr"] >= 6 and r0["snr"] > top:
+                if tr is None or r0["snr"] > tr["snr"]:
+                    tr, cmax = r0, top
+        if tr is not None:
             f_found = _freq(c, tr["chan"])
             return by_time, {
                 "seed_pos": scans[by_time]["pos"],
@@ -285,6 +308,128 @@ def backfill_without_peak(case, bundle):
     if res[0]["snr"] is None or res[0]["chan"] is None or not ctrl:
         return None
     return without_peak(cu, ks, d, ctol, dtol, res[0], max(ctrl))
+
+
+def _cached_cuts(case, bundle):
+    """The scans of a stored bundle with their cutouts read from the cache
+    (and the injection of a control added again). None when a cutout that
+    was read before is no longer there; nothing is downloaded."""
+    half = case.get("half_khz", max(5.0, abs(case.get("drift", 0.0)) * 2.5 + 3.0))
+    scans, cuts = [], []
+    for s in bundle["scans"]:
+        scans.append({k: s.get(k) for k in ("pos", "role", "source", "url")})
+        if "error" in s or not s.get("url"):
+            cuts.append({"error": s.get("error", "not read"), "url": s.get("url")})
+            continue
+        if not remote._cache_path(s["url"], case["freq_mhz"], half).exists():
+            return None
+        cuts.append(dict(remote.read_cutout(s["url"], case["freq_mhz"], half)))
+    if "inject" in case:
+        apply_injection(case, scans, cuts)
+    return scans, cuts, half
+
+
+def replot(case, bundle):
+    """Draw the two plots of a stored bundle again, from the cache, with the
+    track of its present seed. False when a cutout is no longer in the cache."""
+    got = _cached_cuts(case, bundle)
+    if got is None:
+        return False
+    scans, cuts, _ = got
+    seed = next(
+        i
+        for i, s in enumerate(bundle["scans"])
+        if s["pos"] == bundle["seed"]["seed_pos"]
+    )
+    out = remote.ROOT / "cases" / "evidence" / case["id"]
+    _plots(case, scans, cuts, bundle["seed"], seed, out)
+    return True
+
+
+def _plots(case, scans, cuts, info, seed, out):
+    plot(case, scans, cuts, info, seed, out / "waterfall.png")
+    # the same plot without names, for blinded readers
+    n_off, blind_cuts = 0, []
+    for s_, cu in zip(scans, cuts):
+        if "error" in cu:
+            blind_cuts.append(cu)
+            continue
+        n_off += s_["role"] == "OFF"
+        blind_cuts.append(
+            {
+                **cu,
+                "source_name": "target" if s_["role"] == "ON" else f"pointing {n_off}",
+            }
+        )
+    plot(
+        {"id": code_for(case["id"]), "target": ""},
+        scans,
+        blind_cuts,
+        info,
+        seed,
+        out / "waterfall_blind.png",
+    )
+
+
+def remeasure(case, bundle, con=None):
+    """The measured part of a stored bundle, made again from the cutouts in
+    the cache: the seed, the six scans, the off-scan stack and, with a hit
+    table connection, the catalogue lookalikes. Nothing is downloaded: returns
+    None when a cutout that was read before is no longer in the cache. Parts
+    that need wider data than a cutout (same_drift_twins, clock_probes) are
+    kept, and marked stale when the seed moved to another track."""
+    got = _cached_cuts(case, bundle)
+    if got is None:
+        return None
+    scans, cuts, half = got
+    seed, info = pick_seed(case, scans, cuts, half)
+    old = bundle["seed"]
+    out = {k: v for k, v in bundle.items() if k != "family"}
+    out["seed"], out["scans"] = info, measure(scans, cuts, seed, info, half)
+    c, f, d = cuts[seed], info["freq_mhz"], info["drift"]
+    out["harmonics_within_5khz"] = [h for h in checks.harmonics(f) if h["within_tol"]]
+    out["allocation"] = checks.allocation(f)
+    site = bundle.get("site", "GBT")
+    if c.get("ra_hours") is not None:
+        out["geometry"] = checks.geometry(
+            c["ra_hours"], c["dec_deg"], c["tstart"], site
+        )
+        out["expected_drift_barycentric_rest"] = checks.expected_drift(
+            c["ra_hours"], c["dec_deg"], c["tstart"], site, f
+        )
+    if con is not None and "lookalikes_1khz" in bundle:
+        out["lookalikes_1khz"] = checks.lookalikes(
+            con, f, d, case["target"], c["tstart"]
+        )
+        wide = checks.lookalikes(
+            con, f, d, case["target"], c["tstart"], window_hz=10000.0, top=0
+        )
+        out["lookalikes_10khz"] = {
+            k: v for k, v in wide.items() if k != "strongest_other"
+        }
+    out.pop("off_scans_stacked", None)
+    if info["recovered"]:
+        out["off_scans_stacked"] = off_stack(scans, cuts, seed, info)
+    moved = (
+        not old.get("recovered")
+        or not info["recovered"]
+        or abs(old["drift"] - d) > 0.05 + 0.25 * abs(d)
+        or abs(old["freq_mhz"] - f) * 1e6 > 100
+    )
+    out["remeasured"] = {
+        "seed_moved": bool(moved),
+        "earlier_seed": {
+            k: old.get(k) for k in ("seed_pos", "recovered", "snr", "freq_mhz", "drift")
+        },
+    }
+    if moved:
+        for key in ("same_drift_twins", "clock_probes"):
+            if isinstance(out.get(key), dict):
+                out[key] = {
+                    **out[key],
+                    "stale": "measured for an earlier seed on another track",
+                }
+    return out
 
 
 def measure(scans, cuts, seed, info, half_khz):
@@ -852,28 +997,7 @@ def run(case, verbose=True):
         bundle["clock_probes"] = clock_probes(scans, cuts, seed, info)
     out = remote.ROOT / "cases" / "evidence" / case["id"]
     out.mkdir(parents=True, exist_ok=True)
-    plot(case, scans, cuts, info, seed, out / "waterfall.png")
-    # the same plot without names, for blinded readers
-    n_off, blind_cuts = 0, []
-    for s_, cu in zip(scans, cuts):
-        if "error" in cu:
-            blind_cuts.append(cu)
-            continue
-        n_off += s_["role"] == "OFF"
-        blind_cuts.append(
-            {
-                **cu,
-                "source_name": "target" if s_["role"] == "ON" else f"pointing {n_off}",
-            }
-        )
-    plot(
-        {"id": code_for(case["id"]), "target": ""},
-        scans,
-        blind_cuts,
-        info,
-        seed,
-        out / "waterfall_blind.png",
-    )
+    _plots(case, scans, cuts, info, seed, out)
     (out / "evidence.json").write_text(json.dumps(bundle, indent=1))
     led = ledger.connect()
     ledger.add_case(led, {**case, "site": site})

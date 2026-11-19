@@ -55,7 +55,8 @@ def code_features(b):
         else 0.5
     )
     near = (b.get("lookalikes_10khz") or {}).get("other_targets", 0)
-    tw = (b.get("same_drift_twins") or {}).get("n_twins_also_in_off") or 0
+    tw = b.get("same_drift_twins") or {}
+    tw = 0 if tw.get("stale") else tw.get("n_twins_also_in_off") or 0
     return {
         "on_scans": sum(pres) / max(1, len(pres)),
         "steady": 1 - min(1, max(0, (share - even) / max(1e-6, 0.5 - even))),

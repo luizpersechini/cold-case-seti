@@ -35,13 +35,19 @@ CLOCKS_MHZ = [
     200,
 ]
 _ALLOC = Path(__file__).with_name("allocations.csv")
+# The survey's hit tables give drift rates with the opposite sign to the data:
+# of 1.04 million lines catalogued in two on-star scans of a cadence, 98.8%
+# moved against the catalogue's sign (tools/drift_sign.py). Catalogue drifts
+# are turned to the data's sign wherever they are compared with a measurement.
+CATALOGUE_DRIFT_SIGN = -1.0
 
 
 def lookalikes(con, freq_mhz, drift, target, mjd, window_hz=1000.0, top=12):
     """Hits near this frequency elsewhere in the survey (table hits_u). Hits
     toward this target on the day of the observation are left out: they are the
     candidate itself, and counting them would mark out cases taken from the
-    catalogue."""
+    catalogue. `drift` is a measured one; the drifts returned are the
+    catalogue's turned to the same sign."""
     w = window_hz * 1e-6
     base = target.upper().removesuffix("_OFF")
     rows = con.execute(
@@ -51,6 +57,7 @@ def lookalikes(con, freq_mhz, drift, target, mjd, window_hz=1000.0, top=12):
            where h.freq between ? and ?""",
         [freq_mhz - w, freq_mhz + w],
     ).fetchall()
+    rows = [(*r[:3], CATALOGUE_DRIFT_SIGN * r[3], r[4]) for r in rows]
     other = [r for r in rows if r[0] != base]
     own_other_days = [r for r in rows if r[0] == base and abs(r[1] - mjd) >= 0.5]
     same_day = [r for r in other if abs(r[1] - mjd) < 0.5]

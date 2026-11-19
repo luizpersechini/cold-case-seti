@@ -245,6 +245,30 @@ def clear_chunks():
         path.unlink()
 
 
+def cached_cutout_near(url, f_center, half_khz, max_shift_hz=2500.0):
+    """A cutout of this scan that is already in the cache, centred within
+    max_shift_hz of f_center and no more than 1 kHz narrower than half_khz.
+    Returned as read_cutout returns one, or None. Nothing is downloaded. An
+    off-centre cutout holds fewer control windows on one side; meant for
+    cutouts many kHz wide."""
+    stem = url.rsplit("/", 1)[-1]
+    tag = hashlib.sha1(url.encode()).hexdigest()[:8]
+    best = None
+    for p in (DATA / "cutouts").glob(f"*__{tag}.npz"):
+        parts = p.name.rsplit("__", 3)
+        if len(parts) != 4 or parts[0] != stem:
+            continue
+        shift = abs(float(parts[1]) - f_center) * 1e6
+        if float(parts[2]) < half_khz - 1.0 or shift > max_shift_hz:
+            continue
+        if best is None or shift < best[0]:
+            best = (shift, p)
+    if best is None:
+        return None
+    z = np.load(best[1], allow_pickle=False)
+    return {"data": z["data"], **json.loads(str(z["info"])), "cached": True}
+
+
 def read_cutout(url, f_center, half_khz):
     """Cutout of +-half_khz around f_center (MHz). Returns a dict with
     data[time, chan], fch1 (MHz of channel 0), foff (MHz), tsamp, tstart (MJD)."""

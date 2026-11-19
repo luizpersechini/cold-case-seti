@@ -165,12 +165,15 @@ def _close(case_id, bundle, out, say):
     say(f"  closed by D7: {', '.join(ids)}")
 
 
-def run(case_id, save=True, close=True, verbose=True):
+def run(case_id, save=True, close=True, verbose=True, bundle=None, cached_only=False):
     """Measure one case in the scans of other stars around it. Returns the
-    record (also written to session.json) with the megabytes downloaded."""
+    record (also written to session.json) with the megabytes downloaded.
+    With `bundle` the measurement is made for that evidence instead of the
+    stored one. With cached_only a neighbouring scan is used only if a cutout
+    of it is already in the cache, so nothing is downloaded."""
     say = print if verbose else (lambda *a, **k: None)
     folder = remote.ROOT / "cases" / "evidence" / case_id
-    b = json.loads((folder / "evidence.json").read_text())
+    b = bundle or json.loads((folder / "evidence.json").read_text())
     seed, case = b["seed"], b["case"]
     out = {"case_id": case_id, "scans": [], "net_mb": 0.0}
 
@@ -233,7 +236,14 @@ def run(case_id, save=True, close=True, verbose=True):
     if not scans:
         return done()
     half = repeat._half_khz(abs(d_e) + dtol)
-    cuts = repeat._fetch_all([(s["url"], f_e, half) for s in scans])
+    if cached_only:
+        cuts = [
+            remote.cached_cutout_near(s["url"], f_e, half)
+            or {"error": "not in the cache"}
+            for s in scans
+        ]
+    else:
+        cuts = repeat._fetch_all([(s["url"], f_e, half) for s in scans])
     good = [c for c in cuts if "error" not in c]
     out["net_mb"] = round(
         sum(0 if c.get("cached") else c.get("net_bytes", 0) for c in good) / 1e6, 1

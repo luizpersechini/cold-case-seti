@@ -85,7 +85,8 @@ limits for download volume, time and AI spending.
 
 ## What it has shown so far
 
-Snapshot of 17 November 2026, after the first full pass over the queue.
+Snapshot of 19 November 2026, after a full pass over the queue and one
+full re-measurement (see "A drift-sign error" below).
 
 **Known answers**
 
@@ -101,14 +102,14 @@ Snapshot of 17 November 2026, after the first full pass over the queue.
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,410 over the whole queue       | 880 of 940                 | 3                        | 336 of 470        |
+| Running controls, 1,410 over the whole queue       | 879 of 940                 | 3                        | 336 of 470        |
 
 In the first two tests, every sky-only signal that was not left open was too
-weak to recover at all. Over the whole queue, 60 were not left open: 52 too
-weak to recover, 5 hidden under a much stronger real signal at the same
+weak to recover at all. Over the whole queue, 61 were not left open: 51 too
+weak to recover, 7 hidden under a much stronger real signal at the same
 place, and 3 closed by a rule. Those 3 were closed as seen off the star, all
 in crowded satellite bands, where real interference crossed the track in an
-off-star scan. That is 0.3% of the 883 recovered.
+off-star scan. That is 0.3% of the 882 recovered.
 
 The count was 13 before the controls were examined one by one. Eight had
 been closed as seen toward another star, each on a single weak catalogue hit
@@ -166,25 +167,73 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 700 are closed: 583
-bursts, 59 with no signal at the catalogue position, 32 seen off the star, 5
-seen toward other stars in the same half hour, 21 lines of two clocks
-(below). One case has no public data. The other 61 hits stay open and form 47
-events. The AI readers have rated all 47: none high, and two got a medium
-from both readers. In 14 more, at
-least one reader saw interference or a burst that the code rules do not
-confirm, so they stay open. The wider off-star test closed two
-of the 32; three more events have a line near the predicted place in an
-off-star scan but sit in bands too crowded for one match to count, and are
-flagged in the report.
+**A drift-sign error, found and fixed.** Until 19 November every case was
+followed the wrong way. The survey's hit tables give each drift rate with the
+opposite sign to the data, and the pipeline trusted that sign. It showed up
+while two open events were being checked by hand: one line moved down 89 Hz
+between two scans while its catalogue drift pointed up. The hit tables
+confirm it on their own: of 1.04 million lines catalogued in two on-star
+scans of one cadence, 98.8% moved against the catalogue's sign
+(`tools/drift_sign.py`).
 
-**Other days.** For 22 of the events that stayed open, the star was observed
-again in the same band. The signal was absent every time, at the telescope
-frequency and at the Earth-shifted one, so none of them closed and none was
-flagged.
+A wrong-way track crosses a steady line for an instant, so a steady line
+looked like a burst, and the places predicted in the other five scans were
+off. The hidden test signals could not catch it, because they are injected
+with the pipeline's own sign. That is the lesson: the controls test the
+rules, not the reading of someone else's catalogue.
 
-**The same half hour.** This check ran on the 53 events that were open
-before it. For 43 of them another star had been observed in the same band
+The seed search now takes the stronger of the two signs, and all 2,181
+stored cases (queue, controls, known answers) were measured again from
+cached data, with no downloads. The known answers did not change. The
+controls moved by one case. In the queue the seed moved to another track in
+610 of 761 cases, and 125 changed status:
+
+| Was                                 | Cases | Now                                             |
+| ----------------------------------- | ----- | ----------------------------------------------- |
+| Burst                               | 43    | Closed, seen off the star                       |
+| Burst                               | 23    | Open                                            |
+| No signal at the catalogue position | 20    | Open                                            |
+| No signal at the catalogue position | 16    | Closed, burst                                   |
+| Seen off the star or at other stars | 7     | Open                                            |
+| Seen off the star                   | 3     | Closed, burst                                   |
+| Open                                | 9     | Closed, seen off the star or toward other stars |
+| Open                                | 4     | Closed, burst                                   |
+
+**The queue.** Of the 762 cases, 663 are closed: 540 bursts, 23 with no
+signal at the catalogue position, 74 seen off the star, 5 seen toward other
+stars in the same half hour, 21 lines of two clocks (below). One case has no
+public data. The other 98 hits stay open and form 70 events. Fifty-one of
+them stand above their control windows in one on-star scan, 11 in two, 2 in
+all three and 6 in none.
+
+The AI readers had rated every event that was open before the
+re-measurement. Those ratings were made on the old measurements, so they
+are kept only for the 11 events whose track and lines did not change: none
+of the 11 is rated above low. The other 59 events wait for the next month's
+AI budget.
+
+**Two events looked at by hand.** Both readers had rated two events medium.
+One (q00707, 2258.417 MHz toward HIP15919) is explained: the hit table lists
+a carrier 2.048 MHz above it in all six scans, on and off the star, which
+flared a hundredfold in the one scan where the event appears, at the same
+drift. The event is a spur of that carrier, about 200 times weaker. No rule
+closes that pattern yet, so it is still on the open list. The other (q00671,
+2051.617 MHz toward HIP36357) is the most interesting event so far, and
+still unexplained. One line drifts steadily at -0.124 Hz/s through two
+on-star scans 12 minutes apart, at S/N 75 and 134, and is absent from all
+three off-star scans and from the third on-star scan. It also switches off
+and on by itself while the telescope is on the star, so its absence off the
+star does not show that it comes from the sky. It was absent three days
+later. It sits in a band used for satellite uplinks.
+
+**Other days.** Before the re-measurement, the star of 22 open events had
+been observed again in the same band, and the signal was absent every time,
+at the telescope frequency and at the Earth-shifted one. Those measurements
+followed the old tracks. They still hold for 13 of today's 70 events; for
+the rest the check has to be made again.
+
+**The same half hour.** This check first ran on the 53 events that were open
+at the time, on the old tracks. For 43 of them another star had been observed in the same band
 within 30 minutes, 170 scans in all. The line was absent in 36 events. In
 five it was there toward another star, 3 to 42 degrees away, and those
 closed. One of the five has two matching scans; the other four have one
@@ -192,6 +241,14 @@ each, at a chance of 4 to 5% that an unrelated line explains it. In two more
 events a scan holds a line at the same frequency, but stand-out lines are
 common enough near them that one match does not count, and they stay open.
 All five closed events had been left open by both AI readers.
+
+After the re-measurement the check was made again, from cached data, for
+the 36 cases whose track had changed. Five events are closed by it now. Four
+are from the first five. The fifth of those, the weakest, lost its match on
+the right track and is open again; one event that had shown nothing on the
+wrong track now has a match and closed. Of the 70 open events, 22 were
+absent toward other stars, 10 had no other star within half an hour, and 38
+have not had the check yet.
 
 The chance of an unrelated line was measured on the same scans: a given
 position holds a line that stands out in 0.3% of scans (25 in 7,820 control
@@ -202,7 +259,8 @@ strongest moment, was compared with the orbit of every catalogued payload.
 In two events a satellite was closer than it is in 95% of other moments of
 the same night: Landsat 1 at 0.07 degrees and KazSat-1 at 0.11 degrees. Two
 in 53 is what chance gives, and both satellites had been dead for years. So
-the check found nothing, and it only flags.
+the check found nothing, and it only flags. It was made before the
+re-measurement and holds for 13 of today's open events.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
 by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
@@ -230,9 +288,9 @@ the raw data hold a line at the predicted frequency in 13 of 15 measurements,
 other predicted multiples, against 3 of 2,880 at shifted control positions.
 The lines are also in some off-star scans, 200 to 300 Hz from the track and
 outside the narrow window the off-star test followed then. The wider test
-added since still does not see them: in 5 of the 11 lines an off-star scan
-holds a strong line within 300 Hz, but drifting the other way, so the clock's
-rate was changing from scan to scan.
+added later did not see them either: in 5 of the 11 lines an off-star scan
+holds a strong line within 300 Hz, but drifting the other way. That was the
+drift-sign error at work: the candidates were being followed the wrong way.
 
 <p align="center">
   <img src="docs/img/dashboard.jpg" width="720" alt="The runner's dashboard: queue progress, budget, the cases of the last run as tiles, the latest plot, and the queue laid out along the spectrum.">
@@ -282,13 +340,19 @@ uv run python -I -m coldcase.repeat CASE_ID
 uv run python -I -m coldcase.harmonics
 uv run python -I -m coldcase.combs
 
-# 8. Review every open event on one page (also linked from the dashboard)
+# 8. Check which way the hit tables' drift rates point, and measure every
+#    stored case again from cached data (stage, then report, then apply)
+uv run python -I tools/drift_sign.py
+uv run python -I -m coldcase.remeasure stage
+uv run python -I -m coldcase.remeasure report
+
+# 9. Review every open event on one page (also linked from the dashboard)
 uv run python -I -m coldcase.dossier    # writes report/dossier.html
 
-# 9. Look for an open event's line toward other stars in the same half hour
+# 10. Look for an open event's line toward other stars in the same half hour
 uv run python -I -m coldcase.session CASE_ID
 
-# 10. Compare an open event with satellite orbits. Needs the yearly element
+# 11. Compare an open event with satellite orbits. Needs the yearly element
 #     files from Space-Track (free account) and CelesTrak's satcat.csv in
 #     data/satellites/
 uv run python -I -m coldcase.satellites index
@@ -316,6 +380,7 @@ trigger.
 | `coldcase/session.py`                              | The same line toward other stars within half an hour                |
 | `coldcase/satellites.py`                           | Catalogued satellites near the line of sight at the signal's peak   |
 | `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
+| `coldcase/remeasure.py`                            | Measures every stored case again from cached cutouts and applies it |
 | `coldcase/controls.py`                             | Hidden synthetic signals for every batch                            |
 | `coldcase/readers.py`, `agents/`                   | The two AI readers and their instructions                           |
 | `coldcase/rank.py`                                 | The rank score for open events                                      |
@@ -334,8 +399,17 @@ trigger.
   transmitter on an orbiting planet would be shifted by an unknown amount.
 - The off-star test looks on the track predicted from the on-star scan and
   for a line of the same drift within 300 Hz of it. A local line whose drift
-  changes between scans escapes it, as the 24 MHz clock did. In a crowded
+  changes between scans escapes it, and so does a fast drifter (several Hz/s),
+  whose place a few minutes later cannot be predicted that well. In a crowded
   band one nearby line is not enough, and the event stays open.
+- A line counts as present only when it stands above its comparison windows.
+  Where those windows hold stronger lines, a line that is plainly there off
+  the star stays open. Three open events are like that (q00316, q00538,
+  q00399).
+- Fifty-nine of the 70 open events have no AI reading of their present
+  measurements, and the other-day and satellite checks hold for 13.
+- The wide search for lines of the same drift near each case was made at the
+  catalogue's sign and has not been redone; it only feeds the ranking.
 - The flash test leaves out one time sample. A signal that is on for two or
   three samples and off for the rest is not caught by it.
 - The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
@@ -353,7 +427,7 @@ trigger.
   telescope's sidelobes.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them: the rules closed 3 of 883 recovered
+  controls are the real test of them: the rules closed 3 of 882 recovered
   sky-only signals that should have stayed open, and missed 131 of 466 weak
   leaks. The two-star threshold of the other-star rule was chosen on those
   same controls.
