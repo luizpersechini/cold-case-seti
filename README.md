@@ -48,7 +48,9 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
 
    The last row compares open events with each other, so it runs over the
-   open list after each batch. Two more kinds of evidence come from steps 5
+   open list after each batch. So does a second pass of the comb test, for
+   lines of one scan that came from different downloads. Two more kinds of
+   evidence come from steps 5
    and 6: the signal is back at the same telescope frequency on another day,
    or it is there toward other stars in the same half hour.
 
@@ -164,12 +166,12 @@ saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
 cases their instructions were tuned on, so it flatters them. Jev was removed:
 it cost tokens and added 0.02 to a score that is free.
 
-**The queue.** All 762 cases have had a first pass, and 698 are closed: 583
+**The queue.** All 762 cases have had a first pass, and 700 are closed: 583
 bursts, 59 with no signal at the catalogue position, 32 seen off the star, 5
-seen toward other stars in the same half hour, 19 lines of two clocks
-(below). One case has no public data. The other 63 hits stay open and form 48
-events. The AI readers have rated all 48: none high, two got a medium from
-both readers and one from one of them. In 14 more, at
+seen toward other stars in the same half hour, 21 lines of two clocks
+(below). One case has no public data. The other 61 hits stay open and form 47
+events. The AI readers have rated all 47: none high, and two got a medium
+from both readers. In 14 more, at
 least one reader saw interference or a burst that the code rules do not
 confirm, so they stay open. The wider off-star test closed two
 of the 32; three more events have a line near the predicted place in an
@@ -204,6 +206,13 @@ the check found nothing, and it only flags.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
 by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
+Two more lines of the same scan sat 4 and 5 teeth below the eight, in the
+next download, where the comb test could not see them. They had stayed open,
+and one reader had rated their event medium. The test now also looks across
+downloads and closed both. The survey's own hit table agrees: in that scan,
+24 of the 29 catalogued hits within 60 teeth of the comb sit on a tooth, on
+24 different teeth, and none do when the grid is shifted. With the grid moved
+at random, the rule closes a line in 2 of 1,000 tries.
 
 A second clock was hiding across the whole band. Eleven events that had
 stayed open turned out to be one device. In five scans toward three stars,
@@ -268,8 +277,10 @@ uv run python -I -m coldcase.serve      # http://localhost:8790
 # 6. Look for an open event on the star's other observing days
 uv run python -I -m coldcase.repeat CASE_ID
 
-# 7. Look for harmonics of one clock among the open events (dry run)
+# 7. Look for harmonics of one clock among the open events, and for combs
+#    whose lines came from different downloads (dry runs)
 uv run python -I -m coldcase.harmonics
+uv run python -I -m coldcase.combs
 
 # 8. Review every open event on one page (also linked from the dashboard)
 uv run python -I -m coldcase.dossier    # writes report/dossier.html
@@ -301,6 +312,7 @@ trigger.
 | `coldcase/triage.py`                               | The direct-evidence rules                                           |
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
+| `coldcase/combs.py`                                | The comb test for lines of one scan in different downloads          |
 | `coldcase/session.py`                              | The same line toward other stars within half an hour                |
 | `coldcase/satellites.py`                           | Catalogued satellites near the line of sight at the signal's peak   |
 | `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
@@ -329,6 +341,9 @@ trigger.
 - The clock rule tries whole numbers of MHz from 4 to 50 and needs two lines
   in one scan. Four single lines near a multiple of the same clock were
   flagged and stayed open; the session check later closed two of them.
+- The comb test across downloads needs a comb that is already closed, or four
+  open lines in one scan. A closed comb's grid comes from a few lines, so a
+  tooth far from them can fall outside the 120 Hz allowed and be missed.
 - The session check needs another star observed within 30 minutes: 10 of 53
   events had none. Four of its five closures rest on one matching scan, the
   weakest of them only 1.7 above its control windows.

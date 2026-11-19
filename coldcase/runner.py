@@ -400,7 +400,7 @@ def recheck(apply=False, say=print):
     closed one at a time, and say what changes. A case whose reason no longer
     counts is reopened as an unread open event; one that stays closed for a
     different reason gets the new reason recorded. Cases closed by a rule
-    that compares several cases (the comb of one event, clock harmonics), or
+    that compares several cases (a comb, clock harmonics), or
     closed along with the strongest line of their event, are left alone. An
     open case that today's rules close is closed, and the other lines of its
     event with it. Nothing is downloaded. Without apply it only reports what
@@ -423,6 +423,7 @@ def recheck(apply=False, say=print):
             why.startswith("D6:")
             or "lines of this event" in why
             or "this line belongs to the event of" in why
+            or "of one scan" in why  # a comb across downloads (combs.py)
         ):
             continue
         dec = triage.decide_case(case_id)
@@ -472,9 +473,10 @@ def recheck(apply=False, say=print):
         status = con.execute(
             "select status from queue where case_id=?", (case_id,)
         ).fetchone()[0]
-        if not status.startswith("open") or not (
-            ROOT / "cases" / "evidence" / case_id / "evidence.json"
-        ).exists():
+        if (
+            not status.startswith("open")
+            or not (ROOT / "cases" / "evidence" / case_id / "evidence.json").exists()
+        ):
             continue
         dec = triage.decide_case(case_id)
         if dec["status"] != "closed":
@@ -500,7 +502,9 @@ def recheck(apply=False, say=print):
             continue
         for cid in [case_id] + members:
             text = why + (
-                "" if cid == case_id else f"; this line belongs to the event of {case_id}"
+                ""
+                if cid == case_id
+                else f"; this line belongs to the event of {case_id}"
             )
             ledger.add_verdict(
                 led,
@@ -521,9 +525,10 @@ def recheck(apply=False, say=print):
         f"{closed_now} open closed" + ("" if apply else " (dry run)")
     )
     if apply and reopened:
-        from . import harmonics
+        from . import combs, harmonics
 
         harmonics.apply(say=say)
+        combs.apply(say=say)
 
 
 def regroup():
@@ -784,6 +789,13 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                 harmonics.apply(say=lambda *_: None)
             except Exception as e:
                 log(f"harmonic check failed: {type(e).__name__}: {e}"[:200])
+            # so does the comb test across download groups
+            try:
+                from . import combs
+
+                combs.apply(say=lambda *_: None)
+            except Exception as e:
+                log(f"comb check failed: {type(e).__name__}: {e}"[:200])
     except KeyboardInterrupt:
         log("stopping: stopped by request")
     finally:
