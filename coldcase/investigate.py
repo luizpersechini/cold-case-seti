@@ -432,6 +432,75 @@ def remeasure(case, bundle, con=None):
     return out
 
 
+def _track_and_controls(cu, k_pred, dt, drift):
+    """The forced track at a predicted channel of one cutout, and the same
+    measurement in the control windows: places to either side where nothing
+    is predicted. Returns the track, the S/N of the control windows inside
+    the cutout, every channel measured, the two tolerances and the spacing of
+    the windows in channels."""
+    fo = cu["foff"] * 1e6
+    ctol = max(3, tol_hz(dt, drift) / abs(fo))
+    dtol = 0.05 + 0.25 * abs(drift)
+    width = 2 * int(np.ceil(ctol)) + 3
+    ks = [k_pred] + [k_pred + m * width for m in range(-25, 26) if abs(m) >= 3]
+    res = dd.track_multi(
+        cu["data"], fo, cu["tsamp"], ks, drift, chan_tol=ctol, drift_tol=dtol
+    )
+    ctrl = np.array([r["snr"] for r in res[1:] if r["in_cutout"]])
+    return res[0], ctrl, ks, ctol, dtol, width
+
+
+def _control_summary(tr, ctrl, window_hz):
+    """What a scan's row keeps of its control windows. at_least_track is how
+    many of them hold a track at least as strong as the one at the predicted
+    place: where the windows hold lines of their own, the strongest of them
+    is no yardstick, and the crowded part of rule D1 reads this instead."""
+    if len(ctrl) == 0:
+        return None
+    out = {
+        "n": int(len(ctrl)),
+        "median_snr": round(float(np.median(ctrl)), 1),
+        "p95_snr": round(float(np.percentile(ctrl, 95)), 1),
+        "max_snr": round(float(ctrl.max()), 1),
+        "window_hz": round(window_hz, 1),
+    }
+    if tr["snr"] is not None:
+        out["at_least_track"] = int((ctrl >= tr["snr"]).sum())
+    return out
+
+
+def control_ranks(case, bundle):
+    """at_least_track and window_hz (see _control_summary) for every scan of
+    a stored bundle, measured again along its seed from the cutouts in the
+    cache: {pos: {...}}. Each entry also holds the track's S/N as measured
+    here, to compare with the stored one. None when a cutout that was read
+    before is no longer in the cache; nothing is downloaded."""
+    got = _cached_cuts(case, bundle)
+    if got is None:
+        return None
+    scans, cuts, _ = got
+    seed = next(
+        i for i, s in enumerate(scans) if s["pos"] == bundle["seed"]["seed_pos"]
+    )
+    f, d = bundle["seed"]["freq_mhz"], bundle["seed"]["drift"]
+    c = cuts[seed]
+    out = {}
+    for s, cu in zip(scans, cuts):
+        if "error" in cu:
+            continue
+        dt = (cu["tstart"] - c["tstart"]) * 86400.0
+        k_pred = (f + d * dt * 1e-6 - cu["fch1"]) / cu["foff"]
+        tr, ctrl, _, _, _, width = _track_and_controls(cu, k_pred, dt, d)
+        cs = _control_summary(tr, ctrl, width * abs(cu["foff"] * 1e6))
+        if cs and "at_least_track" in cs:
+            out[s["pos"]] = {
+                "at_least_track": cs["at_least_track"],
+                "window_hz": cs["window_hz"],
+                "track_snr": round(tr["snr"], 1),
+            }
+    return out
+
+
 def measure(scans, cuts, seed, info, half_khz):
     c = cuts[seed]
     f_seed, d_seed = info["freq_mhz"], info["drift"]
@@ -451,22 +520,7 @@ def measure(scans, cuts, seed, info, half_khz):
         dt = (cu["tstart"] - c["tstart"]) * 86400.0
         f_pred = f_seed + d_seed * dt * 1e-6
         k_pred = (f_pred - cu["fch1"]) / cu["foff"]
-        ctol = max(3, tol_hz(dt, d_seed) / abs(fo))
-        dtol = 0.05 + 0.25 * abs(d_seed)
-        # control windows: same measurement at places where nothing is predicted
-        width = 2 * int(np.ceil(ctol)) + 3
-        ctrl_k = [k_pred + m * width for m in range(-25, 26) if abs(m) >= 3]
-        res = dd.track_multi(
-            cu["data"],
-            fo,
-            cu["tsamp"],
-            [k_pred] + ctrl_k,
-            d_seed,
-            chan_tol=ctol,
-            drift_tol=dtol,
-        )
-        tr = res[0]
-        ctrl = np.array([r["snr"] for r in res[1:] if r["in_cutout"]])
+        tr, ctrl, ks, ctol, dtol, width = _track_and_controls(cu, k_pred, dt, d_seed)
         blind = dd.search(
             cu["data"],
             fo,
@@ -507,14 +561,7 @@ def measure(scans, cuts, seed, info, half_khz):
                     cu["data"], fo, cu["tsamp"], tr["chan"], tr["drift"]
                 ),
                 "brightest_sample_in_cutout": _brightest(cu, f_pred),
-                "control_windows": None
-                if len(ctrl) == 0
-                else {
-                    "n": int(len(ctrl)),
-                    "median_snr": round(float(np.median(ctrl)), 1),
-                    "p95_snr": round(float(np.percentile(ctrl, 95)), 1),
-                    "max_snr": round(float(ctrl.max()), 1),
-                },
+                "control_windows": _control_summary(tr, ctrl, width * abs(fo)),
                 "track_exceeds_all_controls": bool(
                     tr["snr"] is not None and len(ctrl) > 0 and tr["snr"] > ctrl.max()
                 ),
@@ -534,7 +581,7 @@ def measure(scans, cuts, seed, info, half_khz):
         )
         if s is scans[seed] and tr["chan"] is not None and len(ctrl):
             row["track_without_strongest_sample"] = without_peak(
-                cu, [k_pred] + ctrl_k, d_seed, ctol, dtol, tr, float(ctrl.max())
+                cu, ks, d_seed, ctol, dtol, tr, float(ctrl.max())
             )
         rows.append(row)
     return rows

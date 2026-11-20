@@ -5,7 +5,9 @@ a case is closed or stays open. A case is closed only on direct evidence:
       1.0 above its control maximum, or one OFF scan 1.5 or more above its control maximum, or two
       or more OFF scans above their controls; or a line at its drift within
       300 Hz of the predicted place among an OFF scan's blind detections,
-      when an unrelated line that close is unlikely: see off_wide)
+      when an unrelated line that close is unlikely: see off_wide; or an OFF
+      track of S/N 8 or more closer to the predicted frequency than the
+      lines in its control windows make likely: see off_crowded)
   D2  two or more clock-probe signals match a single mistuned oscillator
   D3  the same frequency (within 300 Hz) and drift toward two or more other
       targets (one other target is only flagged: on injected signals a single
@@ -28,7 +30,9 @@ Context (band, drift, neighbours) never closes a case; readers use it to rank
 the open ones. The satellite check (coldcase/satellites.py) is context too: a
 payload passing close to the line of sight when the signal peaked is flagged.
 Over the 52 open events checked on 2026-11-18, two had a pass rarer than 5%,
-where chance alone gives two or three, and both payloads were long dead.
+where chance alone gives two or three, and both payloads were long dead. On
+the tracks measured again, 2026-11-19: seven of 70, where chance gives three
+or four; three of those payloads are listed as working.
 
 usage: python -m coldcase.triage CASE_ID ...     (prints the decision)
 """
@@ -150,6 +154,51 @@ def off_wide(b, floor=WIDE_SNR_MIN):
         f"{h['offset_from_prediction_hz']:+.0f} Hz); chance of an unrelated line "
         f"{tail:.3f}"
     ), stats
+
+
+def off_crowded(b, floor=WIDE_SNR_MIN):
+    """D1, crowded part: is the line found at the predicted place of an OFF
+    scan the candidate, or an unrelated line? The other parts of D1 ask the
+    OFF track to beat its strongest control window. Where those windows hold
+    lines of their own (the other teeth of a comb the candidate belongs to,
+    say) it cannot, however plainly it is there. This part counts an OFF scan
+    whose track has S/N of floor or more and asks how likely an unrelated
+    line that strong is to sit that close to the predicted frequency: the
+    lines at least as strong per hertz of control windows, plus one for the
+    one found, times the stretch of frequency as close as it was found. The
+    same unrelated line may be there in every scan, so scans are not
+    multiplied: the chance is the largest of the counted scans', times one
+    more than the number of OFF scans without the line. Returns (text or
+    None, numbers)."""
+    n, near = 0, []
+    for s in b["scans"]:
+        cw = s.get("control_windows") or {}
+        if s["role"] != "OFF" or "error" in s or cw.get("at_least_track") is None:
+            continue
+        n += 1
+        tr = s["track"]
+        if tr.get("snr") is None or tr["snr"] < floor:
+            continue
+        close_hz = 2 * abs(tr["offset_from_prediction_hz"]) + s["chan_hz"]
+        p = min(
+            1.0, (cw["at_least_track"] + 1) * close_hz / (cw["n"] * cw["window_hz"])
+        )
+        near.append((p, s["pos"], tr, cw))
+    k = len(near)
+    stats = {"off_scans": n, "off_scans_with_line": k, "chance": None}
+    if not k:
+        return None, stats
+    p, pos, tr, cw = max(near, key=lambda x: x[0])
+    stats["chance"] = chance = round(min(1.0, (n - k + 1) * p), 4)
+    stats["text"] = (
+        f"a line of S/N {floor:.0f} or more at the predicted place in {k} of {n} OFF "
+        f"scans (scan {pos}: S/N {tr['snr']} at {tr['offset_from_prediction_hz']:+.1f} "
+        f"Hz, where {cw['at_least_track']} of {cw['n']} control windows hold one as "
+        f"strong); chance of an unrelated line that close {chance:.3f}"
+    )
+    if chance >= CHANCE_MAX:
+        return None, stats
+    return "D1: " + stats["text"], stats
 
 
 def repeat_rule(b, rp):
@@ -331,6 +380,11 @@ def decide(b, repeat=None, session=None, satellites=None):
             f"{ws['same_drift_lines_farther_away']} more such lines farther away put "
             f"the chance of an unrelated line at {ws['chance_of_this_many']:.2f}"
         )
+    text, cs = off_crowded(b)
+    if text:
+        direct.append(text)
+    elif cs["off_scans_with_line"]:
+        flags.append(cs["text"])
     cp = b.get("clock_probes") or {}
     if cp.get("done") and cp.get("n_matching_one_oscillator", 0) >= 2:
         direct.append(

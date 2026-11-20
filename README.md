@@ -147,6 +147,23 @@ closed four more hits in the queue. Eight open events lose more than 30% but
 still stand above their controls. They vary strongly, which is flagged in
 the report and closes nothing.
 
+The off-star test was extended once more on 20 November. A line counted as
+present off the star only when it beat the strongest of its 46 control
+windows. Where those windows hold lines of their own, such as the other
+teeth of a comb the candidate belongs to, it cannot, however plainly it is
+there. The test now also takes an off-star track of S/N 8 or more and asks
+how likely an unrelated line that strong is to sit that close to the
+predicted frequency, given how many of the control windows hold one. The
+same unrelated line can be there in every scan, so the scans are not
+multiplied together. Under 5%, the case closes. It closed 11 hits in 8
+events, at chances of 0.7% to 3.8%. Two of the events (q00316, q00538) are
+mirror images 2.538 MHz either side of 1837.5 MHz, each one tooth of a comb
+with lines every 500 Hz, at S/N 140 to 260 in all three off-star scans. On
+the 882 recovered sky-only controls the new part fires twice, both times on
+a control the older parts had already closed, so chance predicts about 0.2
+firings among the 97 hits that were open. It caught no leak the older parts
+had missed. Four of the eight events rest on a single off-star scan.
+
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
 
@@ -199,18 +216,18 @@ controls moved by one case. In the queue the seed moved to another track in
 | Open                                | 9     | Closed, seen off the star or toward other stars |
 | Open                                | 4     | Closed, burst                                   |
 
-**The queue.** Of the 762 cases, 663 are closed: 540 bursts, 23 with no
-signal at the catalogue position, 74 seen off the star, 5 seen toward other
-stars in the same half hour, 21 lines of two clocks (below). One case has no
-public data. The other 98 hits stay open and form 70 events. Fifty-one of
-them stand above their control windows in one on-star scan, 11 in two, 2 in
-all three and 6 in none.
+**The queue.** Of the 762 cases, 675 are closed: 536 bursts, 23 with no
+signal at the catalogue position, 91 seen off the star, 4 seen only toward
+other stars in the same half hour, 21 lines of two clocks (below). One case
+has no public data. The other 86 hits stay open and form 61 events.
+Forty-five of them stand above their control windows in one on-star scan, 10
+in two, 1 in all three and 5 in none.
 
 The AI readers had rated every event that was open before the
 re-measurement. Those ratings were made on the old measurements, so they
 are kept only for the 11 events whose track and lines did not change: none
-of the 11 is rated above low. The other 59 events wait for the next month's
-AI budget.
+of the 11 is rated above low. The other 50 open events wait for the next
+month's AI budget.
 
 **Two events looked at by hand.** Both readers had rated two events medium.
 One (q00707, 2258.417 MHz toward HIP15919) is explained: the hit table lists
@@ -229,8 +246,12 @@ later. It sits in a band used for satellite uplinks.
 **Other days.** Before the re-measurement, the star of 22 open events had
 been observed again in the same band, and the signal was absent every time,
 at the telescope frequency and at the Earth-shifted one. Those measurements
-followed the old tracks. They still hold for 13 of today's 70 events; for
-the rest the check has to be made again.
+followed the old tracks, so the check was made again on the new ones. It is
+done for 57 of the 61 open events and closed none. The star of 16 was
+observed again in the same band, on 25 other days in all, and the signal was
+absent every time, at both frequencies. For the other 41 there is no other
+day that can tell a local signal from one in the sky. The last four events
+are still being checked.
 
 **The same half hour.** This check first ran on the 53 events that were open
 at the time, on the old tracks. For 43 of them another star had been observed in the same band
@@ -246,9 +267,14 @@ After the re-measurement the check was made again, from cached data, for
 the 36 cases whose track had changed. Five events are closed by it now. Four
 are from the first five. The fifth of those, the weakest, lost its match on
 the right track and is open again; one event that had shown nothing on the
-wrong track now has a match and closed. Of the 70 open events, 22 were
-absent toward other stars, 10 had no other star within half an hour, and 38
-have not had the check yet.
+wrong track now has a match and closed.
+
+The check then ran on the 38 open events that had not had it, a download of
+9.3 GB, and closed one more: a strong line 304 Hz from the event's
+frequency toward a star 7 degrees away, six minutes earlier, in one of five
+scans, at a chance of 4.9%. Six events are closed by this check in all. Of
+the 61 events open now, 47 were absent toward other stars, 13 had no other
+star within half an hour, and 1 has a match that does not count.
 
 The chance of an unrelated line was measured on the same scans: a given
 position holds a line that stands out in 0.3% of scans (25 in 7,820 control
@@ -259,8 +285,16 @@ strongest moment, was compared with the orbit of every catalogued payload.
 In two events a satellite was closer than it is in 95% of other moments of
 the same night: Landsat 1 at 0.07 degrees and KazSat-1 at 0.11 degrees. Two
 in 53 is what chance gives, and both satellites had been dead for years. So
-the check found nothing, and it only flags. It was made before the
-re-measurement and holds for 13 of today's open events.
+the check found nothing, and it only flags.
+
+It was made again on the new tracks for the 70 events open on 19 November.
+Seven had a pass rarer than 5%, where chance gives three or four; seven or
+more turn up by chance about 6% of the time. Six of the seven are still
+open. Four of the payloads were launched between 1972 and 1992. The other
+three are listed as working today, so they were working then: a GPS
+satellite and two military communications satellites, 0.1 to 0.4 degrees
+from the line of sight. One of those events is at 2264 MHz, inside the band
+such satellites use for telemetry. The check still only flags.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
 by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
@@ -346,6 +380,11 @@ uv run python -I tools/drift_sign.py
 uv run python -I -m coldcase.remeasure stage
 uv run python -I -m coldcase.remeasure report
 
+#    Add a newer measurement to stored cases from cached data, then see what
+#    today's rules make of them (dry runs)
+uv run python -I -m coldcase.backfill
+uv run python -I -m coldcase.runner recheck
+
 # 9. Review every open event on one page (also linked from the dashboard)
 uv run python -I -m coldcase.dossier    # writes report/dossier.html
 
@@ -402,12 +441,13 @@ trigger.
   changes between scans escapes it, and so does a fast drifter (several Hz/s),
   whose place a few minutes later cannot be predicted that well. In a crowded
   band one nearby line is not enough, and the event stays open.
-- A line counts as present only when it stands above its comparison windows.
-  Where those windows hold stronger lines, a line that is plainly there off
-  the star stays open. Three open events are like that (q00316, q00538,
-  q00399).
-- Fifty-nine of the 70 open events have no AI reading of their present
-  measurements, and the other-day and satellite checks hold for 13.
+- Where the comparison windows hold lines of their own, the off-star test
+  goes by how close the off-star line sits to the predicted frequency. That
+  assumes unrelated lines are spread evenly over those windows. Four of the
+  eight events it closed rest on one off-star scan, two of them at a chance
+  above 3%.
+- Fifty of the 61 open events have no AI reading of their present
+  measurements.
 - The wide search for lines of the same drift near each case was made at the
   catalogue's sign and has not been redone; it only feeds the ranking.
 - The flash test leaves out one time sample. A signal that is on for two or
@@ -418,9 +458,10 @@ trigger.
 - The comb test across downloads needs a comb that is already closed, or four
   open lines in one scan. A closed comb's grid comes from a few lines, so a
   tooth far from them can fall outside the 120 Hz allowed and be missed.
-- The session check needs another star observed within 30 minutes: 10 of 53
-  events had none. Four of its five closures rest on one matching scan, the
-  weakest of them only 1.7 above its control windows.
+- The session check needs another star observed within 30 minutes: 13 of the
+  61 open events had none. Five of its six closures rest on one matching
+  scan, the weakest of them 3.6 above its control windows, and three of
+  them sit at a chance of 4.9%, just under the limit.
 - The satellite check knows catalogued payloads only, from orbits published
   up to 7 days from the observation. It cannot tell a working satellite from
   a dead one, and it cannot see one picked up far from the beam by the

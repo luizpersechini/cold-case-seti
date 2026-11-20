@@ -3,19 +3,27 @@ stored evidence, from the cutouts already in the cache. Nothing is downloaded:
 a case whose cutouts are gone is skipped and counted. It covers the queue, the
 blind controls and the known cases.
 
-So far one measurement: track_without_strongest_sample on the seed scan (see
-investigate.without_peak), which the second part of rule D4 reads.
+Two measurements so far:
+
+  track_without_strongest_sample   on the seed scan (investigate.without_peak);
+                                   the second part of rule D4 reads it
+  at_least_track, window_hz        in every scan's control_windows
+                                   (investigate.control_ranks); the crowded
+                                   part of rule D1 reads them
 
 usage: python -m coldcase.backfill [--apply]     without --apply it only counts
 """
 
 import json
 import sys
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 from . import investigate, runner
 from .remote import ROOT
 
 FIELD = "track_without_strongest_sample"
+RANK = "at_least_track"
 
 
 def cases():
@@ -30,8 +38,71 @@ def cases():
             yield case, ev / case["id"] / "evidence.json"
 
 
+def _has_ranks(b):
+    return all(
+        RANK in s["control_windows"]
+        for s in b["scans"]
+        if s.get("control_windows") and s["track"].get("snr") is not None
+    )
+
+
+def _rank_work(job):
+    """One case, in a worker: its ranks, or why there are none."""
+    case, path = job
+    try:
+        got = investigate.control_ranks(case, json.loads(Path(path).read_text()))
+    except Exception as e:
+        return f"{type(e).__name__}: {e}"[:160]
+    return got
+
+
+def ranks(apply=False, say=print):
+    """at_least_track and window_hz for every scan of every recovered case
+    that lacks them. A scan is left alone when the track measured now is not
+    the stored one."""
+    n = {"added": 0, "already there": 0, "not recovered": 0, "no cutout": 0}
+    jobs = []
+    for case, path in cases():
+        if not path.exists():
+            continue
+        b = json.loads(path.read_text())
+        if not b["seed"].get("recovered"):
+            n["not recovered"] += 1
+        elif _has_ranks(b):
+            n["already there"] += 1
+        else:
+            jobs.append((case, str(path)))
+    differ = 0
+    with ProcessPoolExecutor(max_workers=8) as ex:
+        for (case, path), got in zip(jobs, ex.map(_rank_work, jobs, chunksize=4)):
+            if not isinstance(got, dict):
+                if got is not None:
+                    say(f"{case['id']}: {got}")
+                n["no cutout"] += 1
+                continue
+            n["added"] += 1
+            b = json.loads(Path(path).read_text())
+            for s in b["scans"]:
+                x = got.get(s["pos"])
+                if not x or not s.get("control_windows"):
+                    continue
+                if abs(x["track_snr"] - s["track"]["snr"]) > 0.1:
+                    differ += 1
+                    continue
+                s["control_windows"][RANK] = x[RANK]
+                s["control_windows"]["window_hz"] = x["window_hz"]
+            if apply:
+                Path(path).write_text(json.dumps(b, indent=1))
+    say(
+        "ranks among the control windows: "
+        + ", ".join(f"{k} {v}" for k, v in n.items())
+        + (f"; {differ} scans left alone, their track differs" if differ else "")
+        + ("" if apply else " (dry run)")
+    )
+
+
 def main(apply=False, say=print):
-    if runner.LOCK.exists():
+    if apply and runner.LOCK.exists():
         raise SystemExit("a runner batch is in progress; try again when it ends")
     n = {"added": 0, "already there": 0, "not recovered": 0, "no cutout": 0}
     for case, path in cases():
@@ -57,7 +128,12 @@ def main(apply=False, say=print):
         if apply:
             row[FIELD] = got
             path.write_text(json.dumps(b, indent=1))
-    say(", ".join(f"{k} {v}" for k, v in n.items()) + ("" if apply else " (dry run)"))
+    say(
+        "track without its strongest sample: "
+        + ", ".join(f"{k} {v}" for k, v in n.items())
+        + ("" if apply else " (dry run)")
+    )
+    ranks(apply, say)
 
 
 if __name__ == "__main__":
