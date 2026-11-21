@@ -87,12 +87,42 @@ def _brightest(cu, f_pred):
     }
 
 
+# How far from the catalogue frequency a signal may start and still be the
+# catalogued hit, before the drift over one time sample is added. Where the
+# true position is known, in the blind controls, the seeds found with a far
+# wider window sat this close (see README); 2026-11-21.
+SEED_HZ = 50.0
+
+
+def _seed_half_hz(d0, tsamp):
+    """Half width of the place the catalogued hit must start in: SEED_HZ plus
+    what the catalogue drift moves a tone during one time sample, since a
+    fast tone is smeared that far inside its first sample."""
+    return SEED_HZ + abs(d0) * tsamp
+
+
+def _near_hz(d0):
+    """How far around the catalogue frequency the search collects signals of
+    the catalogue drift. Wider than the seed's own place, so that a strong
+    line beside the candidate is seen and its crossings are not taken for
+    the candidate."""
+    return 100 + 300 * abs(d0)
+
+
+def _drift_half(d0):
+    """How far from the catalogue drift, at either sign, a seed's may be."""
+    return 0.05 + 0.3 * abs(d0)
+
+
 def pick_seed(case, scans, cuts, half_khz):
     """Find the candidate in the data. Catalogues differ in conventions, so
     accept the strongest signal whose drift magnitude matches the catalogue,
     at either sign: the survey's hit tables give the drift with the opposite
-    sign to the data (tools/drift_sign.py). With freq_exact the search stays
-    near the catalogue frequency."""
+    sign to the data (tools/drift_sign.py). With freq_exact the seed is the
+    signal that starts at the catalogue frequency (see _seed_half_hz), not
+    the strongest one in the neighbourhood: a line hundreds of hertz away is
+    another line. In an ON scan other than the catalogue's, that place is
+    where the hit's own drift would have carried it."""
     f0, d0 = case["freq_mhz"], case.get("drift", 0.0)
     exact = case.get("freq_exact", False)
     ok = [i for i, c in enumerate(cuts) if "error" not in c]
@@ -124,7 +154,7 @@ def pick_seed(case, scans, cuts, half_khz):
                     snr_min=6,
                     top=200,
                     drift_center=sign * d0,
-                    drift_half=0.05 + 0.3 * abs(d0),
+                    drift_half=_drift_half(d0),
                 )
         else:
             hits = dd.search(
@@ -135,14 +165,19 @@ def pick_seed(case, scans, cuts, half_khz):
                 snr_min=6,
                 top=30,
             )
+        # The catalogue frequency holds in the catalogue's own scan. In another
+        # scan a tone has drifted on, so a hit is placed against where its own
+        # drift would have carried it from there.
+        dt = (c["tstart"] - cuts[by_time]["tstart"]) * 86400.0
         comp = []
         for h in hits:
             off = (_freq(c, h["chan"]) - f0) * 1e6
-            if abs(abs(h["drift"]) - abs(d0)) > 0.05 + 0.3 * abs(d0):
+            place = off - h["drift"] * dt if exact else off
+            if abs(abs(h["drift"]) - abs(d0)) > _drift_half(d0):
                 continue
-            if exact and abs(off) > 100 + 300 * abs(d0):
+            if exact and abs(place) > _near_hz(d0):
                 continue
-            comp.append({**h, "offset_hz": off})
+            comp.append({**h, "offset_hz": off, "from_place_hz": place})
         # a line also shows, weaker, where a path of the other sign crosses it;
         # that is the same signal, not a second one
         reach = abs(d0) * c["data"].shape[0] * c["tsamp"] + 30.0
@@ -155,6 +190,15 @@ def pick_seed(case, scans, cuts, half_khz):
             ):
                 kept.append(h)
         comp = kept
+        if exact:
+            # two steps of the drift grid, over the time since the catalogue's
+            # scan, for what the hit's measured drift leaves uncertain
+            slack = 2 * dd.drift_step(fo, c["tsamp"], c["data"].shape[0]) * abs(dt)
+            comp = [
+                h
+                for h in comp
+                if abs(h["from_place_hz"]) <= _seed_half_hz(d0, c["tsamp"]) + slack
+            ]
         if comp:
             best = comp[0]
             return i, {
@@ -166,7 +210,7 @@ def pick_seed(case, scans, cuts, half_khz):
                 "drift": round(best["drift"], 4),
                 "catalogue_freq_mhz": f0,
                 "catalogue_drift": d0,
-                "offset_from_catalogue_hz": round(best["offset_hz"], 1),
+                "offset_from_catalogue_hz": round(best["from_place_hz"], 1),
                 "drift_sign_differs_from_catalogue": bool(best["drift"] * d0 < 0),
                 "compatible_signals_in_seed_scan": len(comp),
                 "other_compatible": [
@@ -185,7 +229,7 @@ def pick_seed(case, scans, cuts, half_khz):
         c = cuts[by_time]
         fo = c["foff"] * 1e6
         k = (f0 - c["fch1"]) / c["foff"]
-        ctol = (100 + 300 * abs(d0)) / abs(fo)
+        ctol = _seed_half_hz(d0, c["tsamp"]) / abs(fo)
         width = 2 * int(np.ceil(ctol)) + 3
         ctrl = [k + m * width for m in range(-25, 26) if abs(m) >= 3]
         tr, cmax = None, float("inf")

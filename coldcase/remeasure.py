@@ -10,6 +10,10 @@ signs. This module makes the measurements again for the queue, the blind
 controls and the known cases. Nothing is downloaded: a case whose cutouts
 are no longer in the cache is left as it is and counted.
 
+It was used a second time on 2026-11-21, when the seed search was narrowed
+to the catalogue position (investigate._seed_half_hz). A new staging starts
+a new round; what an earlier round set aside is kept under a numbered name.
+
 The same-half-hour check (session.py) was measured along the earlier seed.
 For a case whose seed moved to another track it is made again from the
 neighbouring cutouts in the cache. Other-day and satellite results of such a
@@ -55,16 +59,25 @@ def _work(job):
     return case["id"], "done"
 
 
-def stage(say=print):
-    from . import runner
+def _spare(path):
+    """`path`, or the first numbered variant of it that does not exist yet,
+    so that what an earlier round set aside is never written over."""
+    out, i = path, 1
+    while out.exists():
+        i += 1
+        out = path.with_name(f"{path.stem}_{i}{path.suffix}")
+    return out
 
-    if runner.LOCK.exists():
-        raise SystemExit("a runner batch is in progress; try again when it ends")
+
+def stage(say=print):
+    """Measure into cases/remeasure/. It reads cached cutouts and writes only
+    there, so it does not wait for a runner batch or a check to end."""
     STAGE.mkdir(parents=True, exist_ok=True)
     jobs = [(case, str(path)) for case, path in backfill.cases() if path.exists()]
     n = Counter()
     for p in STAGE.glob("*.json"):  # nothing from an earlier staging is reused
         p.unlink()
+    (STAGE / "APPLIED").unlink(missing_ok=True)
     with ProcessPoolExecutor(max_workers=8) as ex:
         for i, (cid, res) in enumerate(ex.map(_work, jobs, chunksize=4), 1):
             n[res if res in ("done", "no cutout") else "error"] += 1
@@ -234,7 +247,7 @@ def apply(say=print):
     if not (STAGE / "plan.json").exists():
         raise SystemExit("run `stage` and `report` first")
     with repeat._turn():
-        shutil.copy2(ledger.PATH, STAGE / "ledger_before.sqlite")
+        shutil.copy2(ledger.PATH, _spare(STAGE / "ledger_before.sqlite"))
         pl = plan()
         fams, goes_with = families(pl)
         con = runner.queue_db()
@@ -260,12 +273,9 @@ def apply(say=print):
                 continue
             cid, folder = p.stem, ev / p.stem
             b = json.loads(p.read_text())
-            now, before = (
-                folder / "evidence.json",
-                folder / "evidence_before_remeasure.json",
-            )
-            if now.exists() and not before.exists():
-                now.rename(before)
+            now = folder / "evidence.json"
+            if now.exists():
+                now.rename(_spare(folder / "evidence_before_remeasure.json"))
             now.write_text(p.read_text())
             ledger.add_evidence(con, cid, now, b["seed"])
             if b["remeasured"]["seed_moved"]:
@@ -277,7 +287,9 @@ def apply(say=print):
                 ):
                     f = folder / name
                     if f.exists():
-                        f.rename(folder / name.replace(".", "_before_remeasure.", 1))
+                        f.rename(
+                            _spare(folder / name.replace(".", "_before_remeasure.", 1))
+                        )
                 s = STAGE / f"{cid}.session.json"
                 if s.exists():
                     (folder / "session.json").write_text(s.read_text())
@@ -340,7 +352,9 @@ def apply(say=print):
             for role in ("investigator", "challenger"):
                 f = ROOT / "cases" / "verdicts" / f"{code}_{role}.json"
                 if f.exists():
-                    f.rename(f.with_name(f"{code}_{role}_before_remeasure.json"))
+                    f.rename(
+                        _spare(f.with_name(f"{code}_{role}_before_remeasure.json"))
+                    )
         # 4. the rules that compare lines
         harmonics.apply(say=say)
         combs.apply(say=say)

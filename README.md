@@ -102,14 +102,14 @@ full re-measurement (see "A drift-sign error" below).
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,410 over the whole queue       | 879 of 940                 | 3                        | 336 of 470        |
+| Running controls, 1,410 over the whole queue       | 908 of 940                 | 4                        | 334 of 470        |
 
 In the first two tests, every sky-only signal that was not left open was too
-weak to recover at all. Over the whole queue, 61 were not left open: 51 too
-weak to recover, 7 hidden under a much stronger real signal at the same
-place, and 3 closed by a rule. Those 3 were closed as seen off the star, all
-in crowded satellite bands, where real interference crossed the track in an
-off-star scan. That is 0.3% of the 882 recovered.
+weak to recover at all. Over the whole queue, 32 were not left open: 23 too
+weak to recover, 5 hidden under a much stronger real signal at the same
+place, and 4 closed by a rule. Those 4 were closed as seen off the star, in
+crowded bands, where real interference sat on or near the track in an
+off-star scan. That is 0.4% of the 912 recovered.
 
 The count was 13 before the controls were examined one by one. Eight had
 been closed as seen toward another star, each on a single weak catalogue hit
@@ -216,18 +216,54 @@ controls moved by one case. In the queue the seed moved to another track in
 | Open                                | 9     | Closed, seen off the star or toward other stars |
 | Open                                | 4     | Closed, burst                                   |
 
-**The queue.** Of the 762 cases, 675 are closed: 536 bursts, 23 with no
-signal at the catalogue position, 91 seen off the star, 4 seen only toward
+**A search that looked too far.** To follow a catalogued hit, the pipeline
+first finds it in the data: the seed. That search took the strongest signal
+of the right drift within 100 Hz of the catalogue frequency, plus the drift
+over a whole 300-second scan: 1.3 kHz either side for a hit drifting at 4
+Hz/s. More than half of the open events drift faster than 1 Hz/s, and no
+hidden test signal does, so the controls had never tested this.
+
+A check made for it (`tools/fast_drift_check.py`) ran the search at 484
+places of the fast cadences where nothing is catalogued. It came back with a
+seed at 43% of them. Where the true position is known, the wide window was
+not needed: 99.4% of the injected signals that were found sat within 50 Hz
+of it, and 99% within 9 Hz.
+
+The seed is now the signal at the catalogue position: within 50 Hz, plus the
+drift over one 18-second time sample. In an on-star scan other than the
+catalogue's own, that position is where the hit's drift would have carried
+it; the old search looked at the catalogue frequency there, which a drifting
+signal has left. Empty places now give a seed 14% of the time, and injected
+fast tones are found more often (84% against 81% at S/N 40, 46% against 40%
+at S/N 8), because a stronger neighbour no longer takes their place.
+
+Measured again from cached data, the change found 30 more of the injected
+sky-only signals, ones too weak in the catalogue's scan and missed in the
+later scans. One signal that had been set aside as hidden under a stronger
+one is now followed at the right place, and was then wrongly closed by an
+unrelated line in an off-star scan. In the queue, 12 open hits now follow the signal
+at the catalogue position where they had followed a neighbour up to 1 kHz
+away, and one event closed because nothing is there. The known answers did
+not change.
+
+A first attempt did not work and was dropped. It kept the wide window and
+asked the seed to beat the same search at other places of the six scans. It
+lost 16 injected signals in crowded fields, and empty places still gave a
+seed 26% of the time: a scan with a burst in it has too few places of its
+own to compare with.
+
+**The queue.** Of the 762 cases, 676 are closed: 528 bursts, 33 with no
+signal at the catalogue position, 90 seen off the star, 4 seen only toward
 other stars in the same half hour, 21 lines of two clocks (below). One case
-has no public data. The other 86 hits stay open and form 61 events.
-Forty-five of them stand above their control windows in one on-star scan, 10
+has no public data. The other 85 hits stay open and form 60 events.
+Forty-five of them stand above their control windows in one on-star scan, 9
 in two, 1 in all three and 5 in none.
 
 The AI readers had rated every event that was open before the
-re-measurement. Those ratings were made on the old measurements, so they
-are kept only for the 11 events whose track and lines did not change: none
-of the 11 is rated above low. The other 50 open events wait for the next
-month's AI budget.
+re-measurements. Those ratings were made on older measurements, so they are
+kept only for the 9 events whose track and lines did not change: none of
+the 9 is rated above low. The other 51 open events wait for the next month's
+AI budget.
 
 **Two events looked at by hand.** Both readers had rated two events medium.
 One (q00707, 2258.417 MHz toward HIP15919) is explained: the hit table lists
@@ -246,12 +282,13 @@ later. It sits in a band used for satellite uplinks.
 **Other days.** Before the re-measurement, the star of 22 open events had
 been observed again in the same band, and the signal was absent every time,
 at the telescope frequency and at the Earth-shifted one. Those measurements
-followed the old tracks, so the check was made again on the new ones. It is
-done for 57 of the 61 open events and closed none. The star of 16 was
-observed again in the same band, on 25 other days in all, and the signal was
-absent every time, at both frequencies. For the other 41 there is no other
-day that can tell a local signal from one in the sky. The last four events
-are still being checked.
+followed the old tracks, so the check was made again on the new ones. It
+closed none. Of the 60 events open now, 53 have the check on their present
+seed: the star of 16 was observed again in the same band, on 25 other days
+in all, and the signal was absent every time, at both frequencies; for 37
+there is no other day that can tell a local signal from one in the sky. The
+seven events whose seed moved when the seed search was narrowed are being
+checked again.
 
 **The same half hour.** This check first ran on the 53 events that were open
 at the time, on the old tracks. For 43 of them another star had been observed in the same band
@@ -273,7 +310,7 @@ The check then ran on the 38 open events that had not had it, a download of
 9.3 GB, and closed one more: a strong line 304 Hz from the event's
 frequency toward a star 7 degrees away, six minutes earlier, in one of five
 scans, at a chance of 4.9%. Six events are closed by this check in all. Of
-the 61 events open now, 47 were absent toward other stars, 13 had no other
+the 60 events open now, 46 were absent toward other stars, 13 had no other
 star within half an hour, and 1 has a match that does not count.
 
 The chance of an unrelated line was measured on the same scans: a given
@@ -380,6 +417,9 @@ uv run python -I tools/drift_sign.py
 uv run python -I -m coldcase.remeasure stage
 uv run python -I -m coldcase.remeasure report
 
+#    Test the seed search at empty places and on injected fast tones
+uv run python -I tools/fast_drift_check.py --every 4
+
 #    Add a newer measurement to stored cases from cached data, then see what
 #    today's rules make of them (dry runs)
 uv run python -I -m coldcase.backfill
@@ -446,8 +486,15 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Fifty of the 61 open events have no AI reading of their present
+- Fifty-one of the 60 open events have no AI reading of their present
   measurements.
+- No hidden test signal drifts faster than 1 Hz/s, and more than half of the
+  open events do. The fast-drift check tests the seed search only, not the
+  rules that follow. At places where nothing is catalogued the search still
+  returns a seed 14% of the time, mostly from bursts.
+- A line whose drift wanders from scan to scan can be plainly present off
+  the star and stay open, because the off-star test follows a straight
+  track. At least five open events are like that (q00708 is the clearest).
 - The wide search for lines of the same drift near each case was made at the
   catalogue's sign and has not been redone; it only feeds the ranking.
 - The flash test leaves out one time sample. A signal that is on for two or
@@ -459,7 +506,7 @@ trigger.
   open lines in one scan. A closed comb's grid comes from a few lines, so a
   tooth far from them can fall outside the 120 Hz allowed and be missed.
 - The session check needs another star observed within 30 minutes: 13 of the
-  61 open events had none. Five of its six closures rest on one matching
+  60 open events had none. Five of its six closures rest on one matching
   scan, the weakest of them 3.6 above its control windows, and three of
   them sit at a chance of 4.9%, just under the limit.
 - The satellite check knows catalogued payloads only, from orbits published
@@ -468,8 +515,8 @@ trigger.
   telescope's sidelobes.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them: the rules closed 3 of 882 recovered
-  sky-only signals that should have stayed open, and missed 131 of 466 weak
+  controls are the real test of them: the rules closed 4 of 912 recovered
+  sky-only signals that should have stayed open, and missed 134 of 468 weak
   leaks. The two-star threshold of the other-star rule was chosen on those
   same controls.
 - There are no unit tests yet.
