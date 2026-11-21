@@ -29,7 +29,9 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
 1. **Pick near-misses.** From the survey's public hit tables (about 47 million
    hits), select the ones that looked promising but were dropped by a rule: a
    signal seen in only one or two of the three on-star scans, or killed by an
-   unrelated off-star hit nearby. After cuts, 762 cases are in the queue.
+   unrelated off-star hit nearby. After cuts, 762 cases went into the queue;
+   9 more were added when the selection was made again with the drift sign
+   corrected (see "The queue" below).
 2. **Fetch a sliver.** The raw files are about 15 GB per scan. The pipeline
    reads only the storage chunk around the candidate with HTTP range requests,
    about 60 MB per scan.
@@ -85,8 +87,9 @@ limits for download volume, time and AI spending.
 
 ## What it has shown so far
 
-Snapshot of 19 November 2026, after a full pass over the queue and one
-full re-measurement (see "A drift-sign error" below).
+Snapshot of 21 November 2026, after a full pass over the queue and two
+full re-measurements (see "A drift-sign error" and "A search that looked too
+far" below).
 
 **Known answers**
 
@@ -102,14 +105,17 @@ full re-measurement (see "A drift-sign error" below).
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,410 over the whole queue       | 908 of 940                 | 4                        | 334 of 470        |
+| Running controls, 1,428 over the whole queue       | 917 of 952                 | 6                        | 336 of 476        |
 
 In the first two tests, every sky-only signal that was not left open was too
-weak to recover at all. Over the whole queue, 32 were not left open: 23 too
-weak to recover, 5 hidden under a much stronger real signal at the same
-place, and 4 closed by a rule. Those 4 were closed as seen off the star, in
-crowded bands, where real interference sat on or near the track in an
-off-star scan. That is 0.4% of the 912 recovered.
+weak to recover at all. Over the whole queue, 35 were not left open: 23 too
+weak to recover, 6 hidden under a much stronger real signal at the same
+place, and 6 closed by a rule. Four of the 6 were closed as seen off the
+star, in crowded bands, where real interference sat on or near the track in
+an off-star scan. The other two sit in one very crowded stretch near 1868
+MHz: one was lost under interference ten times its strength and labelled a
+burst, and for the other the search took a weak hit in an on-star scan
+where the test signal was absent. That is 0.7% of the 922 recovered.
 
 The count was 13 before the controls were examined one by one. Eight had
 been closed as seen toward another star, each on a single weak catalogue hit
@@ -252,17 +258,25 @@ lost 16 injected signals in crowded fields, and empty places still gave a
 seed 26% of the time: a scan with a burst in it has too few places of its
 own to compare with.
 
-**The queue.** Of the 762 cases, 676 are closed: 528 bursts, 33 with no
-signal at the catalogue position, 90 seen off the star, 4 seen only toward
-other stars in the same half hour, 21 lines of two clocks (below). One case
-has no public data. The other 85 hits stay open and form 60 events.
-Forty-five of them stand above their control windows in one on-star scan, 9
-in two, 1 in all three and 5 in none.
+**The queue.** The 762 cases had been chosen from the hit tables with the
+wrong drift sign too. Chosen again with the right one, the tables alone
+explain 2.5 million more tracks as interference, but the queue hardly
+moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
+41, 38 were already closed and 3 are open events. The 9 were added: five
+closed as seen off the star, one as a burst, one has no public data, and two
+lines 8 kHz apart toward HIP93805 stay open.
+
+Of the 771 cases, 682 are now closed: 529 bursts, 33 with no signal at the
+catalogue position, 95 seen off the star, 4 seen only toward other stars in
+the same half hour, 21 lines of two clocks (below). Two cases have no
+public data. The other 87 hits stay open and form 62 events. Forty-seven of
+them stand above their control windows in one on-star scan, 9 in two, 1 in
+all three and 5 in none.
 
 The AI readers had rated every event that was open before the
 re-measurements. Those ratings were made on older measurements, so they are
 kept only for the 9 events whose track and lines did not change: none of
-the 9 is rated above low. The other 51 open events wait for the next month's
+the 9 is rated above low. The other 53 open events wait for the next month's
 AI budget.
 
 **Two events looked at by hand.** Both readers had rated two events medium.
@@ -282,13 +296,11 @@ later. It sits in a band used for satellite uplinks.
 **Other days.** Before the re-measurement, the star of 22 open events had
 been observed again in the same band, and the signal was absent every time,
 at the telescope frequency and at the Earth-shifted one. Those measurements
-followed the old tracks, so the check was made again on the new ones. It
-closed none. Of the 60 events open now, 53 have the check on their present
-seed: the star of 16 was observed again in the same band, on 25 other days
-in all, and the signal was absent every time, at both frequencies; for 37
-there is no other day that can tell a local signal from one in the sky. The
-seven events whose seed moved when the seed search was narrowed are being
-checked again.
+followed the old tracks, so the check was made again on the new ones, for
+the 60 events open on 21 November. It closed none. The star of 18 was observed again in
+the same band, on 27 other days in all, and the signal was absent every
+time, at both frequencies. For the other 42 there is no other day that can
+tell a local signal from one in the sky.
 
 **The same half hour.** This check first ran on the 53 events that were open
 at the time, on the old tracks. For 43 of them another star had been observed in the same band
@@ -310,7 +322,7 @@ The check then ran on the 38 open events that had not had it, a download of
 9.3 GB, and closed one more: a strong line 304 Hz from the event's
 frequency toward a star 7 degrees away, six minutes earlier, in one of five
 scans, at a chance of 4.9%. Six events are closed by this check in all. Of
-the 60 events open now, 46 were absent toward other stars, 13 had no other
+the 60 events open on 21 November, 46 were absent toward other stars, 13 had no other
 star within half an hour, and 1 has a match that does not count.
 
 The chance of an unrelated line was measured on the same scans: a given
@@ -486,8 +498,9 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Fifty-one of the 60 open events have no AI reading of their present
-  measurements.
+- Fifty-three of the 62 open events have no AI reading of their present
+  measurements. The two events added last have had none of the three
+  follow-up checks yet.
 - No hidden test signal drifts faster than 1 Hz/s, and more than half of the
   open events do. The fast-drift check tests the seed search only, not the
   rules that follow. At places where nothing is catalogued the search still
@@ -515,8 +528,8 @@ trigger.
   telescope's sidelobes.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them: the rules closed 4 of 912 recovered
-  sky-only signals that should have stayed open, and missed 134 of 468 weak
+  controls are the real test of them: the rules closed 6 of 922 recovered
+  sky-only signals that should have stayed open, and missed 137 of 473 weak
   leaks. The two-star threshold of the other-star rule was chosen on those
   same controls.
 - There are no unit tests yet.
