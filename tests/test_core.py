@@ -189,3 +189,34 @@ def test_d8_needs_truly_equal_spacing():
 def test_d8_is_silent_without_companions():
     comp = {"leads": [{"freq_mhz": 1600.02, "outcome": "no distinct line"}]}
     assert triage.companion_rule(_bundle(), comp) == (None, None)
+
+
+def _inject_one(scan, cut, f0, drift, snr):
+    """A tone in one scan only, starting at f0 at that scan's start."""
+    investigate.apply_injection(
+        {"inject": {"f0_mhz": f0, "drift": drift, "snr": snr, "present_on": [1], "scint": [1.0]}},
+        [{"pos": scan["pos"], "role": "ON"}],
+        [cut],
+    )
+
+
+def test_follow_line_reaches_an_off_scan_when_the_drift_changes():
+    scans, cuts = cadence(5)
+    f0 = chan_mhz(2000)
+    _inject_one(scans[0], cuts[0], f0, 0.5, 60)
+    # in the next scan the same emitter carries on, drifting faster now (a
+    # tone smeared over several channels per sample needs more power to show)
+    _inject_one(scans[1], cuts[1], f0 + (0.5 * SCAN_S + 30) * 1e-6, 0.8, 150)
+    info = {"recovered": True, "freq_mhz": f0, "drift": 0.5, "snr": 60}
+    fl = investigate.follow_line(scans, cuts, 0, info)
+    assert [x["pos"] for x in fl["chain"]][:2] == [0, 1]
+    assert fl["chance"] is not None and fl["chance"] < triage.CHANCE_MAX
+
+
+def test_follow_line_stops_in_noise():
+    scans, cuts = cadence(6)
+    f0 = chan_mhz(2000)
+    _inject_one(scans[0], cuts[0], f0, 0.5, 60)
+    info = {"recovered": True, "freq_mhz": f0, "drift": 0.5, "snr": 60}
+    fl = investigate.follow_line(scans, cuts, 0, info)
+    assert fl["off_scans_reached"] == 0 and fl["chance"] is None

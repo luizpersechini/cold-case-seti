@@ -487,6 +487,7 @@ def remeasure(case, bundle, con=None):
     out.pop("off_scans_stacked", None)
     if info["recovered"]:
         out["off_scans_stacked"] = off_stack(scans, cuts, seed, info)
+        out["followed_line"] = follow_line(scans, cuts, seed, info)
     moved = (
         not old.get("recovered")
         or not info["recovered"]
@@ -662,6 +663,92 @@ def measure(scans, cuts, seed, info, half_khz):
             )
         rows.append(row)
     return rows
+
+
+FOLLOW_MAX_DRIFT = 4.0  # Hz/s: what the survey's own search allowed
+FOLLOW_SNR_MIN = 10.0
+
+
+def follow_line(scans, cuts, seed, info):
+    """Follow the seed line itself from scan to scan, in time order, both
+    ways from the seed scan. In the next scan the strongest line is taken
+    whose start lies within reach of where the last one ended: the gap
+    between the scans times the last drift, give or take a quarter of it
+    plus 0.1 Hz/s, and 50 Hz; at any drift up to FOLLOW_MAX_DRIFT and S/N
+    FOLLOW_SNR_MIN or more. The chain stops at the first scan with nothing
+    there. For a line found in an OFF scan, chance is how likely a line at
+    least that strong is to start that close to the place, from the number
+    of such lines in the whole cutout. Returns the chain and the smallest
+    chance among its OFF scans, times the number of OFF scans it reached."""
+    if not info.get("recovered"):
+        return None
+    order = sorted(
+        (i for i, c in enumerate(cuts) if "error" not in c), key=lambda i: cuts[i]["tstart"]
+    )
+    if seed not in order:
+        return None
+    c0 = cuts[seed]
+    start = info["freq_mhz"]
+    dur0 = c0["data"].shape[0] * c0["tsamp"]
+    first = {
+        "pos": scans[seed]["pos"],
+        "role": scans[seed]["role"],
+        "freq_mhz": start,
+        "drift": info["drift"],
+        "snr": info.get("snr"),
+        "seed": True,
+    }
+    chain = [first]
+    k = order.index(seed)
+    for step, idx in ((1, order[k + 1 :]), (-1, list(reversed(order[:k])))):
+        last, last_c = first, c0
+        for i in idx:
+            c = cuts[i]
+            fo = c["foff"] * 1e6
+            dur_l = last_c["data"].shape[0] * last_c["tsamp"]
+            dur = c["data"].shape[0] * c["tsamp"]
+            if step == 1:
+                gap = (c["tstart"] - last_c["tstart"]) * 86400.0  # last start -> this start
+                d = last["drift"]
+                place = last["freq_mhz"] + d * gap * 1e-6
+                reach = abs(gap) * (0.25 * abs(d) + 0.1) + 50.0
+            else:
+                gap = (last_c["tstart"] - c["tstart"]) * 86400.0  # this start -> last start
+                d = last["drift"]
+                place = last["freq_mhz"] - d * gap * 1e-6
+                reach = abs(gap) * (0.25 * abs(d) + 0.1) + 50.0
+            hits = dd.search(
+                c["data"], fo, c["tsamp"], max_drift=FOLLOW_MAX_DRIFT,
+                snr_min=FOLLOW_SNR_MIN, top=200,
+            )
+            near = [h for h in hits if abs(_freq(c, h["chan"]) - place) * 1e6 <= reach]
+            if not near:
+                break
+            h = max(near, key=lambda h: h["snr"])
+            nf = c["data"].shape[1]
+            width_hz = nf * abs(fo)
+            as_strong = sum(1 for x in hits if x["snr"] >= h["snr"])
+            chance = min(1.0, as_strong * 2 * reach / width_hz)
+            last = {
+                "pos": scans[i]["pos"],
+                "role": scans[i]["role"],
+                "freq_mhz": round(_freq(c, h["chan"]), 6),
+                "drift": round(h["drift"], 4),
+                "snr": round(h["snr"], 1),
+                "offset_from_place_hz": round((_freq(c, h["chan"]) - place) * 1e6, 1),
+                "reach_hz": round(reach, 1),
+                "chance": round(chance, 4),
+            }
+            chain.append(last)
+            last_c = c
+    chain.sort(key=lambda x: x["pos"])
+    offs = [x for x in chain if x["role"] == "OFF"]
+    best = min((x["chance"] for x in offs), default=None)
+    return {
+        "chain": chain,
+        "off_scans_reached": len(offs),
+        "chance": None if best is None else round(min(1.0, best * len(offs)), 4),
+    }
 
 
 def off_stack(scans, cuts, seed, info):
@@ -1115,6 +1202,7 @@ def run(case, verbose=True):
             )
     if info["recovered"]:
         bundle["off_scans_stacked"] = off_stack(scans, cuts, seed, info)
+        bundle["followed_line"] = follow_line(scans, cuts, seed, info)
     if info["recovered"] and case.get("twins", True):
         bundle["same_drift_twins"] = twins(scans, cuts, seed, info)
     if info["recovered"] and case.get("probes", True):

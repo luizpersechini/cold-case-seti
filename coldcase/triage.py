@@ -7,7 +7,10 @@ a case is closed or stays open. A case is closed only on direct evidence:
       300 Hz of the predicted place among an OFF scan's blind detections,
       when an unrelated line that close is unlikely: see off_wide; or an OFF
       track of S/N 8 or more closer to the predicted frequency than the
-      lines in its control windows make likely: see off_crowded)
+      lines in its control windows make likely: see off_crowded; or the line
+      itself, followed from scan to scan at whatever drift it takes, reaches
+      an off-star scan where an unrelated line that strong is unlikely: see
+      investigate.follow_line)
   D2  two or more clock-probe signals match a single mistuned oscillator
   D3  the same frequency (within 300 Hz) and drift toward two or more other
       targets (one other target is only flagged: on injected signals a single
@@ -433,6 +436,16 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
             f"place in {ws['off_scans_with_line']} of {ws['off_scans']} OFF scans, but "
             f"{ws['same_drift_lines_farther_away']} more such lines farther away put "
             f"the chance of an unrelated line at {ws['chance_of_this_many']:.2f}"
+        )
+    fl = b.get("followed_line") or {}
+    if fl.get("chance") is not None and fl["chance"] < CHANCE_MAX:
+        off = min(
+            (x for x in fl["chain"] if x["role"] == "OFF"), key=lambda x: x["chance"]
+        )
+        direct.append(
+            f"D1: the line followed from scan to scan reaches off-star scan {off['pos']} "
+            f"(S/N {off['snr']}, drift {off['drift']:+.3f} Hz/s, {off['offset_from_place_hz']:+.0f} Hz "
+            f"from where it was heading); chance of an unrelated line that close {fl['chance']:.3f}"
         )
     text, cs = off_crowded(b)
     if text:
