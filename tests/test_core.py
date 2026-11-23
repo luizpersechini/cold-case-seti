@@ -258,3 +258,19 @@ def test_a_steady_fast_tone_is_not_a_burst():
         tp = dd.time_profile(c["data"], c["foff"] * 1e6, c["tsamp"], 1000, 4.0)
         assert tp["largest_single_sample_share"] < triage.BURST_SHARE, tp
 
+
+
+def test_followup_events():
+    import pytest
+
+    from coldcase import followup
+
+    if not (followup.TABLES / "lband2019" / "lband2019_events.csv").exists():
+        pytest.skip("survey event tables not downloaded")
+    ev = followup.events()
+    assert len(ev) == 34
+    assert sum(e["band"] == "L" for e in ev) == 32
+    assert all(57000 < e["mjd"] < 58500 for e in ev)
+    # the two-hit event is entered at its stronger hit
+    two = [e for e in ev if e["n_hits"] == 2][0]
+    assert two["freq_mhz"] == 2257.476725
