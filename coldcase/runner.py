@@ -424,6 +424,7 @@ def recheck(apply=False, say=print):
             or "lines of this event" in why
             or "this line belongs to the event of" in why
             or "of one scan" in why  # a comb across downloads (combs.py)
+            or "a tooth of a comb of stronger lines" in why  # spurs.py
         ):
             continue
         dec = triage.decide_case(case_id)
@@ -525,10 +526,11 @@ def recheck(apply=False, say=print):
         f"{closed_now} open closed" + ("" if apply else " (dry run)")
     )
     if apply and reopened:
-        from . import combs, harmonics
+        from . import combs, harmonics, spurs
 
         harmonics.apply(say=say)
         combs.apply(say=say)
+        spurs.apply(say=say)
 
 
 def regroup():
@@ -796,6 +798,13 @@ def _run(force=False, dry=False, max_groups=None, now=False):
                 combs.apply(say=lambda *_: None)
             except Exception as e:
                 log(f"comb check failed: {type(e).__name__}: {e}"[:200])
+            # and the test for teeth of a comb of stronger catalogued lines
+            try:
+                from . import spurs
+
+                spurs.apply(say=lambda *_: None)
+            except Exception as e:
+                log(f"comb-tooth check failed: {type(e).__name__}: {e}"[:200])
     except KeyboardInterrupt:
         log("stopping: stopped by request")
     finally:

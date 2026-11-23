@@ -37,7 +37,7 @@ from . import backfill, combs, controls, db, harmonics, investigate, ledger, tri
 from .remote import ROOT
 
 STAGE = ROOT / "cases" / "remeasure"
-TOGETHER = ("lines of this event", "this line belongs", "of one scan")
+TOGETHER = ("lines of this event", "this line belongs", "of one scan", "a tooth of a comb of stronger lines")
 _con = None
 
 

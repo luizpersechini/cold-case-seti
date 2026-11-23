@@ -74,6 +74,8 @@ CLOCK_AGREE_PPM = 0.3
 # of 1,290 OFF scans; 1% is the 95% upper limit of that rate.
 WIDE_SNR_MIN = 8.0
 WIDE_BASE = 0.01
+# D1, wide part, for lines that jump between scans (2026-11-22)
+JUMP_HZ = 1000.0
 # D4, second part: the largest share of its S/N a track may keep without its
 # strongest time sample and still count as a flash. Set 2026-11-17 on half of
 # the sky-only controls, where no steady tone kept less than 0.82 of it (0.74
@@ -109,11 +111,11 @@ def flash(row):
     )
 
 
-def off_wide(b, floor=WIDE_SNR_MIN):
+def off_wide(b, floor=WIDE_SNR_MIN, window_hz=SAME_HZ):
     """D1, wide part: is the candidate among the blind detections of an OFF
     scan? The forced track only looks within tens of Hz of the predicted
     place, so a line that sits a few hundred Hz away there is missed. A scan
-    counts when its blind detections hold a line within SAME_HZ of the
+    counts when its blind detections hold a line within window_hz of the
     prediction at the candidate's drift. An unrelated line lands that close
     by chance: the chance per scan is taken from the lines of that drift seen
     farther away in the OFF cutouts, and never below WIDE_BASE; the rule
@@ -126,7 +128,7 @@ def off_wide(b, floor=WIDE_SNR_MIN):
     tol = 0.05 + 0.25 * abs(d)
     case = b.get("case") or {}
     half_khz = case.get("half_khz") or max(5.0, abs(case.get("drift", d)) * 2.5 + 3.0)
-    width = 2e3 * half_khz - 2 * SAME_HZ
+    width = 2e3 * half_khz - 2 * window_hz
     near, far, n = [], 0, 0
     for s in b["scans"]:
         if s["role"] != "OFF" or "error" in s:
@@ -136,14 +138,14 @@ def off_wide(b, floor=WIDE_SNR_MIN):
         for h in s.get("strongest_in_cutout") or []:
             if abs(h["drift"] - d) > tol:
                 continue
-            if abs(h["offset_from_prediction_hz"]) > SAME_HZ:
+            if abs(h["offset_from_prediction_hz"]) > window_hz:
                 far += 1
             elif h["snr"] >= floor and (best is None or h["snr"] > best["snr"]):
                 best = h
         if best:
             near.append((s["pos"], best))
     k = len(near)
-    p = min(1.0, max(WIDE_BASE, far * 2 * SAME_HZ / (n * width))) if n else 1.0
+    p = min(1.0, max(WIDE_BASE, far * 2 * window_hz / (n * width))) if n else 1.0
     tail = (
         sum(comb(n, i) * p**i * (1 - p) ** (n - i) for i in range(k, n + 1))
         if k
@@ -160,7 +162,7 @@ def off_wide(b, floor=WIDE_SNR_MIN):
         return None, stats
     pos, h = max(near, key=lambda x: x[1]["snr"])
     return (
-        f"D1: a line at the candidate's drift within {SAME_HZ:.0f} Hz of the "
+        f"D1: a line at the candidate's drift within {window_hz:.0f} Hz of the "
         f"predicted place in {k} of {n} OFF scans (scan {pos}: S/N {h['snr']} at "
         f"{h['offset_from_prediction_hz']:+.0f} Hz); chance of an unrelated line "
         f"{tail:.3f}"
@@ -428,6 +430,13 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
         direct.append("D1: two or more OFF scans above their controls")
     flags = []
     text, ws = off_wide(b)
+    if not text:
+        # a line whose frequency jumps between scans lands farther from the
+        # straight track; within JUMP_HZ the chance of an unrelated line of
+        # the same drift was measured on the test signals' off-star scans at
+        # 0.22% per scan (6 of 2,754; 95% upper limit 0.47%), so the 1% floor
+        # of the wide part still holds
+        text, _ = off_wide(b, window_hz=JUMP_HZ)
     if text:
         direct.append(text)
     elif ws["off_scans_with_line"]:

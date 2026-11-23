@@ -94,20 +94,20 @@ far" below).
 
 ### In short
 
-No candidate. Of 771 discarded hits audited, 686 are explained or have no
-data, and 85 hits in 60 events are not explained by these checks. One of
+No candidate. Of 771 discarded hits audited, 689 are explained or have no
+data, and 82 hits in 57 events are not explained by these checks. One of
 those, toward HIP36357 at 2051.617 MHz, is the hardest to explain and was
 sent to the Breakthrough Listen team with the drift-sign finding below.
 
 | Outcome                                          | Hits |
 | ------------------------------------------------ | ---- |
-| A burst, not a tone                              | 528  |
-| Seen off the star                                | 98   |
+| A burst, not a tone                              | 526  |
+| Seen off the star                                | 102  |
 | No signal at the catalogue position              | 33   |
-| Lines of two clocks                              | 21   |
+| Lines of human clocks                            | 22   |
 | Seen only toward other stars within half an hour | 4    |
 | No public data                                   | 2    |
-| Not explained by these checks                    | 85   |
+| Not explained by these checks                    | 82   |
 
 How far to trust it: of 952 hidden sky-only test signals, 914 were left
 open and 5 were wrongly closed by a rule; of 476 hidden leaks, 340 were
@@ -207,8 +207,14 @@ unlikely (under 5%), the case closes. Started from places with nothing
 catalogued, the chain closed 15 of 4,140 tries (0.4%). It closed two open
 events, fast drifters whose lines carry on into an off-star scan at a
 changed drift, caught two more leaks, and closed no sky-only test signal.
-It does not catch a line whose frequency jumps between scans, as the
-clearest wandering line in the open list (q00708) does.
+A line whose frequency jumps between scans breaks the chain. For those the
+wide part now also looks within 1 kHz of the track, not only 300 Hz. On the
+test signals' off-star scans an unrelated line of the same drift lies that
+close in 0.22% of scans (6 of 2,754; at most 0.47%), so the 1% per scan the
+wide part assumes still holds. It closed two more open events: the clearest
+wandering line in the open list (q00708, S/N 43 in the first off-star scan,
+579 Hz from the track) and a weak fast drifter (q00593, S/N 9 at 772 Hz,
+the thinnest evidence of the two). It closed no test signal.
 
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
@@ -223,11 +229,11 @@ moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
 closed as seen off the star, one as a burst, one has no public data, and two
 lines 8 kHz apart toward HIP93805 stay open.
 
-Of the 771 cases, 684 are now closed: 528 bursts, 33 with no signal at the
-catalogue position, 98 seen off the star, 4 seen only toward other stars in
-the same half hour, 21 lines of two clocks (below). Two cases have no
-public data. The other 85 hits stay open and form 60 events. Forty-five of
-them stand above their control windows in one on-star scan, 9 in two, 1 in
+Of the 771 cases, 687 are now closed: 526 bursts, 33 with no signal at the
+catalogue position, 102 seen off the star, 4 seen only toward other stars in
+the same half hour, 22 lines of human clocks (below). Two cases have no
+public data. The other 82 hits stay open and form 57 events. Forty-three of
+them stand above their control windows in one on-star scan, 8 in two, 1 in
 all three and 5 in none.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
@@ -285,7 +291,7 @@ still running.
 The AI readers had rated every event that was open before the
 re-measurements. Those ratings were made on older measurements, so they are
 kept only for the 9 events whose track and lines did not change: none of
-the 9 is rated above low. The other 51 open events wait for the next month's
+the 9 is rated above low. The other 48 open events wait for the next month's
 AI budget.
 
 ### The events still open
@@ -294,8 +300,14 @@ AI budget.
 One (q00707, 2258.417 MHz toward HIP15919) is explained: the hit table lists
 a carrier 2.048 MHz above it in all six scans, on and off the star, which
 flared a hundredfold in the one scan where the event appears, at the same
-drift. The event is a spur of that carrier, about 200 times weaker. No rule
-closes that pattern yet, so it is still on the open list. The other (q00671,
+drift. The event is a spur of that carrier, about 200 times weaker. In fact
+it is one tooth of a comb: three strong lines of the same drift sit at 1, 2
+and 3 times 2.048031 MHz from it, the 2.048 MHz telecom clock running 15 ppm
+fast. A rule for this now looks in the hit tables for an event with two or
+more lines at least ten times stronger, of the same drift, at whole
+multiples of a round clock rate from it, one of them also seen off the
+star. It closed q00707 and nothing else; at 6,560 shifted places with
+nothing there it never fired, nor on any of the 918 sky-only test signals. The other (q00671,
 2051.617 MHz toward HIP36357) is the most interesting event so far, and
 still unexplained. One line drifts steadily at -0.124 Hz/s through two
 on-star scans 12 minutes apart, at S/N 75 and 134, and is absent from all
@@ -506,6 +518,7 @@ uv run python -I -m coldcase.repeat CASE_ID
 #    whose lines came from different downloads (dry runs)
 uv run python -I -m coldcase.harmonics
 uv run python -I -m coldcase.combs
+uv run python -I -m coldcase.spurs
 
 # 8. Check which way the hit tables' drift rates point, and measure every
 #    stored case again from cached data (stage, then report, then apply)
@@ -561,6 +574,7 @@ trigger.
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
 | `coldcase/combs.py`                                | The comb test for lines of one scan in different downloads          |
+| `coldcase/spurs.py`                                | A weak line on a comb of much stronger catalogued lines             |
 | `coldcase/companions.py`                           | Lines elsewhere in the band that rise and fall with an open event   |
 | `tests/`                                           | Unit tests on synthetic data                                        |
 | `coldcase/session.py`                              | The same line toward other stars within half an hour                |
@@ -593,7 +607,7 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Fifty-one of the 60 open events have no AI reading of their present
+- Forty-eight of the 57 open events have no AI reading of their present
   measurements. The two events added last have had none of the three
   follow-up checks yet.
 - No hidden test signal drifts faster than 1 Hz/s, and more than half of the
