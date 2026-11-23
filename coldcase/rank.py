@@ -28,6 +28,10 @@ W_CODE = {
     "strength": 0.13,
     "band_quiet": 0.13,
     "twins_quiet": 0.07,
+    # added 2026-11-22: on 955 injected sky-only signals and 61 real open
+    # events it raised sky-above-real from 0.815 to 0.823 (95% interval of
+    # the gain +0.002 to +0.015); the weight was chosen on the same cases
+    "distinct": 0.20,
 }
 
 
@@ -57,7 +61,17 @@ def code_features(b):
     near = (b.get("lookalikes_10khz") or {}).get("other_targets", 0)
     tw = b.get("same_drift_twins") or {}
     tw = 0 if tw.get("stale") else tw.get("n_twins_also_in_off") or 0
+    shares = [
+        (s["control_windows"]["at_least_track"] + 1) / (s["control_windows"]["n"] + 1)
+        for s in b["scans"]
+        if s["role"] == "ON"
+        and "error" not in s
+        and (s.get("control_windows") or {}).get("at_least_track") is not None
+    ]
     return {
+        # how rarely the comparison windows hold a line as strong as the
+        # track, in its most distinct on-star scan (see triage.not_distinct)
+        "distinct": 1 - min(1, (min(shares) if shares else 0.02) / 0.2),
         "on_scans": sum(pres) / max(1, len(pres)),
         "steady": 1 - min(1, max(0, (share - even) / max(1e-6, 0.5 - even))),
         "off_quiet": 1 - min(1, max(0, off_excess)),

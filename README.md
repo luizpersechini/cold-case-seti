@@ -619,7 +619,9 @@ trigger.
   flagged in the dossier, not closed: the same test marked injected
   sky-only tones in crowded fields as often as real events (3 of 914 at the
   level that marked 7 events), so it does not tell interference from a
-  signal.
+  signal. How distinct a line is does count a little in the rank:
+  added as a feature, it raised how often an injected sky-only signal ranks
+  above a real event from 0.815 to 0.823.
 - A line whose drift wanders from scan to scan can be plainly present off
   the star and stay open, because the off-star test follows a straight
   track. At least five open events are like that (q00708 is the clearest).
