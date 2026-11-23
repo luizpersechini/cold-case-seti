@@ -371,6 +371,35 @@ satellite and two military communications satellites, 0.1 to 0.4 degrees
 from the line of sight. One of those events is at 2264 MHz, inside the band
 such satellites use for telemetry. The check still only flags.
 
+### The survey's own follow-up list
+
+The 2019 survey published the 6,094 events it inspected, each with a label.
+Thirty-four carry "Requires follow up" (32 at L band, 2 at S band), and none
+of them is in the queue. `coldcase/followup.py` enters each at its strongest
+hit and runs the queue's code on it, unchanged: the seed search, all six
+scans, rules D1 to D8, the comb-tooth test, the same half hour and other
+days. Three hidden test signals ride on each download. The results are kept
+apart, so the queue numbers above do not include them.
+
+| Outcome                                  | Events |
+| ---------------------------------------- | ------ |
+| Seen off the star                        | 19     |
+| A burst, not a tone                      | 3      |
+| No signal at the catalogue position      | 2      |
+| Seen toward other stars in the half hour | 1      |
+| Not explained by these checks            | 9      |
+
+The two with no signal sit near 1420.4 MHz, at drifts of about -1.2 Hz/s.
+Five of the nine left open lie between 1538 and 1561 MHz, and seven drift by
+0.04 Hz/s or less. One (f004, 1691.081 MHz) is toward HIP17420, the star of
+the 131.072 kHz comb, but not on that comb.
+
+Of the 60 sky-only test signals, 59 were found and none was wrongly closed.
+Only 14 of 30 leaks were caught, against 72% in the queue: in most of the
+missed ones the off-star part was at S/N 3 to 4, below the control windows,
+and a few sat in crowded windows. So "open" here is weaker evidence than in
+the queue. About 17 GB were downloaded.
+
 ### Errors found and fixed
 
 **A drift-sign error, found and fixed.** Until 19 November every case was
