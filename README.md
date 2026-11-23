@@ -387,12 +387,15 @@ apart, so the queue numbers above do not include them.
 | A burst, not a tone                      | 3      |
 | No signal at the catalogue position      | 2      |
 | Seen toward other stars in the half hour | 1      |
-| Not explained by these checks            | 9      |
+| Moves with a companion that is explained | 1      |
+| Not explained by these checks            | 8      |
 
 The two with no signal sit near 1420.4 MHz, at drifts of about -1.2 Hz/s.
-Five of the nine left open lie between 1538 and 1561 MHz, and seven drift by
-0.04 Hz/s or less. One (f004, 1691.081 MHz) is toward HIP17420, the star of
-the 131.072 kHz comb, but not on that comb.
+Five of the eight left open lie between 1538 and 1561 MHz, and six drift by
+0.04 Hz/s or less. The companion search found partners for one event only:
+f004 (1691.081 MHz toward HIP17420) has three lines 45 to 172 kHz below it
+that switch on and off with it (r 0.97 to 0.99), each at S/N above 400 and
+each seen off the star, so it is closed by D8.
 
 Of the 60 sky-only test signals, 59 were found and none was wrongly closed.
 Only 14 of 30 leaks were caught, against 72% in the queue: in most of the

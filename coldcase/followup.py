@@ -15,6 +15,8 @@ the queue and its control scores are untouched.
 usage: python -m coldcase.followup plan          the 34 and their cadences
        python -m coldcase.followup run [--max-gb 15]
        python -m coldcase.followup report
+       python -m coldcase.followup recheck [--apply]   rule D8 with the
+                                                    measured companions
 """
 
 import csv
@@ -286,8 +288,46 @@ def report(say=print):
         say(f"test signals {k}: {n}, found {rec}, left open {op}, closed {cl}")
 
 
+def recheck(apply=False, say=print):
+    """The rules again on the open events, now with their measured
+    companions (rule D8, cases/companions/<id>.json)."""
+    led = ledger.connect()
+    table(led)
+    for (cid,) in led.execute(
+        "select case_id from followup where status='open' order by case_id"
+    ).fetchall():
+        cp = ROOT / "cases" / "companions" / f"{cid}.json"
+        if not cp.exists():
+            continue
+        b = json.loads(
+            (ROOT / "cases" / "evidence" / cid / "evidence.json").read_text()
+        )
+        dec = triage.decide(b, companions=json.loads(cp.read_text()))
+        if dec["status"] != "closed":
+            say(f"{cid}: stays open")
+            continue
+        say(
+            f"{cid}: closed ({dec['verdict']}) {'; '.join(dec['direct_evidence'])[:200]}"
+        )
+        if apply:
+            led.execute(
+                "update followup set status=?, verdict=?, why=?, updated=? where case_id=?",
+                (
+                    "closed",
+                    dec["verdict"],
+                    json.dumps(dec["direct_evidence"]),
+                    _now(),
+                    cid,
+                ),
+            )
+            led.commit()
+
+
 def main():
     a = sys.argv[1:]
+    if a[:1] == ["recheck"]:
+        recheck(apply="--apply" in a)
+        return
     if a[:1] == ["plan"]:
         plan()
     elif a[:1] == ["run"]:

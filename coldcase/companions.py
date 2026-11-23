@@ -237,7 +237,8 @@ def measure(cid, found, con):
     from . import runner
 
     b = _bundle(cid)
-    case = runner._case_from_queue(con, cid)
+    # a queue case, or one kept outside the queue (coldcase/followup.py)
+    case = runner._case_from_queue(con, cid) if cid.startswith("q") else b["case"]
     got = investigate._cached_cuts(case, b)
     if got is None:
         return None, 0.0
@@ -249,7 +250,14 @@ def measure(cid, found, con):
     out, mb = [], 0.0
 
     def net(cs):
-        return sum(0 if c.get("cached") else c.get("net_bytes", 0) for c in cs if "error" not in c) / 1e6
+        return (
+            sum(
+                0 if c.get("cached") else c.get("net_bytes", 0)
+                for c in cs
+                if "error" not in c
+            )
+            / 1e6
+        )
 
     for lead in found["leads"]:
         # the event's own scan first: it decides most leads, and the other
@@ -260,14 +268,27 @@ def measure(cid, found, con):
         if "error" in first[0]:
             out.append({**lead, "outcome": "not measured", "why": first[0]["error"]})
             continue
-        only = [first[0] if i == ref else {"error": "not read"} for i in range(len(rows_ev))]
-        r = judge(rows_ev, only, ref, lead, {ref: ev_prof[ref]} if ref in ev_prof else {}, {rows_ev[ref]["pos"]})
+        only = [
+            first[0] if i == ref else {"error": "not read"} for i in range(len(rows_ev))
+        ]
+        r = judge(
+            rows_ev,
+            only,
+            ref,
+            lead,
+            {ref: ev_prof[ref]} if ref in ev_prof else {},
+            {rows_ev[ref]["pos"]},
+        )
         if r["outcome"] != "companion":
             r["measured_in"] = "the event's own scan only"
             out.append(r)
             continue
         rest = repeat._fetch_all(
-            [(s["url"], lead["freq_mhz"], HALF_KHZ) for i, s in enumerate(rows_ev) if i != ref]
+            [
+                (s["url"], lead["freq_mhz"], HALF_KHZ)
+                for i, s in enumerate(rows_ev)
+                if i != ref
+            ]
         )
         mb += net(rest)
         it = iter(rest)
@@ -292,22 +313,35 @@ def null_test(say=print):
         if got is None:
             continue
         rows_ev = b["scans"]
-        ref = next(i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"])
+        ref = next(
+            i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"]
+        )
         ev_prof = _event_profiles(b, got[1])
         want = _pattern(b)
         for lead in json.loads(p.read_text())["leads"]:
             if "scans" not in lead:
                 continue
-            paths = [remote._cache_path(s["url"], lead["freq_mhz"], HALF_KHZ) for s in rows_ev]
+            paths = [
+                remote._cache_path(s["url"], lead["freq_mhz"], HALF_KHZ)
+                for s in rows_ev
+            ]
             if not all(x.exists() for x in paths):
                 continue
-            cuts = [dict(remote.read_cutout(s["url"], lead["freq_mhz"], HALF_KHZ)) for s in rows_ev]
+            cuts = [
+                dict(remote.read_cutout(s["url"], lead["freq_mhz"], HALF_KHZ))
+                for s in rows_ev
+            ]
             for m in (-9, -7, -5, -3, -1, 1, 3, 5, 7, 9):
-                place = {"freq_mhz": lead["freq_mhz"] + m * 0.0004, "drift": lead["drift"]}
+                place = {
+                    "freq_mhz": lead["freq_mhz"] + m * 0.0004,
+                    "drift": lead["drift"],
+                }
                 r = judge(rows_ev, cuts, ref, place, ev_prof, want)
                 n += 1
                 comp += r["outcome"] == "companion"
-    say(f"null test: {comp} of {n} places with nothing catalogued pass as companions ({comp / max(n, 1):.2%})")
+    say(
+        f"null test: {comp} of {n} places with nothing catalogued pass as companions ({comp / max(n, 1):.2%})"
+    )
     return comp, n
 
 
@@ -329,7 +363,9 @@ def injection_test(max_cases=80, sep_khz=2.0, say=print):
     for cid, drift, inj in rows:
         if done >= max_cases:
             break
-        case = json.loads((remote.ROOT / "cases" / "controls" / f"{cid}.json").read_text())
+        case = json.loads(
+            (remote.ROOT / "cases" / "controls" / f"{cid}.json").read_text()
+        )
         b = _bundle(cid)
         if controls.is_masked(b, drift, inj):
             continue
@@ -341,7 +377,9 @@ def injection_test(max_cases=80, sep_khz=2.0, say=print):
             continue
         scans, cuts, _ = got
         rows_ev = b["scans"]
-        ref = next(i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"])
+        ref = next(
+            i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"]
+        )
         want = _pattern(b)
         if not want:
             continue
@@ -402,7 +440,15 @@ def member_check(cid, session=True, say=print):
         pseudo = {
             k: v
             for k, v in eb.items()
-            if k not in ("lookalikes_1khz", "lookalikes_10khz", "same_drift_twins", "clock_probes", "family", "off_scans_stacked")
+            if k
+            not in (
+                "lookalikes_1khz",
+                "lookalikes_10khz",
+                "same_drift_twins",
+                "clock_probes",
+                "family",
+                "off_scans_stacked",
+            )
         }
         pseudo["case"] = case
         mb = investigate.remeasure(case, pseudo, None)
@@ -430,11 +476,17 @@ def member_check(cid, session=True, say=print):
             "verdict": dec["verdict"],
             "direct_evidence": dec["direct_evidence"],
         }
-        (MEMBERS / f"{mid}.json").write_text(json.dumps({**rec, "bundle": mb}, indent=1))
+        (MEMBERS / f"{mid}.json").write_text(
+            json.dumps({**rec, "bundle": mb}, indent=1)
+        )
         out.append(rec)
         say(
             f"{mid} {x['freq_mhz']:.6f} MHz: seed S/N {rec['seed_snr']}, {dec['status']}"
-            + (f" ({'; '.join(dec['direct_evidence'])[:160]})" if dec["direct_evidence"] else "")
+            + (
+                f" ({'; '.join(dec['direct_evidence'])[:160]})"
+                if dec["direct_evidence"]
+                else ""
+            )
             + (f"; same half hour: {sess['summary']['text']}" if sess else "")
         )
     d["members"] = out
@@ -444,7 +496,14 @@ def member_check(cid, session=True, say=print):
 
 def main():
     args = sys.argv[1:]
-    if not args or args[0] not in ("leads", "measure", "null", "inject", "rejudge", "members"):
+    if not args or args[0] not in (
+        "leads",
+        "measure",
+        "null",
+        "inject",
+        "rejudge",
+        "members",
+    ):
         print(__doc__)
         return
     if args[0] == "null":
@@ -460,8 +519,12 @@ def main():
     if args[0] == "members":
         sess = "--no-session" not in args
         ids = [a for a in args[1:] if not a.startswith("--")] or [
-            q.stem for q in sorted(OUT.glob("q*.json"))
-            if any(x.get("outcome") == "companion" for x in json.loads(q.read_text())["leads"])
+            q.stem
+            for q in sorted(OUT.glob("q*.json"))
+            if any(
+                x.get("outcome") == "companion"
+                for x in json.loads(q.read_text())["leads"]
+            )
         ]
         if sess:
             with repeat._turn():
@@ -477,8 +540,11 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     if args[0] == "leads":
         hits = db.connect()
-        res = {}
-        for cid in _open_ids(con):
+        # named cases are added to what is there; no names: every open event
+        given = [a for a in args[1:] if not a.startswith("--")]
+        old = OUT / "leads.json"
+        res = json.loads(old.read_text()) if given and old.exists() else {}
+        for cid in given or _open_ids(con):
             r = leads(cid, hits)
             if r is None:
                 continue
