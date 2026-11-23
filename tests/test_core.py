@@ -220,3 +220,41 @@ def test_follow_line_stops_in_noise():
     info = {"recovered": True, "freq_mhz": f0, "drift": 0.5, "snr": 60}
     fl = investigate.follow_line(scans, cuts, 0, info)
     assert fl["off_scans_reached"] == 0 and fl["chance"] is None
+
+
+def test_d6_finds_an_event_and_its_companions_on_one_clock():
+    from coldcase import harmonics
+
+    clk = 24.0 * (1 - 108e-6)
+    lines = [
+        {"id": i, "target": "T", "f": n * clk, "drift": -0.07, "scan": "s", "mjd": 1.0, "pos": 0}
+        for i, n in (("event", 59), ("c1", 58), ("c2", 62))
+    ]
+    fams = harmonics.find_families(lines)
+    assert len(fams) == 1 and fams[0]["passes"]
+    assert fams[0]["clock_mhz"] == 24 and abs(fams[0]["ppm"] + 108) < 0.01
+    assert sorted(x["n"] for x in fams[0]["lines"]) == [58, 59, 62]
+
+
+def test_d6_ignores_lines_off_the_grid():
+    from coldcase import harmonics
+
+    clk = 24.0 * (1 - 108e-6)
+    lines = [
+        {"id": "event", "target": "T", "f": 59 * clk, "drift": 0, "scan": "s", "mjd": 1.0, "pos": 0},
+        {"id": "c1", "target": "T", "f": 58 * clk + 0.0137, "drift": 0, "scan": "s", "mjd": 1.0, "pos": 0},
+    ]
+    assert not any(f["passes"] for f in harmonics.find_families(lines))
+
+
+def test_a_steady_fast_tone_is_not_a_burst():
+    """A tone drifting 4 Hz/s crosses about 26 channels in one sample; its
+    power must come out spread over the samples, not in one of them."""
+    for seed in range(5):
+        scans, cuts = cadence(10 + seed)
+        f0 = chan_mhz(1000)
+        inject(scans, cuts, f0, 4.0, 40 * 27)
+        c = cuts[0]
+        tp = dd.time_profile(c["data"], c["foff"] * 1e6, c["tsamp"], 1000, 4.0)
+        assert tp["largest_single_sample_share"] < triage.BURST_SHARE, tp
+

@@ -8,6 +8,10 @@ number of parts per million away from nominal, they come from one oscillator.
 The lines can be hundreds of MHz apart, which is why the comb test inside one
 download group (D2) cannot see them.
 
+An open event's measured companions (coldcase/companions.py: lines elsewhere
+in the band that rise and fall with it in the same scan) count as lines of
+that scan; a family that holds an event and its companions closes the event.
+
 A family closes its lines only when the chance of an unrelated match, summed
 over every clock rate tried and multiplied by the number of line pairs
 compared, is below triage.CHANCE_MAX. A single line near a multiple of a clock
@@ -75,6 +79,26 @@ def load_lines():
                 "pos": seed["seed_pos"],
             }
         )
+        # lines elsewhere in the band measured to rise and fall with this one
+        # in the same scan (coldcase/companions.py) are lines of that scan too
+        cp = ROOT / "cases" / "companions" / f"{cid}.json"
+        if cp.exists():
+            for x in json.loads(cp.read_text()).get("leads", []):
+                if x.get("outcome") != "companion":
+                    continue
+                lines.append(
+                    {
+                        "id": f"{cid} companion {x['freq_mhz']:.4f} MHz",
+                        "target": target,
+                        "status": "companion",
+                        "f": x["freq_mhz"],
+                        "drift": x["drift"],
+                        "scan": sc["url"],
+                        "mjd": sc["mjd"],
+                        "pos": seed["seed_pos"],
+                        "companion_of": cid,
+                    }
+                )
     return lines
 
 

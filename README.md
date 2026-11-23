@@ -94,8 +94,8 @@ far" below).
 
 ### In short
 
-No candidate. Of 771 discarded hits audited, 689 are explained or have no
-data, and 82 hits in 57 events are not explained by these checks. One of
+No candidate. Of 771 discarded hits audited, 701 are explained or have no
+data, and 70 hits in 51 events are not explained by these checks. One of
 those, toward HIP36357 at 2051.617 MHz, is the hardest to explain and was
 sent to the Breakthrough Listen team with the drift-sign finding below.
 
@@ -104,10 +104,11 @@ sent to the Breakthrough Listen team with the drift-sign finding below.
 | A burst, not a tone                              | 526  |
 | Seen off the star                                | 102  |
 | No signal at the catalogue position              | 33   |
-| Lines of human clocks                            | 22   |
-| Seen only toward other stars within half an hour | 4    |
+| Lines of human clocks                            | 23   |
+| Moves with a companion line that is explained    | 10   |
+| Seen only toward other stars within half an hour | 5    |
 | No public data                                   | 2    |
-| Not explained by these checks                    | 82   |
+| Not explained by these checks                    | 70   |
 
 How far to trust it: of 952 hidden sky-only test signals, 914 were left
 open and 5 were wrongly closed by a rule; of 476 hidden leaks, 340 were
@@ -229,12 +230,14 @@ moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
 closed as seen off the star, one as a burst, one has no public data, and two
 lines 8 kHz apart toward HIP93805 stay open.
 
-Of the 771 cases, 687 are now closed: 526 bursts, 33 with no signal at the
-catalogue position, 102 seen off the star, 4 seen only toward other stars in
-the same half hour, 22 lines of human clocks (below). Two cases have no
-public data. The other 82 hits stay open and form 57 events. Forty-three of
-them stand above their control windows in one on-star scan, 8 in two, 1 in
-all three and 5 in none.
+Of the 771 cases, 699 are now closed: 526 bursts, 33 with no signal at the
+catalogue position, 102 seen off the star, 5 seen only toward other stars in
+the same half hour, 23 lines of human clocks (below), and 10 that rise and
+fall with a companion line that is itself explained (a burst, seen off the
+star, or the sidebands of one carrier). Two cases have no public data. The
+other 70 hits stay open and form 51 events. Thirty-seven of them stand above
+their control windows in one on-star scan, 8 in two, 1 in all three and 5 in
+none.
 
 **Two clocks.** One group of eight "candidates" turned out to be lines spaced
 by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
@@ -607,7 +610,7 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Forty-eight of the 57 open events have no AI reading of their present
+- Most of the 51 open events have no AI reading of their present
   measurements. The two events added last have had none of the three
   follow-up checks yet.
 - No hidden test signal drifts faster than 1 Hz/s, and more than half of the

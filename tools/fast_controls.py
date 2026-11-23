@@ -104,6 +104,8 @@ def one(job):
                         "status": dec["status"],
                         "verdict": dec["verdict"],
                         "why": [x[:2] for x in dec["direct_evidence"]],
+                        "text": dec["direct_evidence"],
+                        "case": case["id"],
                     }
                 )
         return out
@@ -130,6 +132,8 @@ def main():
             elif res:
                 rows += res
     print(f"{len(jobs)} fast cadences, {len(rows)} injections")
+    if "--dump" in args:
+        Path(args[args.index("--dump") + 1]).write_text(json.dumps(rows))
     by = defaultdict(list)
     for r in rows:
         by[(r["kind"], r["snr"])].append(r)
