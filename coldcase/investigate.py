@@ -122,7 +122,8 @@ def pick_seed(case, scans, cuts, half_khz):
     signal that starts at the catalogue frequency (see _seed_half_hz), not
     the strongest one in the neighbourhood: a line hundreds of hertz away is
     another line. In an ON scan other than the catalogue's, that place is
-    where the hit's own drift would have carried it."""
+    where the hit's own drift would have carried it. Every ON scan is
+    searched and the strongest hit kept."""
     f0, d0 = case["freq_mhz"], case.get("drift", 0.0)
     exact = case.get("freq_exact", False)
     ok = [i for i, c in enumerate(cuts) if "error" not in c]
@@ -139,6 +140,7 @@ def pick_seed(case, scans, cuts, half_khz):
         or ok
     )
     by_time = order[0]
+    found = []
     for i in order:
         c = cuts[i]
         fo = c["foff"] * 1e6
@@ -199,6 +201,12 @@ def pick_seed(case, scans, cuts, half_khz):
                 for h in comp
                 if abs(h["from_place_hz"]) <= _seed_half_hz(d0, c["tsamp"]) + slack
             ]
+        if comp and exact:
+            # with freq_exact every ON scan is looked at and the strongest hit
+            # kept: in a crowded field the first scan can hold a weak
+            # unrelated hit where the candidate itself is absent
+            found.append((comp[0]["snr"], i, comp))
+            continue
         if comp:
             best = comp[0]
             return i, {
@@ -222,6 +230,31 @@ def pick_seed(case, scans, cuts, half_khz):
                     for h in comp[1:4]
                 ],
             }
+    if found:
+        _, i, comp = max(found, key=lambda x: x[0])
+        c, best = cuts[i], comp[0]
+        return i, {
+            "seed_pos": scans[i]["pos"],
+            "recovered": True,
+            "seed_is_scan_nearest_catalogue_time": i == by_time,
+            "snr": round(best["snr"], 1),
+            "freq_mhz": round(_freq(c, best["chan"]), 6),
+            "drift": round(best["drift"], 4),
+            "catalogue_freq_mhz": f0,
+            "catalogue_drift": d0,
+            "offset_from_catalogue_hz": round(best["from_place_hz"], 1),
+            "drift_sign_differs_from_catalogue": bool(best["drift"] * d0 < 0),
+            "compatible_signals_in_seed_scan": len(comp),
+            "on_scans_with_a_hit": len(found),
+            "other_compatible": [
+                {
+                    "offset_hz": round(h["offset_hz"], 1),
+                    "drift": round(h["drift"], 4),
+                    "snr": round(h["snr"], 1),
+                }
+                for h in comp[1:4]
+            ],
+        }
     if exact:
         # The blind search can miss a catalogue hit whose drift is ill-defined
         # (a short burst fits many drifts). Measure at the catalogue position

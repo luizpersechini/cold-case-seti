@@ -28,7 +28,7 @@ usage: python -m coldcase.companions leads              every open event
                                                         sidebands (cached data)
        python -m coldcase.companions members [--no-session] [CASE_ID ...]
            each companion as a case of its own (off-star, burst and, unless
-           --no-session, same-half-hour tests)
+           --no-session, same-half-hour and other-day tests)
 """
 
 import json
@@ -381,7 +381,7 @@ def member_check(cid, session=True, say=print):
     and, with session, the same-half-hour check (which downloads the
     neighbouring scans). Results are stored with the event's companion
     record under "members"; rule D8 closes the event when a member is closed
-    by D1, D4 or D7."""
+    by D1, D4, D5 or D7. With session, the other-day check is made too."""
     p = OUT / f"{cid}.json"
     d = json.loads(p.read_text())
     eb = _bundle(cid)
@@ -412,18 +412,20 @@ def member_check(cid, session=True, say=print):
         mb["case"] = case
         for key in ("same_drift_twins", "clock_probes"):
             mb.pop(key, None)
-        sess = None
+        sess = days = None
         if session and mb["seed"].get("recovered"):
             from . import session as sm
 
             sess = sm.run(mid, save=False, close=False, verbose=False, bundle=mb)
-        dec = triage.decide(mb, session=sess)
+            days = repeat.run(mid, save=False, verbose=False, bundle=mb)
+        dec = triage.decide(mb, session=sess, repeat=days)
         rec = {
             "member": mid,
             "freq_mhz": x["freq_mhz"],
             "recovered": bool(mb["seed"].get("recovered")),
             "seed_snr": mb["seed"].get("snr"),
             "session": (sess or {}).get("summary"),
+            "other_days": (days or {}).get("summary"),
             "status": dec["status"],
             "verdict": dec["verdict"],
             "direct_evidence": dec["direct_evidence"],

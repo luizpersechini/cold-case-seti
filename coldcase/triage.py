@@ -28,7 +28,7 @@ a case is closed or stays open. A case is closed only on direct evidence:
   D8  lines elsewhere in the band that share the event's scans, drift and
       moment-to-moment variation (companions, coldcase/companions.py) are
       one emitter with it, and a member of that emitter is shown to be local:
-      measured as a case of its own, a companion is closed by D1, D4 or D7;
+      measured as a case of its own, a companion is closed by D1, D4, D5 or D7;
       or two companions and the event are spaced equally to within the
       measurement's accuracy, as a carrier and its sidebands are. A plain
       companion is only flagged (needs the companion measurement; it is not
@@ -346,7 +346,7 @@ def companion_rule(b, comp):
     """D8, from a companion measurement (coldcase/companions.py). comp: the
     record companions.py writes, with "leads" and, once measured, "members"
     (each companion as a case of its own). The event closes when a member is
-    closed by D1, D4 or D7, or when two companions and the event make three
+    closed by D1, D4, D5 or D7, or when two companions and the event make three
     lines spaced equally to within the measurement's accuracy: a carrier and
     its sidebands. Returns (text or None, flag or None)."""
     f0 = b["seed"]["freq_mhz"]
@@ -355,7 +355,7 @@ def companion_rule(b, comp):
         return None, None
     for m in comp.get("members", []):
         kinds = {x[:2] for x in m.get("direct_evidence", [])}
-        if m.get("status") == "closed" and kinds & {"D1", "D4", "D7"}:
+        if m.get("status") == "closed" and kinds & {"D1", "D4", "D5", "D7"}:
             return (
                 f"D8: its companion at {m['freq_mhz']:.6f} MHz, which rises and falls "
                 f"with it, is itself closed: {'; '.join(m['direct_evidence'])}"

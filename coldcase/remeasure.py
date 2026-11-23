@@ -137,6 +137,9 @@ def _extra(cid, moved):
                 out[key] = json.loads(p.read_text())
     elif (STAGE / f"{cid}.session.json").exists():
         out["session"] = json.loads((STAGE / f"{cid}.session.json").read_text())
+    comp = ROOT / "cases" / "companions" / f"{cid}.json"
+    if not moved and comp.exists():
+        out["companions"] = json.loads(comp.read_text())
     return out
 
 

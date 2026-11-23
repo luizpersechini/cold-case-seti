@@ -20,7 +20,7 @@ It works on public data from [Breakthrough Listen](https://breakthroughinitiativ
 survey of 1,327 nearby stars with the Green Bank Telescope.
 
 > **Status: a hobby project, not peer-reviewed science.** One person and an AI
-> coding assistant built it in a few days. The numbers below come from its own
+> coding assistant built it over about two weeks. The numbers below come from its own
 > measurements, with thresholds chosen on small samples. Finding aliens this
 > way is extremely unlikely; the point is the audit trail and the method.
 
@@ -41,13 +41,13 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    noise floor. Off-star scans get the same careful look, and are also summed.
 4. **Close only on direct evidence.** Code closes a case when it finds one of:
 
-   | Evidence                     | Meaning                                                                                             |
-   | ---------------------------- | --------------------------------------------------------------------------------------------------- |
-   | Seen off the star            | The same signal is measurable in scans pointed at empty sky, on its track or within 300 Hz of it    |
-   | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                |
-   | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                  |
-   | A burst, not a tone          | The power sits in one instant and nothing is left without it; the search mistook a flash for a tone |
-   | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
+   | Evidence                     | Meaning                                                                                                      |
+   | ---------------------------- | ------------------------------------------------------------------------------------------------------------ |
+   | Seen off the star            | The same signal is measurable in scans pointed at empty sky, on its track or within 300 Hz of it             |
+   | A comb at a round clock rate | Companion lines spaced by a round number of hertz: human electronics                                         |
+   | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                           |
+   | A burst, not a tone          | The power sits in one instant and nothing is left without it; the search mistook a flash for a tone          |
+   | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal          |
    | A companion that is local    | A line that rises and falls with it elsewhere in the band is itself off the star, a burst, or at other stars |
 
    The last row compares open events with each other, so it runs over the
@@ -92,6 +92,30 @@ Snapshot of 21 November 2026, after a full pass over the queue and two
 full re-measurements (see "A drift-sign error" and "A search that looked too
 far" below).
 
+### In short
+
+No candidate. Of 771 discarded hits audited, 684 are explained or have no
+data, and 87 hits in 62 events are not explained by these checks. One of
+those, toward HIP36357 at 2051.617 MHz, is the hardest to explain and was
+sent to the Breakthrough Listen team with the drift-sign finding below.
+
+| Outcome                                          | Hits |
+| ------------------------------------------------ | ---- |
+| A burst, not a tone                              | 529  |
+| Seen off the star                                | 95   |
+| No signal at the catalogue position              | 33   |
+| Lines of two clocks                              | 21   |
+| Seen only toward other stars within half an hour | 4    |
+| No public data                                   | 2    |
+| Not explained by these checks                    | 87   |
+
+How far to trust it: of 952 hidden sky-only test signals, 914 were left
+open and 5 were wrongly closed by a rule; of 476 hidden leaks, 338 were
+caught. The known answers come out as they should. Two errors were found
+and fixed along the way, and every case was measured again after each.
+
+### How the checks were tested
+
 **Known answers**
 
 | Case                                                                                                | What it is                                                                                                                     | Outcome here                                                                                                      |
@@ -106,17 +130,19 @@ far" below).
 | -------------------------------------------------- | -------------------------- | ------------------------ | ----------------- |
 | Pilot, 31 injections                               | 20 of 21                   | 0                        | 9 of 10           |
 | Holdout, 30 fresh injections at random frequencies | 18 of 20                   | 0                        | 4 of 10           |
-| Running controls, 1,428 over the whole queue       | 917 of 952                 | 6                        | 336 of 476        |
+| Running controls, 1,428 over the whole queue       | 914 of 952                 | 5                        | 338 of 476        |
 
 In the first two tests, every sky-only signal that was not left open was too
-weak to recover at all. Over the whole queue, 35 were not left open: 23 too
-weak to recover, 6 hidden under a much stronger real signal at the same
-place, and 6 closed by a rule. Four of the 6 were closed as seen off the
+weak to recover at all. Over the whole queue, 38 were not left open: 23 too
+weak to recover, 10 hidden under a much stronger real signal at the same
+place, and 5 closed by a rule. Three of the 5 were closed as seen off the
 star, in crowded bands, where real interference sat on or near the track in
 an off-star scan. The other two sit in one very crowded stretch near 1868
 MHz: one was lost under interference ten times its strength and labelled a
 burst, and for the other the search took a weak hit in an on-star scan
-where the test signal was absent. That is 0.7% of the 922 recovered.
+where the test signal was absent; in that field the signal in the later
+scans is never found, so searching every on-star scan does not help. That
+is 0.5% of the 918 recovered.
 
 The count was 13 before the controls were examined one by one. Eight had
 been closed as seen toward another star, each on a single weak catalogue hit
@@ -174,105 +200,52 @@ had missed. Four of the eight events rest on a single off-star scan.
 Leaks are caught less often in crowded bands, where the control levels are
 higher; a missed leak stays on the open list.
 
-**A lesson about AI readers.** With a prompt that asked "what is this signal
-most likely?", two AI readers called 12 of 21 injected sky-only signals
-interference, arguing from the band and the surroundings. After the rule
-became "close only on direct evidence", they kept 20 of 21. The open-or-closed
-decision now belongs to code, and the readers only rank.
+### The queue
 
-**A cheaper ranker that did not pay off.** A small typed-judgment model,
-[Jev](https://docs.typesafe.ai/), answered six fixed questions about each
-open case, as a possible replacement for the readers. The test was how often
-it ranks an injected sky-only signal above a real open event (1.00 is
-perfect, 0.50 is chance). On the 399 injected signals and 27 real events it
-answered, Jev scored 0.80, the score computed by code 0.84, and the two
-combined 0.86. On the 20 injections and 18 real events that the readers also
-saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
-cases their instructions were tuned on, so it flatters them. Jev was removed:
-it cost tokens and added 0.02 to a score that is free.
-
-**A drift-sign error, found and fixed.** Until 19 November every case was
-followed the wrong way. The survey's hit tables give each drift rate with the
-opposite sign to the data, and the pipeline trusted that sign. It showed up
-while two open events were being checked by hand: one line moved down 89 Hz
-between two scans while its catalogue drift pointed up. The hit tables
-confirm it on their own: of 1.04 million lines catalogued in two on-star
-scans of one cadence, 98.8% moved against the catalogue's sign
-(`tools/drift_sign.py`).
-
-A wrong-way track crosses a steady line for an instant, so a steady line
-looked like a burst, and the places predicted in the other five scans were
-off. The hidden test signals could not catch it, because they are injected
-with the pipeline's own sign. That is the lesson: the controls test the
-rules, not the reading of someone else's catalogue.
-
-The seed search now takes the stronger of the two signs, and all 2,181
-stored cases (queue, controls, known answers) were measured again from
-cached data, with no downloads. The known answers did not change. The
-controls moved by one case. In the queue the seed moved to another track in
-610 of 761 cases, and 125 changed status:
-
-| Was                                 | Cases | Now                                             |
-| ----------------------------------- | ----- | ----------------------------------------------- |
-| Burst                               | 43    | Closed, seen off the star                       |
-| Burst                               | 23    | Open                                            |
-| No signal at the catalogue position | 20    | Open                                            |
-| No signal at the catalogue position | 16    | Closed, burst                                   |
-| Seen off the star or at other stars | 7     | Open                                            |
-| Seen off the star                   | 3     | Closed, burst                                   |
-| Open                                | 9     | Closed, seen off the star or toward other stars |
-| Open                                | 4     | Closed, burst                                   |
-
-**A search that looked too far.** To follow a catalogued hit, the pipeline
-first finds it in the data: the seed. That search took the strongest signal
-of the right drift within 100 Hz of the catalogue frequency, plus the drift
-over a whole 300-second scan: 1.3 kHz either side for a hit drifting at 4
-Hz/s. More than half of the open events drift faster than 1 Hz/s, and no
-hidden test signal does, so the controls had never tested this.
-
-A check made for it (`tools/fast_drift_check.py`) ran the search at 484
-places of the fast cadences where nothing is catalogued. It came back with a
-seed at 43% of them. Where the true position is known, the wide window was
-not needed: 99.4% of the injected signals that were found sat within 50 Hz
-of it, and 99% within 9 Hz.
-
-The seed is now the signal at the catalogue position: within 50 Hz, plus the
-drift over one 18-second time sample. In an on-star scan other than the
-catalogue's own, that position is where the hit's drift would have carried
-it; the old search looked at the catalogue frequency there, which a drifting
-signal has left. Empty places now give a seed 14% of the time, and injected
-fast tones are found more often (84% against 81% at S/N 40, 46% against 40%
-at S/N 8), because a stronger neighbour no longer takes their place.
-
-Measured again from cached data, the change found 30 more of the injected
-sky-only signals, ones too weak in the catalogue's scan and missed in the
-later scans. One signal that had been set aside as hidden under a stronger
-one is now followed at the right place, and was then wrongly closed by an
-unrelated line in an off-star scan. In the queue, 12 open hits now follow the signal
-at the catalogue position where they had followed a neighbour up to 1 kHz
-away, and one event closed because nothing is there. The known answers did
-not change.
-
-A first attempt did not work and was dropped. It kept the wide window and
-asked the seed to beat the same search at other places of the six scans. It
-lost 16 injected signals in crowded fields, and empty places still gave a
-seed 26% of the time: a scan with a burst in it has too few places of its
-own to compare with.
-
-**The queue.** The 762 cases had been chosen from the hit tables with the
-wrong drift sign too. Chosen again with the right one, the tables alone
+**How it was chosen.** The 762 cases had been chosen from the hit tables
+with the wrong drift sign too (see "Errors found and fixed" below). Chosen again with the right one, the tables alone
 explain 2.5 million more tracks as interference, but the queue hardly
 moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
 41, 38 were already closed and 3 are open events. The 9 were added: five
 closed as seen off the star, one as a burst, one has no public data, and two
 lines 8 kHz apart toward HIP93805 stay open.
 
-Of the 771 cases, 683 are now closed: 530 bursts, 33 with no signal at the
+Of the 771 cases, 682 are now closed: 529 bursts, 33 with no signal at the
 catalogue position, 95 seen off the star, 4 seen only toward other stars in
 the same half hour, 21 lines of two clocks (below). Two cases have no
-public data. The other 86 hits stay open and form 61 events. Forty-six of
+public data. The other 87 hits stay open and form 62 events. Forty-seven of
 them stand above their control windows in one on-star scan, 9 in two, 1 in
 all three and 5 in none.
+
+**Two clocks.** One group of eight "candidates" turned out to be lines spaced
+by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
+Two more lines of the same scan sat 4 and 5 teeth below the eight, in the
+next download, where the comb test could not see them. They had stayed open,
+and one reader had rated their event medium. The test now also looks across
+downloads and closed both. The survey's own hit table agrees: in that scan,
+24 of the 29 catalogued hits within 60 teeth of the comb sit on a tooth, on
+24 different teeth, and none do when the grid is shifted. With the grid moved
+at random, the rule closes a line in 2 of 1,000 tries.
+
+A second clock was hiding across the whole band. Eleven events that had
+stayed open turned out to be one device. In five scans toward three stars,
+between 29 February and 3 March 2016, the lines sit at whole multiples of
+24 MHz (59, 62, 69 and 77 times). Within a scan every line is the same
+fraction below nominal, to 0.1 ppm or better: a 24 MHz crystal running 70 to
+103 ppm slow. The comb test had missed it because these lines are 72 to 240
+MHz apart, far outside one download. The AI readers had read eight of the
+eleven, one line at a time, and left all eight open.
+
+The rule for this was written after the pattern was noticed, so it was
+checked on data it had not used. At three other multiples of 24 MHz per scan,
+the raw data hold a line at the predicted frequency in 13 of 15 measurements,
+11 of them within 10 Hz. The survey's own hit table has a hit at 48 of 144
+other predicted multiples, against 3 of 2,880 at shifted control positions.
+The lines are also in some off-star scans, 200 to 300 Hz from the track and
+outside the narrow window the off-star test followed then. The wider test
+added later did not see them either: in 5 of the 11 lines an off-star scan
+holds a strong line within 300 Hz, but drifting the other way. That was the
+drift-sign error at work: the candidates were being followed the wrong way.
 
 **Companions.** A transmitter seldom sends one line. For each open event the
 hit tables were searched for other lines with its drift in the same scans,
@@ -299,8 +272,10 @@ still running.
 The AI readers had rated every event that was open before the
 re-measurements. Those ratings were made on older measurements, so they are
 kept only for the 9 events whose track and lines did not change: none of
-the 9 is rated above low. The other 52 open events wait for the next month's
+the 9 is rated above low. The other 53 open events wait for the next month's
 AI budget.
+
+### The events still open
 
 **Two events looked at by hand.** Both readers had rated two events medium.
 One (q00707, 2258.417 MHz toward HIP15919) is explained: the hit table lists
@@ -368,35 +343,108 @@ satellite and two military communications satellites, 0.1 to 0.4 degrees
 from the line of sight. One of those events is at 2264 MHz, inside the band
 such satellites use for telemetry. The check still only flags.
 
-**Two clocks.** One group of eight "candidates" turned out to be lines spaced
-by exactly 131.072 kHz, which is 2<sup>17</sup> Hz: a digital clock rate.
-Two more lines of the same scan sat 4 and 5 teeth below the eight, in the
-next download, where the comb test could not see them. They had stayed open,
-and one reader had rated their event medium. The test now also looks across
-downloads and closed both. The survey's own hit table agrees: in that scan,
-24 of the 29 catalogued hits within 60 teeth of the comb sit on a tooth, on
-24 different teeth, and none do when the grid is shifted. With the grid moved
-at random, the rule closes a line in 2 of 1,000 tries.
+### Errors found and fixed
 
-A second clock was hiding across the whole band. Eleven events that had
-stayed open turned out to be one device. In five scans toward three stars,
-between 29 February and 3 March 2016, the lines sit at whole multiples of
-24 MHz (59, 62, 69 and 77 times). Within a scan every line is the same
-fraction below nominal, to 0.1 ppm or better: a 24 MHz crystal running 70 to
-103 ppm slow. The comb test had missed it because these lines are 72 to 240
-MHz apart, far outside one download. The AI readers had read eight of the
-eleven, one line at a time, and left all eight open.
+**A drift-sign error, found and fixed.** Until 19 November every case was
+followed the wrong way. The survey's hit tables give each drift rate with the
+opposite sign to the data, and the pipeline trusted that sign. It showed up
+while two open events were being checked by hand: one line moved down 89 Hz
+between two scans while its catalogue drift pointed up. The hit tables
+confirm it on their own: of 1.04 million lines catalogued in two on-star
+scans of one cadence, 98.8% moved against the catalogue's sign
+(`tools/drift_sign.py`).
 
-The rule for this was written after the pattern was noticed, so it was
-checked on data it had not used. At three other multiples of 24 MHz per scan,
-the raw data hold a line at the predicted frequency in 13 of 15 measurements,
-11 of them within 10 Hz. The survey's own hit table has a hit at 48 of 144
-other predicted multiples, against 3 of 2,880 at shifted control positions.
-The lines are also in some off-star scans, 200 to 300 Hz from the track and
-outside the narrow window the off-star test followed then. The wider test
-added later did not see them either: in 5 of the 11 lines an off-star scan
-holds a strong line within 300 Hz, but drifting the other way. That was the
-drift-sign error at work: the candidates were being followed the wrong way.
+A wrong-way track crosses a steady line for an instant, so a steady line
+looked like a burst, and the places predicted in the other five scans were
+off. The hidden test signals could not catch it, because they are injected
+with the pipeline's own sign. That is the lesson: the controls test the
+rules, not the reading of someone else's catalogue.
+
+The seed search now takes the stronger of the two signs, and all 2,181
+stored cases (queue, controls, known answers) were measured again from
+cached data, with no downloads. The known answers did not change. The
+controls moved by one case. In the queue the seed moved to another track in
+610 of 761 cases, and 125 changed status:
+
+| Was                                 | Cases | Now                                             |
+| ----------------------------------- | ----- | ----------------------------------------------- |
+| Burst                               | 43    | Closed, seen off the star                       |
+| Burst                               | 23    | Open                                            |
+| No signal at the catalogue position | 20    | Open                                            |
+| No signal at the catalogue position | 16    | Closed, burst                                   |
+| Seen off the star or at other stars | 7     | Open                                            |
+| Seen off the star                   | 3     | Closed, burst                                   |
+| Open                                | 9     | Closed, seen off the star or toward other stars |
+| Open                                | 4     | Closed, burst                                   |
+
+**A search that looked too far.** To follow a catalogued hit, the pipeline
+first finds it in the data: the seed. That search took the strongest signal
+of the right drift within 100 Hz of the catalogue frequency, plus the drift
+over a whole 300-second scan: 1.3 kHz either side for a hit drifting at 4
+Hz/s. More than half of the open events drift faster than 1 Hz/s, and no
+hidden test signal does, so the controls had never tested this.
+
+A check made for it (`tools/fast_drift_check.py`) ran the search at 484
+places of the fast cadences where nothing is catalogued. It came back with a
+seed at 43% of them. Where the true position is known, the wide window was
+not needed: 99.4% of the injected signals that were found sat within 50 Hz
+of it, and 99% within 9 Hz.
+
+The seed is now the signal at the catalogue position: within 50 Hz, plus the
+drift over one 18-second time sample. In an on-star scan other than the
+catalogue's own, that position is where the hit's drift would have carried
+it; the old search looked at the catalogue frequency there, which a drifting
+signal has left. Since 22 November every on-star scan is searched and the
+strongest hit kept, not the first one found; measured again, that reopened
+one case (q00749, toward HIP10644 at 1929.075 MHz: a weak line, S/N 7, that
+had been closed as a burst) and changed nothing else. Empty places now give a seed 14% of the time, and injected
+fast tones are found more often (84% against 81% at S/N 40, 46% against 40%
+at S/N 8), because a stronger neighbour no longer takes their place.
+
+Measured again from cached data, the change found 30 more of the injected
+sky-only signals, ones too weak in the catalogue's scan and missed in the
+later scans. One signal that had been set aside as hidden under a stronger
+one is now followed at the right place, and was then wrongly closed by an
+unrelated line in an off-star scan. In the queue, 12 open hits now follow the signal
+at the catalogue position where they had followed a neighbour up to 1 kHz
+away, and one event closed because nothing is there. The known answers did
+not change.
+
+A first attempt did not work and was dropped. It kept the wide window and
+asked the seed to beat the same search at other places of the six scans. It
+lost 16 injected signals in crowded fields, and empty places still gave a
+seed 26% of the time: a scan with a burst in it has too few places of its
+own to compare with.
+
+### AI readers
+
+**A lesson about AI readers.** With a prompt that asked "what is this signal
+most likely?", two AI readers called 12 of 21 injected sky-only signals
+interference, arguing from the band and the surroundings. After the rule
+became "close only on direct evidence", they kept 20 of 21. The open-or-closed
+decision now belongs to code, and the readers only rank.
+
+**A cheaper ranker that did not pay off.** A small typed-judgment model,
+[Jev](https://docs.typesafe.ai/), answered six fixed questions about each
+open case, as a possible replacement for the readers. The test was how often
+it ranks an injected sky-only signal above a real open event (1.00 is
+perfect, 0.50 is chance). On the 399 injected signals and 27 real events it
+answered, Jev scored 0.80, the score computed by code 0.84, and the two
+combined 0.86. On the 20 injections and 18 real events that the readers also
+saw, the readers scored 0.99 and Jev 0.84. That reader figure comes from the
+cases their instructions were tuned on, so it flatters them. Jev was removed:
+it cost tokens and added 0.02 to a score that is free.
+
+It was tried once more on 22 November, for a narrower job: naming the shape
+a case's plot shows (a steady tone, a brief burst, a busy panel, a line that
+wanders from scan to scan, or nothing distinct), to sort the open list for
+review. It was to be kept only if it named each shape right 80% of the time
+on 166 cases whose shape is known. On the full plots it did not (5% to 62%
+right per shape). On plots zoomed around the predicted track, where a
+narrow line is several pixels wide, it named steady tones right 60% of the
+time, wandering lines 77% and empty panels 85%, but bursts 0% and busy
+panels 5%, calling nearly all of them empty. It was dropped again. The two
+runs used about 1.2 million tokens.
 
 <p align="center">
   <img src="docs/img/dashboard.jpg" width="720" alt="The runner's dashboard: queue progress, budget, the cases of the last run as tiles, the latest plot, and the queue laid out along the spectrum.">
@@ -477,6 +525,9 @@ uv run python -I -m coldcase.satellites CASE_ID
 uv run python -I -m coldcase.companions leads
 uv run python -I -m coldcase.companions measure CASE_ID
 uv run python -I -m coldcase.companions members CASE_ID
+
+# 13. Run the unit tests (synthetic data, no network)
+uv run pytest -q
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -498,6 +549,7 @@ trigger.
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
 | `coldcase/combs.py`                                | The comb test for lines of one scan in different downloads          |
 | `coldcase/companions.py`                           | Lines elsewhere in the band that rise and fall with an open event   |
+| `tests/`                                           | Unit tests on synthetic data                                        |
 | `coldcase/session.py`                              | The same line toward other stars within half an hour                |
 | `coldcase/satellites.py`                           | Catalogued satellites near the line of sight at the signal's peak   |
 | `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
@@ -528,7 +580,7 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Fifty-two of the 61 open events have no AI reading of their present
+- Fifty-three of the 62 open events have no AI reading of their present
   measurements. The two events added last have had none of the three
   follow-up checks yet.
 - No hidden test signal drifts faster than 1 Hz/s, and more than half of the
@@ -558,11 +610,13 @@ trigger.
   telescope's sidelobes.
 - The table of radio band uses was written from memory and is not verified.
 - Thresholds were chosen on about ninety labelled test cases. The running
-  controls are the real test of them: the rules closed 6 of 922 recovered
-  sky-only signals that should have stayed open, and missed 137 of 473 weak
+  controls are the real test of them: the rules closed 5 of 918 recovered
+  sky-only signals that should have stayed open, and missed 131 of 469 weak
   leaks. The two-star threshold of the other-star rule was chosen on those
   same controls.
-- There are no unit tests yet.
+- The unit tests (`tests/`) cover the drift sign, the seed search and the
+  rules' arithmetic on synthetic data; the pipeline as a whole is tested only
+  by the hidden test signals.
 
 ## Data and credit
 

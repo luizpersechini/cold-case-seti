@@ -368,12 +368,15 @@ def _summarise(bundle, out):
     return out
 
 
-def run(case_id, inject=None, save=True, verbose=True):
+def run(case_id, inject=None, save=True, verbose=True, bundle=None):
     """Measure one case on its other days. inject ('local' or 'sky') adds a
-    synthetic tone to the first suitable day, for the self-test."""
+    synthetic tone to the first suitable day, for the self-test. With
+    `bundle` the measurement is made for that evidence instead of the stored
+    one: a stand-in case such as a companion (coldcase/companions.py), which
+    has no folder of its own; pass save=False with it."""
     say = print if verbose else (lambda *a, **k: None)
     folder = remote.ROOT / "cases" / "evidence" / case_id
-    b = json.loads((folder / "evidence.json").read_text())
+    b = bundle or json.loads((folder / "evidence.json").read_text())
     seed, case = b["seed"], b["case"]
     out = {"case_id": case_id, "days": []}
 

@@ -14,7 +14,6 @@ dependencies = [
     "numpy>=2.5.4",
     "pyarrow>=26.0.1",
     "sgp4>=2.27",
-    "typesafe-sdk>=0.7.5",
 ]
 
 [build-system]
@@ -23,3 +22,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["coldcase"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

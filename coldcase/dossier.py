@@ -116,6 +116,7 @@ def events(con):
                 "satellites": json.loads(tp.read_text())["summary"]["text"]
                 if tp.exists()
                 else "not checked",
+                "companions": _companions(cid),
                 "members": con.execute(
                     "select case_id, freq_mhz from queue where status='open_member' "
                     "and note=? order by freq_mhz",
@@ -125,6 +126,33 @@ def events(con):
             }
         )
     return sorted(out, key=lambda e: e["sort"])
+
+
+def _companions(cid):
+    """One line on the event's companions (coldcase/companions.py)."""
+    p = ROOT / "cases" / "companions" / f"{cid}.json"
+    if not p.exists():
+        return "not measured"
+    d = json.loads(p.read_text())
+    leads = [x for x in d.get("leads", []) if "scans" in x or x.get("outcome")]
+    found = [x for x in leads if x.get("outcome") == "companion"]
+    if not leads:
+        return "no leads in the hit tables"
+    if not found:
+        return f"{len(leads)} lead(s) measured; none rises and falls with it"
+    members = {m["freq_mhz"]: m for m in d.get("members", [])}
+    parts = []
+    for x in found:
+        m = members.get(x["freq_mhz"])
+        tail = ""
+        if m:
+            tail = (
+                f", itself closed: {'; '.join(m['direct_evidence'])}"
+                if m["status"] == "closed"
+                else ", itself open"
+            )
+        parts.append(f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']}{tail})")
+    return f"{len(found)} of {len(leads)} lead(s) rise and fall with it: " + "; ".join(parts)
 
 
 def _scans(b):
@@ -200,6 +228,7 @@ def _facts(e):
         ("Other days", e["repeat"]),
         ("Other stars, same half hour", e["session"]),
         ("Satellites near the line of sight", e["satellites"]),
+        ("Lines elsewhere that follow it", e["companions"]),
         ("Rank score", "-" if e["rank"] is None else f"{e['rank']:.2f}"),
     ]
     if e["members"]:
