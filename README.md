@@ -614,6 +614,12 @@ trigger.
   open events do. The fast-drift check tests the seed search only, not the
   rules that follow. At places where nothing is catalogued the search still
   returns a seed 14% of the time, mostly from bursts.
+- Some open events cannot be told from their surroundings: in every on-star
+  scan a few of the comparison windows hold a line as strong. They are
+  flagged in the dossier, not closed: the same test marked injected
+  sky-only tones in crowded fields as often as real events (3 of 914 at the
+  level that marked 7 events), so it does not tell interference from a
+  signal.
 - A line whose drift wanders from scan to scan can be plainly present off
   the star and stay open, because the off-star test follows a straight
   track. At least five open events are like that (q00708 is the clearest).

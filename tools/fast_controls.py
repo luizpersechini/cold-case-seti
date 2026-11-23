@@ -74,9 +74,12 @@ def one(job):
                     "freq_exact": True,
                 }
                 seed, info = investigate.pick_seed(probe, scans, mine, half)
+                # the seed may be in any ON scan; where it is placed against the
+                # catalogue position is offset_from_catalogue_hz, carried back
+                # along its own drift
                 found = bool(
                     info["recovered"]
-                    and abs(info["freq_mhz"] - f) * 1e6
+                    and abs(info.get("offset_from_catalogue_hz", 1e9))
                     <= investigate._seed_half_hz(d0, cuts[ref]["tsamp"]) + 50
                     and info["drift"] * data_drift > 0
                 )

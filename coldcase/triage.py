@@ -214,6 +214,36 @@ def off_crowded(b, floor=WIDE_SNR_MIN):
     return "D1: " + stats["text"], stats
 
 
+# not distinct: the least share of comparison windows as strong as the track,
+# in every on-star scan, for an event to count as indistinct from its
+# surroundings. The same 5% as CHANCE_MAX.
+NOT_DISTINCT_SHARE = 0.05
+
+
+def not_distinct(b):
+    """An event that cannot be told from its surroundings: in every on-star
+    scan where it was measured, (k + 1) / (n + 1) of the n comparison windows
+    hold a line at least as strong as its track (k of them), 5% or more.
+    This explains nothing, and it is only a flag: on the blind test signals
+    the same share marked injected sky-only tones in crowded fields as often
+    as real events (2026-11-22). Returns the reason, or None."""
+    shares = []
+    for s in b["scans"]:
+        cw = s.get("control_windows") or {}
+        if s["role"] != "ON" or "error" in s or cw.get("at_least_track") is None:
+            continue
+        shares.append(((cw["at_least_track"] + 1) / (cw["n"] + 1), s["pos"], s["track"]["snr"]))
+    if not shares or min(x[0] for x in shares) < NOT_DISTINCT_SHARE:
+        return None
+    return (
+        "ND: not distinct from its surroundings: in every on-star scan the comparison "
+        "windows hold a line as strong as its track at least "
+        f"{NOT_DISTINCT_SHARE:.0%} of the time ("
+        + ", ".join(f"scan {pos}: S/N {snr}, {sh:.0%}" for sh, pos, snr in shares)
+        + ")"
+    )
+
+
 def repeat_rule(b, rp):
     """D5, from a repeat check (coldcase/repeat.py). A day counts when it could
     be measured and the Earth's motion would have moved a sky signal by at
@@ -520,6 +550,11 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
         elif flag:
             flags.append(flag)
     if not direct:
+        # a flag, not a closure: on the blind test signals the same share
+        # closed sky-only tones as often as it closed real events
+        nd = not_distinct(b)
+        if nd:
+            flags.append(nd[4:])
         return {
             "status": "open",
             "verdict": "unresolved",
