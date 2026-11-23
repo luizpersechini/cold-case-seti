@@ -48,6 +48,7 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    | Seen toward other stars      | The same frequency and drift while the telescope looked at two or more other stars                  |
    | A burst, not a tone          | The power sits in one instant and nothing is left without it; the search mistook a flash for a tone |
    | Harmonics of one clock       | Lines of one scan at different whole multiples of one clock rate, all the same fraction off nominal |
+   | A companion that is local    | A line that rises and falls with it elsewhere in the band is itself off the star, a burst, or at other stars |
 
    The last row compares open events with each other, so it runs over the
    open list after each batch. So does a second pass of the comb test, for
@@ -266,17 +267,39 @@ moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
 closed as seen off the star, one as a burst, one has no public data, and two
 lines 8 kHz apart toward HIP93805 stay open.
 
-Of the 771 cases, 682 are now closed: 529 bursts, 33 with no signal at the
+Of the 771 cases, 683 are now closed: 530 bursts, 33 with no signal at the
 catalogue position, 95 seen off the star, 4 seen only toward other stars in
 the same half hour, 21 lines of two clocks (below). Two cases have no
-public data. The other 87 hits stay open and form 62 events. Forty-seven of
+public data. The other 86 hits stay open and form 61 events. Forty-six of
 them stand above their control windows in one on-star scan, 9 in two, 1 in
 all three and 5 in none.
+
+**Companions.** A transmitter seldom sends one line. For each open event the
+hit tables were searched for other lines with its drift in the same scans,
+anywhere in the band, and the strongest of them were measured in the raw
+data. A companion has to stand out in the event's scans and no others, and
+rise and fall with the event from one 18-second sample to the next. The hit
+tables suggest companions for 36 of 62 events; once measured, almost none
+are. Three lines that looked like companions of the HIP36357 event, for
+instance, belong to an unrelated forest of lines present in every scan.
+
+The first clear case was a weak line toward HIP105769 at 1635.924 MHz, in a
+band used by terminals that talk to satellites. Two lines 11.2 kHz below and
+10.6 kHz above it rise and fall with it almost exactly (r = 0.99), in the
+same scan only. Measured as cases of their own, both put more than half of
+their power in one 18-second sample, the same one in which the event puts
+49%: one bursty emitter. A new rule (D8) closes an event when a member of
+its group is closed by the off-star, burst or same-half-hour test, and it
+closed this one. On cached data, places with nothing catalogued passed as
+companions 0 times in 200, and the rule closed 0 of 160 test signals with
+nothing beside them. It found about a third of injected sidebands at 0.6
+times the tone's strength. The measurement of the other events' leads is
+still running.
 
 The AI readers had rated every event that was open before the
 re-measurements. Those ratings were made on older measurements, so they are
 kept only for the 9 events whose track and lines did not change: none of
-the 9 is rated above low. The other 53 open events wait for the next month's
+the 9 is rated above low. The other 52 open events wait for the next month's
 AI budget.
 
 **Two events looked at by hand.** Both readers had rated two events medium.
@@ -448,6 +471,12 @@ uv run python -I -m coldcase.session CASE_ID
 #     data/satellites/
 uv run python -I -m coldcase.satellites index
 uv run python -I -m coldcase.satellites CASE_ID
+
+# 12. Look for an open event's companions elsewhere in the band: leads from
+#     the hit tables, then the raw data, then each companion as a case
+uv run python -I -m coldcase.companions leads
+uv run python -I -m coldcase.companions measure CASE_ID
+uv run python -I -m coldcase.companions members CASE_ID
 ```
 
 The AI steps are optional. Copy `.env.example` to `.env` and add an Anthropic
@@ -468,6 +497,7 @@ trigger.
 | `coldcase/repeat.py`                               | The repeat check on a star's other observing days                   |
 | `coldcase/harmonics.py`                            | The clock-harmonic rule across open events                          |
 | `coldcase/combs.py`                                | The comb test for lines of one scan in different downloads          |
+| `coldcase/companions.py`                           | Lines elsewhere in the band that rise and fall with an open event   |
 | `coldcase/session.py`                              | The same line toward other stars within half an hour                |
 | `coldcase/satellites.py`                           | Catalogued satellites near the line of sight at the signal's peak   |
 | `coldcase/backfill.py`                             | Adds a newer measurement to stored evidence from cached cutouts     |
@@ -498,7 +528,7 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Fifty-three of the 62 open events have no AI reading of their present
+- Fifty-two of the 61 open events have no AI reading of their present
   measurements. The two events added last have had none of the three
   follow-up checks yet.
 - No hidden test signal drifts faster than 1 Hz/s, and more than half of the

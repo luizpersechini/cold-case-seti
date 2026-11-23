@@ -25,6 +25,14 @@ a case is closed or stays open. A case is closed only on direct evidence:
   D7  the same line, at the same telescope frequency, while the telescope
       pointed at other stars within half an hour (needs the session check,
       coldcase/session.py; it is not part of the first pass)
+  D8  lines elsewhere in the band that share the event's scans, drift and
+      moment-to-moment variation (companions, coldcase/companions.py) are
+      one emitter with it, and a member of that emitter is shown to be local:
+      measured as a case of its own, a companion is closed by D1, D4 or D7;
+      or two companions and the event are spaced equally to within the
+      measurement's accuracy, as a carrier and its sidebands are. A plain
+      companion is only flagged (needs the companion measurement; it is not
+      part of the first pass)
 
 Context (band, drift, neighbours) never closes a case; readers use it to rank
 the open ones. The satellite check (coldcase/satellites.py) is context too: a
@@ -329,7 +337,53 @@ def satellite_rule(sat):
     ), stats
 
 
-def decide(b, repeat=None, session=None, satellites=None):
+# D8, first part: two spacings count as equal when they differ by no more than
+# this many channels of the seed scan, plus a few hertz for the drift
+SIDEBAND_CHANNELS = 3
+
+
+def companion_rule(b, comp):
+    """D8, from a companion measurement (coldcase/companions.py). comp: the
+    record companions.py writes, with "leads" and, once measured, "members"
+    (each companion as a case of its own). The event closes when a member is
+    closed by D1, D4 or D7, or when two companions and the event make three
+    lines spaced equally to within the measurement's accuracy: a carrier and
+    its sidebands. Returns (text or None, flag or None)."""
+    f0 = b["seed"]["freq_mhz"]
+    found = [x for x in comp.get("leads", []) if x.get("outcome") == "companion"]
+    if not found:
+        return None, None
+    for m in comp.get("members", []):
+        kinds = {x[:2] for x in m.get("direct_evidence", [])}
+        if m.get("status") == "closed" and kinds & {"D1", "D4", "D7"}:
+            return (
+                f"D8: its companion at {m['freq_mhz']:.6f} MHz, which rises and falls "
+                f"with it, is itself closed: {'; '.join(m['direct_evidence'])}"
+            ), None
+    seed_row = next((s for s in b["scans"] if s["pos"] == b["seed"]["seed_pos"]), {})
+    tol = SIDEBAND_CHANNELS * seed_row.get("chan_hz", 3.0) + 2.0
+    lines = sorted([f0] + [x["freq_mhz"] for x in found])
+    for i in range(len(lines)):
+        for j in range(i + 1, len(lines)):
+            for k in range(j + 1, len(lines)):
+                if f0 not in (lines[i], lines[j], lines[k]):
+                    continue
+                a, c = (lines[j] - lines[i]) * 1e6, (lines[k] - lines[j]) * 1e6
+                if abs(a - c) <= tol:
+                    return (
+                        f"D8: with two lines that rise and fall with it, it forms three "
+                        f"lines spaced equally to within {tol:.0f} Hz ({a / 1e3:.3f} and "
+                        f"{c / 1e3:.3f} kHz apart): a carrier and its sidebands"
+                    ), None
+    return None, (
+        f"{len(found)} line(s) elsewhere in the band rise and fall with it: "
+        + ", ".join(
+            f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']})" for x in found
+        )
+    )
+
+
+def decide(b, repeat=None, session=None, satellites=None, companions=None):
     seed = b["seed"]
     if not seed.get("recovered"):
         # no tone at the catalogue position; say so more precisely when the
@@ -437,6 +491,12 @@ def decide(b, repeat=None, session=None, satellites=None):
         text, _ = satellite_rule(satellites)
         if text:
             flags.append(text)
+    if companions:
+        text, flag = companion_rule(b, companions)
+        if text:
+            direct.append(text)
+        elif flag:
+            flags.append(flag)
     if not direct:
         return {
             "status": "open",
@@ -445,11 +505,13 @@ def decide(b, repeat=None, session=None, satellites=None):
             "flags": flags,
         }
     kinds = {x[:2] for x in direct}
+    # D8 that rests only on a companion's burst says what D4 says
+    burst_only = kinds == {"D8"} and all("is itself closed: D4:" in x and "D1:" not in x and "D7:" not in x for x in direct)
     verdict = (
         "rfi_identified"
         if "D2" in kinds
         else "not_a_tone"
-        if kinds == {"D4"}
+        if kinds == {"D4"} or burst_only
         else "rfi_probable"
     )
     return {
@@ -512,14 +574,12 @@ def decide_case(case_id):
     folder = ROOT / "cases" / "evidence" / case_id
     rp, sp = folder / "repeat.json", folder / "session.json"
     tp = folder / "satellites.json"
+    cp = ROOT / "cases" / "companions" / f"{case_id}.json"
+    b = json.loads((folder / "evidence.json").read_text())
     return decide(
-        json.loads((folder / "evidence.json").read_text()),
+        b,
         repeat=json.loads(rp.read_text()) if rp.exists() else None,
         session=json.loads(sp.read_text()) if sp.exists() else None,
         satellites=json.loads(tp.read_text()) if tp.exists() else None,
+        companions=json.loads(cp.read_text()) if cp.exists() else None,
     )
-
-
-if __name__ == "__main__":
-    for cid in sys.argv[1:]:
-        print(cid, json.dumps(decide_case(cid)))

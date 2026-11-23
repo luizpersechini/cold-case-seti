@@ -22,6 +22,13 @@ lines (2026-11-21).
 
 usage: python -m coldcase.companions leads              every open event
        python -m coldcase.companions measure [--max-gb N] [CASE_ID ...]
+       python -m coldcase.companions null               chance of a false
+                                                        companion (cached data)
+       python -m coldcase.companions inject             rule D8 on injected
+                                                        sidebands (cached data)
+       python -m coldcase.companions members [--no-session] [CASE_ID ...]
+           each companion as a case of its own (off-star, burst and, unless
+           --no-session, same-half-hour tests)
 """
 
 import json
@@ -140,6 +147,91 @@ def _profile(cu, chan, drift):
     )
 
 
+def _event_profiles(b, ev_cuts):
+    """The event's own track, sample by sample, in every scan that was read."""
+    out = {}
+    for i, (s, c) in enumerate(zip(b["scans"], ev_cuts)):
+        if "error" in c or "error" in s or s["track"].get("freq_mhz") is None:
+            continue
+        k = int(round((s["track"]["freq_mhz"] - c["fch1"]) / c["foff"]))
+        out[i] = _profile(c, k, s["track"]["drift"])
+    return out
+
+
+def judge(rows_ev, cuts, ref, lead, ev_prof, want):
+    """One lead, {freq_mhz, drift}, measured in the cutouts `cuts` of the
+    event's six scans: in which scans a line stands above its control
+    windows there, and how closely it follows the event sample by sample.
+    want: the positions of the scans in which the event stands out."""
+    c0 = cuts[ref]
+    scans, prof = [], {}
+    for i, (s, c) in enumerate(zip(rows_ev, cuts)):
+        if "error" in c:
+            continue
+        dt = (c["tstart"] - c0["tstart"]) * 86400.0
+        k = (lead["freq_mhz"] + lead["drift"] * dt * 1e-6 - c["fch1"]) / c["foff"]
+        tr, ctrl, _, _, _, _ = investigate._track_and_controls(c, k, dt, lead["drift"])
+        if tr["snr"] is None or not len(ctrl):
+            continue
+        scans.append(
+            {
+                "pos": s["pos"],
+                "role": s["role"],
+                "track_snr": round(tr["snr"], 1),
+                "controls_max": round(float(ctrl.max()), 1),
+                "stands_out": bool(tr["snr"] - ctrl.max() >= triage.OFF_MARGIN),
+            }
+        )
+        prof[i] = _profile(c, tr["chan"], tr["drift"])
+    there = {x["pos"] for x in scans if x["stands_out"]}
+    both = [i for i in ev_prof if i in prof and rows_ev[i]["pos"] in want]
+    corr = None
+    if both:
+        a = np.concatenate([ev_prof[i] for i in both])
+        z = np.concatenate([prof[i] for i in both])
+        if a.std() > 0 and z.std() > 0:
+            corr = round(float(np.corrcoef(a, z)[0, 1]), 2)
+    return {
+        **lead,
+        "scans": scans,
+        "stands_out_in": sorted(there),
+        "correlation_with_event": corr,
+        "outcome": outcome(there, want, corr),
+    }
+
+
+def outcome(there, want, corr):
+    """A companion stands above its controls in one or more of the scans in
+    which the event does, in none of the others, and follows the event sample
+    by sample. A weaker companion need not reach its margin in every one of
+    the event's scans."""
+    if not there:
+        return "no distinct line"
+    if not set(there) <= set(want):
+        return "a line, in other scans than the event"
+    if corr is None or corr < CORR_MIN:
+        return "a line in the same scans, not following the event"
+    return "companion"
+
+
+def rejudge(say=print):
+    """Apply today's outcome() to the stored measurements."""
+    n = 0
+    for p in sorted(OUT.glob("q*.json")):
+        d = json.loads(p.read_text())
+        want = _pattern(_bundle(p.stem))
+        for x in d["leads"]:
+            if "scans" not in x:
+                continue
+            new = outcome(set(x["stands_out_in"]), want, x["correlation_with_event"])
+            if new != x["outcome"]:
+                say(f"{p.stem} {x['freq_mhz']:.6f}: {x['outcome']} -> {new}")
+                x["outcome"] = new
+                n += 1
+        p.write_text(json.dumps(d, indent=1))
+    say(f"{n} outcomes changed")
+
+
 def measure(cid, found, con):
     """The leads of one event in the raw data. Returns (rows, megabytes)."""
     from . import runner
@@ -153,83 +245,229 @@ def measure(cid, found, con):
     rows_ev = b["scans"]
     ref = next(i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"])
     want = set(found["event"]["scans_with_the_line"])
-    ev_prof = {}
-    for i, (s, c) in enumerate(zip(rows_ev, ev_cuts)):
-        if "error" in c or "error" in s or s["track"].get("freq_mhz") is None:
-            continue
-        k = int(round((s["track"]["freq_mhz"] - c["fch1"]) / c["foff"]))
-        ev_prof[i] = _profile(c, k, s["track"]["drift"])
+    ev_prof = _event_profiles(b, ev_cuts)
     out, mb = [], 0.0
+
+    def net(cs):
+        return sum(0 if c.get("cached") else c.get("net_bytes", 0) for c in cs if "error" not in c) / 1e6
+
     for lead in found["leads"]:
-        cuts = repeat._fetch_all(
-            [(s["url"], lead["freq_mhz"], HALF_KHZ) for s in rows_ev]
-        )
-        mb += (
-            sum(
-                0 if c.get("cached") else c.get("net_bytes", 0)
-                for c in cuts
-                if "error" not in c
-            )
-            / 1e6
-        )
-        if "error" in cuts[ref]:
-            out.append({**lead, "outcome": "not measured", "why": cuts[ref]["error"]})
+        # the event's own scan first: it decides most leads, and the other
+        # five scans are read only for a lead that stands out there and
+        # follows the event
+        first = repeat._fetch_all([(rows_ev[ref]["url"], lead["freq_mhz"], HALF_KHZ)])
+        mb += net(first)
+        if "error" in first[0]:
+            out.append({**lead, "outcome": "not measured", "why": first[0]["error"]})
             continue
-        c0 = cuts[ref]
-        scans, prof = [], {}
-        for i, (s, c) in enumerate(zip(rows_ev, cuts)):
-            if "error" in c:
-                continue
-            dt = (c["tstart"] - c0["tstart"]) * 86400.0
-            k = (lead["freq_mhz"] + lead["drift"] * dt * 1e-6 - c["fch1"]) / c["foff"]
-            tr, ctrl, _, _, _, _ = investigate._track_and_controls(
-                c, k, dt, lead["drift"]
-            )
-            if tr["snr"] is None or not len(ctrl):
-                continue
-            scans.append(
-                {
-                    "pos": s["pos"],
-                    "role": s["role"],
-                    "track_snr": round(tr["snr"], 1),
-                    "controls_max": round(float(ctrl.max()), 1),
-                    "stands_out": bool(tr["snr"] - ctrl.max() >= triage.OFF_MARGIN),
-                }
-            )
-            prof[i] = _profile(c, tr["chan"], tr["drift"])
-        there = {x["pos"] for x in scans if x["stands_out"]}
-        both = [i for i in ev_prof if i in prof and rows_ev[i]["pos"] in want]
-        corr = None
-        if both:
-            a = np.concatenate([ev_prof[i] for i in both])
-            z = np.concatenate([prof[i] for i in both])
-            if a.std() > 0 and z.std() > 0:
-                corr = round(float(np.corrcoef(a, z)[0, 1]), 2)
-        distinct = bool(there)
-        same_scans = there == want
-        is_comp = distinct and same_scans and corr is not None and corr >= CORR_MIN
-        out.append(
-            {
-                **lead,
-                "scans": scans,
-                "stands_out_in": sorted(there),
-                "correlation_with_event": corr,
-                "outcome": "companion"
-                if is_comp
-                else "no distinct line"
-                if not distinct
-                else "a line, in other scans than the event"
-                if not same_scans
-                else "a line in the same scans, not following the event",
-            }
+        only = [first[0] if i == ref else {"error": "not read"} for i in range(len(rows_ev))]
+        r = judge(rows_ev, only, ref, lead, {ref: ev_prof[ref]} if ref in ev_prof else {}, {rows_ev[ref]["pos"]})
+        if r["outcome"] != "companion":
+            r["measured_in"] = "the event's own scan only"
+            out.append(r)
+            continue
+        rest = repeat._fetch_all(
+            [(s["url"], lead["freq_mhz"], HALF_KHZ) for i, s in enumerate(rows_ev) if i != ref]
         )
+        mb += net(rest)
+        it = iter(rest)
+        cuts = [first[0] if i == ref else next(it) for i in range(len(rows_ev))]
+        out.append(judge(rows_ev, cuts, ref, lead, ev_prof, want))
     return out, mb
+
+
+def null_test(say=print):
+    """How often a place where nothing is catalogued passes as a companion.
+    Uses the cutouts the measurement downloaded for each lead (cached): at
+    places 0.4 to 3.6 kHz from the lead, the same judgement as for the lead
+    itself, against the same event. Nothing is downloaded."""
+    from . import runner
+
+    con = runner.queue_db()
+    n = comp = 0
+    for p in sorted(OUT.glob("q*.json")):
+        cid = p.stem
+        b = _bundle(cid)
+        got = investigate._cached_cuts(runner._case_from_queue(con, cid), b)
+        if got is None:
+            continue
+        rows_ev = b["scans"]
+        ref = next(i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"])
+        ev_prof = _event_profiles(b, got[1])
+        want = _pattern(b)
+        for lead in json.loads(p.read_text())["leads"]:
+            if "scans" not in lead:
+                continue
+            paths = [remote._cache_path(s["url"], lead["freq_mhz"], HALF_KHZ) for s in rows_ev]
+            if not all(x.exists() for x in paths):
+                continue
+            cuts = [dict(remote.read_cutout(s["url"], lead["freq_mhz"], HALF_KHZ)) for s in rows_ev]
+            for m in (-9, -7, -5, -3, -1, 1, 3, 5, 7, 9):
+                place = {"freq_mhz": lead["freq_mhz"] + m * 0.0004, "drift": lead["drift"]}
+                r = judge(rows_ev, cuts, ref, place, ev_prof, want)
+                n += 1
+                comp += r["outcome"] == "companion"
+    say(f"null test: {comp} of {n} places with nothing catalogued pass as companions ({comp / max(n, 1):.2%})")
+    return comp, n
+
+
+def injection_test(max_cases=80, sep_khz=2.0, say=print):
+    """Does D8 see injected sidebands, and stay quiet without them? On the
+    blind sky-only controls whose cutouts are cached: once as they are, with
+    leads placed sep_khz either side of the injected tone (nothing there),
+    and once with two sidebands added there, at 0.6 times the tone's S/N and
+    with its own moment-to-moment variation. Nothing is downloaded."""
+    from . import controls, ledger
+
+    led = ledger.connect()
+    rows = led.execute(
+        "select case_id, drift, inj_snr from controls where kind like 'sky%' "
+        "and recovered=1 and masked=0 order by case_id"
+    ).fetchall()
+    res = {"plain": [0, 0], "sidebands": [0, 0]}
+    done = 0
+    for cid, drift, inj in rows:
+        if done >= max_cases:
+            break
+        case = json.loads((remote.ROOT / "cases" / "controls" / f"{cid}.json").read_text())
+        b = _bundle(cid)
+        if controls.is_masked(b, drift, inj):
+            continue
+        half = case.get("half_khz", max(5.0, abs(case.get("drift", 0.0)) * 2.5 + 3.0))
+        if half < sep_khz + 1.5:
+            continue
+        got = investigate._cached_cuts(case, b)
+        if got is None:
+            continue
+        scans, cuts, _ = got
+        rows_ev = b["scans"]
+        ref = next(i for i, s in enumerate(rows_ev) if s["pos"] == b["seed"]["seed_pos"])
+        want = _pattern(b)
+        if not want:
+            continue
+        done += 1
+        f, d = b["seed"]["freq_mhz"], b["seed"]["drift"]
+        leads = [{"freq_mhz": f + sgn * sep_khz * 1e-3, "drift": d} for sgn in (-1, 1)]
+        for kind in ("plain", "sidebands"):
+            cc = [dict(c) for c in cuts]
+            if kind == "sidebands":
+                for c, c_orig in zip(cc, cuts):
+                    if "data" in c:
+                        c["data"] = np.array(c_orig["data"], dtype=np.float64)
+                for sgn in (-1, 1):
+                    spec = dict(case["inject"])
+                    spec["f0_mhz"] = spec["f0_mhz"] + sgn * sep_khz * 1e-3
+                    spec["snr"] = 0.6 * spec["snr"]
+                    investigate.apply_injection({"inject": spec}, scans, cc)
+            ev_prof = _event_profiles(b, cc)
+            comp = {"leads": [judge(rows_ev, cc, ref, x, ev_prof, want) for x in leads]}
+            text, _ = triage.companion_rule(b, comp)
+            res[kind][0] += 1
+            res[kind][1] += bool(text)
+    say(
+        f"injection test on {done} sky-only controls: D8 closes {res['plain'][1]} of "
+        f"{res['plain'][0]} with nothing beside them, and {res['sidebands'][1]} of "
+        f"{res['sidebands'][0]} with two sidebands {sep_khz} kHz away"
+    )
+    return res
+
+
+MEMBERS = OUT / "members"
+
+
+def member_check(cid, session=True, say=print):
+    """Each companion of an open event measured as a case of its own: the
+    off-star and burst tests from the cutouts already downloaded for it,
+    and, with session, the same-half-hour check (which downloads the
+    neighbouring scans). Results are stored with the event's companion
+    record under "members"; rule D8 closes the event when a member is closed
+    by D1, D4 or D7."""
+    p = OUT / f"{cid}.json"
+    d = json.loads(p.read_text())
+    eb = _bundle(cid)
+    MEMBERS.mkdir(parents=True, exist_ok=True)
+    out = []
+    for n, x in enumerate(d["leads"]):
+        if x.get("outcome") != "companion":
+            continue
+        mid = f"{cid}_c{n}"
+        case = {
+            **eb["case"],
+            "id": mid,
+            "freq_mhz": x["freq_mhz"],
+            "drift": x["drift"],
+            "half_khz": HALF_KHZ,
+            "freq_exact": True,
+        }
+        pseudo = {
+            k: v
+            for k, v in eb.items()
+            if k not in ("lookalikes_1khz", "lookalikes_10khz", "same_drift_twins", "clock_probes", "family", "off_scans_stacked")
+        }
+        pseudo["case"] = case
+        mb = investigate.remeasure(case, pseudo, None)
+        if mb is None:
+            say(f"{mid}: its cutouts are not in the cache")
+            continue
+        mb["case"] = case
+        for key in ("same_drift_twins", "clock_probes"):
+            mb.pop(key, None)
+        sess = None
+        if session and mb["seed"].get("recovered"):
+            from . import session as sm
+
+            sess = sm.run(mid, save=False, close=False, verbose=False, bundle=mb)
+        dec = triage.decide(mb, session=sess)
+        rec = {
+            "member": mid,
+            "freq_mhz": x["freq_mhz"],
+            "recovered": bool(mb["seed"].get("recovered")),
+            "seed_snr": mb["seed"].get("snr"),
+            "session": (sess or {}).get("summary"),
+            "status": dec["status"],
+            "verdict": dec["verdict"],
+            "direct_evidence": dec["direct_evidence"],
+        }
+        (MEMBERS / f"{mid}.json").write_text(json.dumps({**rec, "bundle": mb}, indent=1))
+        out.append(rec)
+        say(
+            f"{mid} {x['freq_mhz']:.6f} MHz: seed S/N {rec['seed_snr']}, {dec['status']}"
+            + (f" ({'; '.join(dec['direct_evidence'])[:160]})" if dec["direct_evidence"] else "")
+            + (f"; same half hour: {sess['summary']['text']}" if sess else "")
+        )
+    d["members"] = out
+    p.write_text(json.dumps(d, indent=1))
+    return out
 
 
 def main():
     args = sys.argv[1:]
-    if not args or args[0] not in ("leads", "measure"):
+    if not args or args[0] not in ("leads", "measure", "null", "inject", "rejudge", "members"):
         print(__doc__)
+        return
+    if args[0] == "null":
+        null_test()
+        return
+    if args[0] == "inject":
+        for sep in (2.0, 3.0):
+            injection_test(sep_khz=sep)
+        return
+    if args[0] == "rejudge":
+        rejudge()
+        return
+    if args[0] == "members":
+        sess = "--no-session" not in args
+        ids = [a for a in args[1:] if not a.startswith("--")] or [
+            q.stem for q in sorted(OUT.glob("q*.json"))
+            if any(x.get("outcome") == "companion" for x in json.loads(q.read_text())["leads"])
+        ]
+        if sess:
+            with repeat._turn():
+                for cid in ids:
+                    member_check(cid, session=True)
+        else:
+            for cid in ids:
+                member_check(cid, session=False)
         return
     from . import runner
 
