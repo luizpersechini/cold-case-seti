@@ -367,3 +367,17 @@ def test_probe_finds_the_line_in_one_scan_of_another_star(monkeypatch):
     assert s["scans_matched"] == 1 and s["stars_matched"] == ["S2"]
     assert rows[2]["event"]["margin"] >= triage.OFF_MARGIN
     assert s["chance_of_this_many"] < 0.5
+
+
+def test_probe_count_near_keeps_window_time_and_drift():
+    from coldcase import probe
+
+    f, t = 2000.0, 58000.0
+    hits = [
+        (f + 500e-6, -0.12, t + 0.5, "A", ("A", 1)),  # in window, drift fits
+        (f - 1500e-6, 0.30, t + 2.0, "B", ("B", 2)),  # in window, other drift
+        (f + 3000e-6, -0.12, t, "C", ("C", 3)),  # outside 2 kHz
+        (f, -0.12, t + 9.0, "D", ("D", 4)),  # outside 7 days
+    ]
+    near, scans, same = probe.count_near(hits, f, -0.12, t, 7.0)
+    assert scans == {("A", 1), ("B", 2)} and same == {("A", 1)}

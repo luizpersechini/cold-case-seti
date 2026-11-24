@@ -317,7 +317,12 @@ on-star scans 12 minutes apart, at S/N 75 and 134, and is absent from all
 three off-star scans and from the third on-star scan. It also switches off
 and on by itself while the telescope is on the star, so its absence off the
 star does not show that it comes from the sky. It was absent three days
-later. It sits in a band used for satellite uplinks.
+later. It sits in a band used for satellite uplinks. It is also absent
+toward other stars in the days around it: in 54 scans of 36 stars from 31
+hours before to 5.5 hours after, measured in the raw data within 2 kHz of
+its telescope frequency, and in the hit tables, where none of 2,484 scans of
+other stars within 30 days holds a hit within 2 kHz (see "Other stars in the
+days around" below).
 
 **Other days.** Before the re-measurement, the star of 22 open events had
 been observed again in the same band, and the signal was absent every time,
@@ -381,18 +386,19 @@ scans, rules D1 to D8, the comb-tooth test, the same half hour and other
 days. Three hidden test signals ride on each download. The results are kept
 apart, so the queue numbers above do not include them.
 
-| Outcome                                  | Events |
-| ---------------------------------------- | ------ |
-| Seen off the star                        | 19     |
-| A burst, not a tone                      | 3      |
-| No signal at the catalogue position      | 2      |
-| Seen toward other stars in the half hour | 1      |
-| Moves with a companion that is explained | 1      |
-| Not explained by these checks            | 8      |
+| Outcome                                    | Events |
+| ------------------------------------------ | ------ |
+| Seen off the star                          | 19     |
+| A burst, not a tone                        | 3      |
+| No signal at the catalogue position        | 2      |
+| Seen toward other stars in the half hour   | 1      |
+| Moves with a companion that is explained   | 1      |
+| Seen toward other stars in the days around | 2      |
+| Not explained by these checks              | 6      |
 
 The two with no signal sit near 1420.4 MHz, at drifts of about -1.2 Hz/s.
-Five of the eight left open lie between 1538 and 1561 MHz, and six drift by
-0.04 Hz/s or less. The companion search found partners for one event only:
+Five of the six left open lie between 1538 and 1561 MHz and drift by
+0.02 Hz/s or less. The companion search found partners for one event only:
 f004 (1691.081 MHz toward HIP17420) has three lines 45 to 172 kHz below it
 that switch on and off with it (r 0.97 to 0.99), each at S/N above 400 and
 each seen off the star, so it is closed by D8.
@@ -402,6 +408,45 @@ Only 14 of 30 leaks were caught, against 72% in the queue: in most of the
 missed ones the off-star part was at S/N 3 to 4, below the control windows,
 and a few sat in crowded windows. So "open" here is weaker evidence than in
 the queue. About 17 GB were downloaded.
+
+### Other stars in the days around
+
+The half-hour check (D7) asks whether an event's line was there toward other
+stars within 30 minutes. `coldcase/probe.py` widens that to days. First, at
+no cost, the hit tables: for every open event, how many scans of other stars
+in the same band within 1, 7 and 30 days hold a hit within 2 kHz of the
+event's telescope frequency, against the same count at 20 frequencies 25 to
+250 kHz away. Of the 59 open events (51 in the queue, 8 from the follow-up
+list), three had more such scans than any of their 20 nearby frequencies,
+and two by far:
+
+| Event  | Star, MHz           | Other-star scans with a hit, +-7 days | Most at a nearby frequency |
+| ------ | ------------------- | ------------------------------------- | -------------------------- |
+| f027   | HIP100064, 1595.877 | 199 of 409                            | 0                          |
+| f024   | HIP54677, 1435.943  | 32 of 435                             | 0                          |
+| q00677 | HIP25578, 1642.324  | 2 of 385, at the wrong drift          | 1                          |
+
+The raw data then decide. The probe measures the event's telescope frequency
+in scans of other stars, nearest in time first, until a 3 GB cap (each scan
+costs about 60 MB): the strongest line starting within 2 kHz with the
+event's drift, against about 45 control windows, and the same at the 20
+nearby frequencies, which give the chance of an unrelated line. A new rule
+(D9) closes an event when the line stands 1.5 above its controls in two or
+more scans and the chance of that many unrelated lines is below 5%. It is
+applied only by hand, to cases named.
+
+- f027: the line is there toward 30 other stars in 47 of 54 scans, from 0.4
+  to 27 hours after the event, sliding across the window from scan to scan
+  like a drifting oscillator (1,945 Hz, 1,758, 1,548 ... 116 Hz). The 1,080
+  measurements at nearby frequencies matched none. Closed by D9.
+- f024: the line is there toward 5 other stars in 8 of 12 scans made 10 to
+  11 hours before the event, its offset moving smoothly from -2 to -36 Hz.
+  The 600 nearby measurements matched none. Closed by D9.
+- q00671 (HIP36357, 2051.617 MHz): absent in all 54 scans; nearby
+  frequencies matched 0 of 1,080. Still open; absence proves little for a
+  line that switches itself off.
+
+With these, 28 of the survey's 34 follow-up events are closed and 6 open.
 
 ### Errors found and fixed
 

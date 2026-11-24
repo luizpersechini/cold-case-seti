@@ -24,6 +24,11 @@ approval; no match proves nothing, since interference comes and goes.
 Writes cases/evidence/<id>/probe_week.json. Each scan costs about 60 MB.
 
 usage: python -m coldcase.probe CASE_ID [--days 7] [--max-gb 3]
+       python -m coldcase.probe sweep     hit tables only, every open event:
+                                          other-star hits within WINDOW_HZ in
+                                          +-1, 7, 30 days against 20 nearby
+                                          frequencies; cases/probe_sweep.json
+       python -m coldcase.probe close CASE_ID ...   rule D9 on approved cases
 """
 
 import json
@@ -264,8 +269,268 @@ def run(case_id, days=DAYS, max_gb=MAX_GB, save=True, say=print):
     return out
 
 
+SWEEP_DAYS = (1.0, 7.0, 30.0)
+SWEEP_NULLS = 10  # each side, NULL_STEP_HZ apart
+SWEEP_DTOL = 0.08
+
+
+def open_events():
+    """Open queue events and open follow-up events: (id, evidence bundle)."""
+    from . import ledger
+
+    led = ledger.connect()
+    ids = [
+        r[0]
+        for r in led.execute(
+            "select case_id from queue where status in ('open','open_unread') order by case_id"
+        )
+    ]
+    try:
+        ids += [
+            r[0]
+            for r in led.execute(
+                "select case_id from followup where status='open' order by case_id"
+            )
+        ]
+    except Exception:
+        pass
+    for cid in ids:
+        p = remote.ROOT / "cases" / "evidence" / cid / "evidence.json"
+        if p.exists():
+            yield cid, json.loads(p.read_text())
+
+
+def event_of(b):
+    """Target, time, telescope frequency and drift (data sign) of an event."""
+    from .checks import CATALOGUE_DRIFT_SIGN
+
+    case, seed = b["case"], b["seed"]
+    if seed.get("recovered"):
+        ev = next(s for s in b["scans"] if s["pos"] == seed["seed_pos"])
+        return case["target"], ev["mjd"], seed["freq_mhz"], seed["drift"], True
+    return (
+        case["target"],
+        case["mjd"],
+        case["freq_mhz"],
+        CATALOGUE_DRIFT_SIGN * case["drift"],
+        False,
+    )
+
+
+def count_near(hits, f, d, t_e, days, dtol=SWEEP_DTOL):
+    """From (freq, drift data sign, mjd, source, scan key) rows: the scans
+    within `days` holding a hit within WINDOW_HZ of f, and those whose hit
+    also has the drift d+-dtol."""
+    w = WINDOW_HZ / 1e6
+    near = [h for h in hits if abs(h[0] - f) <= w and abs(h[2] - t_e) <= days]
+    return near, {h[4] for h in near}, {h[4] for h in near if abs(h[1] - d) <= dtol}
+
+
+def sweep_one(con, cid, b):
+    from .checks import CATALOGUE_DRIFT_SIGN
+
+    target, t_e, f_e, d_e, rec = event_of(b)
+    cad = db.cadence_for(con, target, t_e)
+    if cad is None:
+        return {"case_id": cid, "error": "cadence not in the hit tables"}
+    band, reach = cad[0]["band"], (SWEEP_NULLS * NULL_STEP_HZ + WINDOW_HZ) / 1e6
+    big = max(SWEEP_DAYS)
+    n_scans = {
+        dd_: con.execute(
+            "select count(distinct (upper(source), round(mjd, 5))) from scans "
+            "where band=? and abs(mjd-?)<=? and upper(source)<>upper(?)",
+            [band, t_e, dd_, target],
+        ).fetchone()[0]
+        for dd_ in SWEEP_DAYS
+    }
+    rows = con.execute(
+        "select h.freq, h.drift, s.mjd, s.source from hits_u h join scans s using (file_id) "
+        "where h.freq between ? and ? and s.band=? and abs(s.mjd-?)<=? "
+        "and upper(s.source)<>upper(?)",
+        [f_e - reach, f_e + reach, band, t_e, big, target],
+    ).fetchall()
+    hits = [
+        (fq, CATALOGUE_DRIFT_SIGN * dr, mj, src, (src.upper(), round(mj, 5)))
+        for fq, dr, mj, src in rows
+    ]
+    out = {
+        "case_id": cid,
+        "target": target,
+        "band": band,
+        "freq_mhz": f_e,
+        "drift": d_e,
+        "recovered": rec,
+        "mjd": round(t_e, 5),
+        "windows": {},
+    }
+    nulls = [
+        f_e + s * m * NULL_STEP_HZ / 1e6
+        for m in range(1, SWEEP_NULLS + 1)
+        for s in (-1, 1)
+    ]
+    for days in SWEEP_DAYS:
+        near, sc, same = count_near(hits, f_e, d_e, t_e, days)
+        null_k = [len(count_near(hits, f, d_e, t_e, days)[1]) for f in nulls]
+        first = min(near, key=lambda h: abs(h[2] - t_e), default=None)
+        out["windows"][f"{days:g}"] = {
+            "other_star_scans": n_scans[days],
+            "scans_with_a_hit": len(sc),
+            "with_the_drift": len(same),
+            "stars": sorted({h[3] for h in near})[:12],
+            "nearest": None
+            if first is None
+            else {
+                "hours": round((first[2] - t_e) * 24, 2),
+                "offset_hz": round((first[0] - f_e) * 1e6, 1),
+                "drift": round(first[1], 4),
+                "source": first[3],
+            },
+            "null_max": max(null_k),
+            "null_median": float(np.median(null_k)),
+        }
+    w7 = out["windows"]["7"]
+    out["probe_it"] = (
+        w7["scans_with_a_hit"] >= 2 and w7["scans_with_a_hit"] > w7["null_max"]
+    )
+    return out
+
+
+def sweep(say=print):
+    """Hit-table pass over every open event: nothing downloaded, no status
+    changed. Writes cases/probe_sweep.json."""
+    con = db.connect()
+    res = []
+    for cid, b in open_events():
+        try:
+            r = sweep_one(con, cid, b)
+        except Exception as e:
+            r = {"case_id": cid, "error": f"{type(e).__name__}: {e}"[:160]}
+        res.append(r)
+    res.sort(
+        key=lambda r: (
+            not r.get("probe_it"),
+            -(r.get("windows", {}).get("7", {}).get("scans_with_a_hit", -1)),
+        )
+    )
+    for r in res:
+        if "error" in r:
+            say(f"{r['case_id']}: {r['error']}")
+            continue
+        w = r["windows"]
+        say(
+            f"{r['case_id']} {r['target']:<10} {r['band']} {r['freq_mhz']:.6f} "
+            + "  ".join(
+                f"+-{k}d {v['scans_with_a_hit']}/{v['other_star_scans']} "
+                f"(drift {v['with_the_drift']}, nulls max {v['null_max']})"
+                for k, v in w.items()
+            )
+            + ("  PROBE IT" if r["probe_it"] else "")
+        )
+    (remote.ROOT / "cases" / "probe_sweep.json").write_text(json.dumps(res, indent=1))
+    say(f"{len(res)} events, {sum(bool(r.get('probe_it')) for r in res)} to probe")
+    return res
+
+
+MIN_MATCHED = 2
+
+
+def closure(out):
+    """Rule D9: the line at the event's telescope frequency toward other
+    stars in at least MIN_MATCHED scans, with the chance of that many
+    unrelated lines (from the null frequencies) below triage.CHANCE_MAX.
+    Returns the evidence text, or None."""
+    s = out.get("summary") or {}
+    p = s.get("chance_of_this_many")
+    if s.get("scans_matched", 0) < MIN_MATCHED or p is None or p >= triage.CHANCE_MAX:
+        return None
+    return (
+        f"D9: the same line toward {len(s['stars_matched'])} other stars in "
+        f"{s['scans_matched']} of {s['scans_measured']} scans within "
+        f"{max(abs(r['hours_from_event']) for r in out['scans'] if 'event' in r):.0f} h "
+        f"of the event; null frequencies matched {s['null_matches']} of "
+        f"{s['null_trials']}; chance of unrelated lines {p:.2g}"
+    )
+
+
+def close(ids, say=print):
+    """Apply D9 to the named open events from their probe_week.json."""
+    from datetime import datetime, timezone
+
+    from . import ledger
+
+    led = ledger.connect()
+    for cid in ids:
+        p = remote.ROOT / "cases" / "evidence" / cid / NAME
+        text = closure(json.loads(p.read_text())) if p.exists() else None
+        if not text:
+            say(f"{cid}: not closed ({'no probe' if not p.exists() else 'D9 not met'})")
+            continue
+        if cid.startswith("f"):
+            row = led.execute(
+                "select status, why from followup where case_id=?", (cid,)
+            ).fetchone()
+            if not row or row[0] != "open":
+                say(f"{cid}: not open")
+                continue
+            why = json.loads(row[1]) if row[1] and row[1].startswith("[") else []
+            led.execute(
+                "update followup set status='closed', verdict='rfi_identified', "
+                "why=?, updated=? where case_id=?",
+                (
+                    json.dumps(why + [text]),
+                    datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    cid,
+                ),
+            )
+            led.commit()
+        else:
+            from . import runner
+
+            con = runner.queue_db()
+            row = con.execute(
+                "select status from queue where case_id=?", (cid,)
+            ).fetchone()
+            if not row or row[0] not in ("open", "open_unread"):
+                say(f"{cid}: not open")
+                continue
+            members = [
+                r[0]
+                for r in con.execute(
+                    "select case_id from queue where status='open_member' and note=?",
+                    (cid,),
+                )
+            ]
+            for m in [cid] + members:
+                ledger.add_verdict(
+                    led,
+                    {
+                        "case_id": m,
+                        "role": "triage",
+                        "agent": "code",
+                        "verdict": "rfi_identified",
+                        "confidence": 1.0,
+                        "rationale": text
+                        + (
+                            ""
+                            if m == cid
+                            else f"; this line belongs to the event of {cid}"
+                        ),
+                        "evidence_refs": [text],
+                    },
+                )
+                runner.set_status(con, m, "closed", "rfi_identified")
+                runner.log(f"{m} closed: rfi_identified (probe, D9)")
+        say(f"{cid}: closed. {text}")
+
+
 def main():
     a = sys.argv[1:]
+    if a[:1] == ["sweep"]:
+        sweep()
+        return
+    if a[:1] == ["close"]:
+        close(a[1:])
+        return
     if not a or a[0].startswith("-"):
         print(__doc__)
         return
