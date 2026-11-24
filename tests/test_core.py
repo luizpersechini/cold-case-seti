@@ -194,7 +194,15 @@ def test_d8_is_silent_without_companions():
 def _inject_one(scan, cut, f0, drift, snr):
     """A tone in one scan only, starting at f0 at that scan's start."""
     investigate.apply_injection(
-        {"inject": {"f0_mhz": f0, "drift": drift, "snr": snr, "present_on": [1], "scint": [1.0]}},
+        {
+            "inject": {
+                "f0_mhz": f0,
+                "drift": drift,
+                "snr": snr,
+                "present_on": [1],
+                "scint": [1.0],
+            }
+        },
         [{"pos": scan["pos"], "role": "ON"}],
         [cut],
     )
@@ -227,7 +235,15 @@ def test_d6_finds_an_event_and_its_companions_on_one_clock():
 
     clk = 24.0 * (1 - 108e-6)
     lines = [
-        {"id": i, "target": "T", "f": n * clk, "drift": -0.07, "scan": "s", "mjd": 1.0, "pos": 0}
+        {
+            "id": i,
+            "target": "T",
+            "f": n * clk,
+            "drift": -0.07,
+            "scan": "s",
+            "mjd": 1.0,
+            "pos": 0,
+        }
         for i, n in (("event", 59), ("c1", 58), ("c2", 62))
     ]
     fams = harmonics.find_families(lines)
@@ -241,8 +257,24 @@ def test_d6_ignores_lines_off_the_grid():
 
     clk = 24.0 * (1 - 108e-6)
     lines = [
-        {"id": "event", "target": "T", "f": 59 * clk, "drift": 0, "scan": "s", "mjd": 1.0, "pos": 0},
-        {"id": "c1", "target": "T", "f": 58 * clk + 0.0137, "drift": 0, "scan": "s", "mjd": 1.0, "pos": 0},
+        {
+            "id": "event",
+            "target": "T",
+            "f": 59 * clk,
+            "drift": 0,
+            "scan": "s",
+            "mjd": 1.0,
+            "pos": 0,
+        },
+        {
+            "id": "c1",
+            "target": "T",
+            "f": 58 * clk + 0.0137,
+            "drift": 0,
+            "scan": "s",
+            "mjd": 1.0,
+            "pos": 0,
+        },
     ]
     assert not any(f["passes"] for f in harmonics.find_families(lines))
 
@@ -258,6 +290,44 @@ def test_a_steady_fast_tone_is_not_a_burst():
         tp = dd.time_profile(c["data"], c["foff"] * 1e6, c["tsamp"], 1000, 4.0)
         assert tp["largest_single_sample_share"] < triage.BURST_SHARE, tp
 
+
+def _flash(cut, k, sample=5, amp=300.0):
+    """A one-sample flash a few channels wide."""
+    cut["data"][sample, k - 1 : k + 2] += amp
+
+
+def test_seed_search_passes_over_a_flash_for_a_steady_tone():
+    """A stronger flash in the seed's window is not taken for the event when a
+    steady tone of at least half its S/N is there too."""
+    scans, cuts = cadence(20)
+    k0 = 2000
+    f0 = chan_mhz(k0)
+    inject(scans, cuts, f0 + 25e-6, 0.3, 90)
+    _flash(cuts[0], k0)
+    case = {"freq_mhz": f0, "drift": -0.3, "mjd": MJD0, "freq_exact": True}
+    i, info = investigate.pick_seed(case, scans, cuts, 5.0)
+    assert info["recovered"]
+    assert "flash_passed_over" in info, info
+    assert info["flash_passed_over"]["snr"] > info["snr"]
+    assert abs(info["offset_from_catalogue_hz"] - 25) < 15
+    tp = dd.time_profile(
+        cuts[i]["data"],
+        FOFF_MHZ * 1e6,
+        TSAMP,
+        round((info["freq_mhz"] - F_LOW) / FOFF_MHZ),
+        info["drift"],
+    )
+    assert tp["largest_single_sample_share"] <= investigate.FLASH_SHARE
+
+
+def test_seed_search_keeps_a_flash_alone():
+    scans, cuts = cadence(21)
+    k0 = 2000
+    _flash(cuts[0], k0)
+    case = {"freq_mhz": chan_mhz(k0), "drift": -0.3, "mjd": MJD0, "freq_exact": True}
+    _, info = investigate.pick_seed(case, scans, cuts, 5.0)
+    assert info["recovered"]
+    assert "flash_passed_over" not in info
 
 
 def test_followup_events():

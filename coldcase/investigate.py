@@ -114,6 +114,44 @@ def _drift_half(d0):
     return 0.05 + 0.3 * abs(d0)
 
 
+FLASH_SHARE = 0.5  # more than this share of a track's power in one sample
+STEADY_SHARE = 0.5  # a steady line this strong next to a flash is taken
+STEADY_LOOK = 5  # candidates per scan looked at
+
+
+def _share(c, h):
+    p = dd.time_profile(c["data"], c["foff"] * 1e6, c["tsamp"], h["chan"], h["drift"])
+    return p["largest_single_sample_share"] if p else 1.0
+
+
+def _steadier(found, cuts, best):
+    """When the strongest candidate is a flash, the strongest steady one with
+    at least STEADY_SHARE of its S/N, in any ON scan. A flash that happens to
+    fall in the seed's window would otherwise be followed instead of the tone
+    there, and the case closed as a burst. Returns {i, h, flash} or None."""
+    c0 = next(cuts[i] for _, i, cp in found if cp[0] is best)
+    s0 = _share(c0, best)
+    if s0 <= FLASH_SHARE:
+        return None
+    pick = None
+    for _, i, cp in found:
+        for h in cp[:STEADY_LOOK]:
+            if h is best or h["snr"] < STEADY_SHARE * best["snr"]:
+                continue
+            if pick and h["snr"] <= pick["h"]["snr"]:
+                continue
+            if _share(cuts[i], h) <= FLASH_SHARE:
+                pick = {"i": i, "h": h}
+    if pick:
+        pick["flash"] = {
+            "snr": round(best["snr"], 1),
+            "largest_single_sample_share": s0,
+            "freq_mhz": round(_freq(c0, best["chan"]), 6),
+            "drift": round(best["drift"], 4),
+        }
+    return pick
+
+
 def pick_seed(case, scans, cuts, half_khz):
     """Find the candidate in the data. Catalogues differ in conventions, so
     accept the strongest signal whose drift magnitude matches the catalogue,
@@ -233,6 +271,13 @@ def pick_seed(case, scans, cuts, half_khz):
     if found:
         _, i, comp = max(found, key=lambda x: x[0])
         c, best = cuts[i], comp[0]
+        passed = _steadier(found, cuts, best)
+        if passed:
+            i, best = passed["i"], passed["h"]
+            c = cuts[i]
+            comp = [best] + [
+                h for h in next(cp for _, j, cp in found if j == i) if h is not best
+            ]
         return i, {
             "seed_pos": scans[i]["pos"],
             "recovered": True,
@@ -246,6 +291,7 @@ def pick_seed(case, scans, cuts, half_khz):
             "drift_sign_differs_from_catalogue": bool(best["drift"] * d0 < 0),
             "compatible_signals_in_seed_scan": len(comp),
             "on_scans_with_a_hit": len(found),
+            **({"flash_passed_over": passed["flash"]} if passed else {}),
             "other_compatible": [
                 {
                     "offset_hz": round(h["offset_hz"], 1),
@@ -683,7 +729,8 @@ def follow_line(scans, cuts, seed, info):
     if not info.get("recovered"):
         return None
     order = sorted(
-        (i for i, c in enumerate(cuts) if "error" not in c), key=lambda i: cuts[i]["tstart"]
+        (i for i, c in enumerate(cuts) if "error" not in c),
+        key=lambda i: cuts[i]["tstart"],
     )
     if seed not in order:
         return None
@@ -708,18 +755,26 @@ def follow_line(scans, cuts, seed, info):
             dur_l = last_c["data"].shape[0] * last_c["tsamp"]
             dur = c["data"].shape[0] * c["tsamp"]
             if step == 1:
-                gap = (c["tstart"] - last_c["tstart"]) * 86400.0  # last start -> this start
+                gap = (
+                    c["tstart"] - last_c["tstart"]
+                ) * 86400.0  # last start -> this start
                 d = last["drift"]
                 place = last["freq_mhz"] + d * gap * 1e-6
                 reach = abs(gap) * (0.25 * abs(d) + 0.1) + 50.0
             else:
-                gap = (last_c["tstart"] - c["tstart"]) * 86400.0  # this start -> last start
+                gap = (
+                    last_c["tstart"] - c["tstart"]
+                ) * 86400.0  # this start -> last start
                 d = last["drift"]
                 place = last["freq_mhz"] - d * gap * 1e-6
                 reach = abs(gap) * (0.25 * abs(d) + 0.1) + 50.0
             hits = dd.search(
-                c["data"], fo, c["tsamp"], max_drift=FOLLOW_MAX_DRIFT,
-                snr_min=FOLLOW_SNR_MIN, top=200,
+                c["data"],
+                fo,
+                c["tsamp"],
+                max_drift=FOLLOW_MAX_DRIFT,
+                snr_min=FOLLOW_SNR_MIN,
+                top=200,
             )
             near = [h for h in hits if abs(_freq(c, h["chan"]) - place) * 1e6 <= reach]
             if not near:
