@@ -113,6 +113,11 @@ def events(con):
                 if sp.exists()
                 else "not checked",
                 "session_plot": sp.exists() and (ev / "session.png").exists(),
+                "probe": json.loads((ev / "probe_week.json").read_text())["summary"][
+                    "text"
+                ]
+                if (ev / "probe_week.json").exists()
+                else None,
                 "satellites": json.loads(tp.read_text())["summary"]["text"]
                 if tp.exists()
                 else "not checked",
@@ -151,8 +156,12 @@ def _companions(cid):
                 if m["status"] == "closed"
                 else ", itself open"
             )
-        parts.append(f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']}{tail})")
-    return f"{len(found)} of {len(leads)} lead(s) rise and fall with it: " + "; ".join(parts)
+        parts.append(
+            f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']}{tail})"
+        )
+    return f"{len(found)} of {len(leads)} lead(s) rise and fall with it: " + "; ".join(
+        parts
+    )
 
 
 def _scans(b):
@@ -227,6 +236,7 @@ def _facts(e):
         ),
         ("Other days", e["repeat"]),
         ("Other stars, same half hour", e["session"]),
+        *([("Other stars, days around", e["probe"])] if e["probe"] else []),
         ("Satellites near the line of sight", e["satellites"]),
         ("Lines elsewhere that follow it", e["companions"]),
         ("Rank score", "-" if e["rank"] is None else f"{e['rank']:.2f}"),

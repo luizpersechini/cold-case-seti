@@ -344,3 +344,26 @@ def test_followup_events():
     # the two-hit event is entered at its stronger hit
     two = [e for e in ev if e["n_hits"] == 2][0]
     assert two["freq_mhz"] == 2257.476725
+
+
+def test_probe_finds_the_line_in_one_scan_of_another_star(monkeypatch):
+    from coldcase import probe
+
+    monkeypatch.setattr(probe, "WINDOW_HZ", 50.0)
+    rng = np.random.default_rng(7)
+    nf, k0, step = 16384, 8192, 1100
+    f0 = chan_mhz(k0)
+    nulls = [chan_mhz(k0 + s * m * step) for m in range(1, 6) for s in (-1, 1)]
+    rows = []
+    for i in range(6):
+        cut = cutout(i, rng)
+        cut["data"] = rng.normal(100.0, 1.0, (NT, nf)).astype(np.float32)
+        if i == 2:
+            _inject_one({"pos": i}, cut, f0, -0.12, 60.0)
+        got = probe.measure(cut, [f0] + nulls, -0.12, 0.08)
+        rows.append({"source": f"S{i}", "event": got[0], "nulls": got[1:]})
+    s = probe.summarise(rows)
+    assert s["scans_measured"] == 6 and s["null_trials"] == 60
+    assert s["scans_matched"] == 1 and s["stars_matched"] == ["S2"]
+    assert rows[2]["event"]["margin"] >= triage.OFF_MARGIN
+    assert s["chance_of_this_many"] < 0.5
