@@ -463,6 +463,21 @@ not the hit tables had flagged them:
 
 With these, 29 of the survey's 34 follow-up events are closed and 5 open.
 
+The follow-up list sits close to the geostationary belt. Of its 24 stars, 21
+were pointed within 13 degrees of the belt (median about 7), against 41% of
+the 769 queue cases (median 19); by chance that would happen about 3 times
+in a million. From Green Bank most of these pointings face south-west at
+moderate elevation, where the belt is, so pointing toward low declinations
+and pointing near the belt cannot be told apart here. The four open events
+between 1538 and 1561 MHz sit 6 to 13 degrees from it, no closer than the
+closed events of that band and drift (median about 5 degrees), so the belt
+does not single them out. Two share a pointing with lines already explained
+as local: f002 with f001 and f003 (HIP109427), f007 with f006 and f027
+(HIP100064). None of this closes a case. The queue is not a clean baseline,
+since its hits are mostly interference too; the angle of every survey
+pointing would be a better one. The angles are the `geometry` field of each
+case's evidence.
+
 ### Errors found and fixed
 
 **A drift-sign error, found and fixed.** Until 19 November every case was
