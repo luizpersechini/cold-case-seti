@@ -426,57 +426,95 @@ and two by far:
 | f024   | HIP54677, 1435.943  | 32 of 435                             | 0                          |
 | q00677 | HIP25578, 1642.324  | 2 of 385, at the wrong drift          | 1                          |
 
-The raw data then decide. The probe measures the event's telescope frequency
+The raw data then decide. The probe reads the event's telescope frequency
 in scans of other stars, nearest in time first, until a 3 GB cap (each scan
-costs about 60 MB): the strongest line starting within 2 kHz with the
-event's drift, against about 45 control windows, and the same at the 20
-nearby frequencies, which give the chance of an unrelated line. A new rule
-(D9) closes an event when the line stands 1.5 above its controls in two or
-more scans and the chance of that many unrelated lines is below 5%. It is
-applied only by hand, to cases named.
+costs about 60 MB), in cutouts at least 355 kHz either side.
 
-- f027: the line is there toward 30 other stars in 47 of 54 scans, from 0.4
-  to 27 hours after the event, sliding across the window from scan to scan
-  like a drifting oscillator (1,945 Hz, 1,758, 1,548 ... 116 Hz). The 1,080
-  measurements at nearby frequencies matched none. Closed by D9.
-- f024: the line is there toward 5 other stars in 8 of 12 scans made 10 to
-  11 hours before the event, its offset moving smoothly from -2 to -36 Hz.
-  The 600 nearby measurements matched none. Closed by D9.
-- q00671 (HIP36357, 2051.617 MHz): absent in all 54 scans; nearby
-  frequencies matched 0 of 1,080. Still open; absence proves little for a
-  line that switches itself off.
+The first way of reading these cutouts was wrong, and a review of the paper
+draft caught it (`paper/REVIEW.md`). It asked in how many scans the event's
+window beat its strongest control window, and took the chance of that from
+20 nearby frequencies where the hit tables list nothing. Frequencies chosen
+clean make the chance too small, since the event's own frequency is not
+clean; and where the control windows hold strong lines, neither the event
+nor a clean frequency can ever match, so "none of them matched" says
+nothing. It gave chances as small as 10^-135.
 
-The same probe then ran on the six follow-up events still open, whether or
-not the hit tables had flagged them:
+The reading used now (`coldcase/probe_perm.py`) compares the event's
+frequency with every other frequency of the same cutouts, as they are. Each
+cutout is cut into windows side by side, one of them on the event. In each
+scan the event's window is ranked among the others by its strongest line of
+the event's drift. A window's score adds up its ranks over the scans, and
+the chance is the share of the other windows that score at least as high as
+the event's. A steady unrelated line scores high at its own window, as it
+should, so the scans need not be independent. Three window widths are tried
+(50, 500 and 2,000 Hz either side) and the smallest chance is multiplied by
+three. Rule D9 closes an event when that chance is below 5% and its window
+is in the top 1% of its scan in two or more scans. It is applied only by
+hand, to cases named. The reading was designed after the data were seen, so
+it is not a test fixed in advance.
 
-- f003 (HIP109427, 1559.671 MHz): the line is there toward 6 other stars in
-  7 of 30 scans made 0.7 to 1.4 hours before the event, at S/N 136 to 221,
-  steady and within 17 Hz. The 90 nearby measurements matched none. Closed
-  by D9.
-- f007 (HIP100064, 1560.945 MHz): the line is there toward 4 other stars in
-  8 of 108 scans, 27 to 29 hours after the event, 17 to 85 Hz off. Every
-  frequency within 475 kHz holds a catalogued hit in some scan, so there
-  are no nearby frequencies to measure and no chance estimate; D9 cannot
-  apply. Still open.
-- f002, f018, f019, f034: absent in 30 to 54 scans each; nearby frequencies
-  matched 0 of 150 to 1,080. Still open.
+Nine events were probed: the eight follow-up events the other rules had left
+open, and q00671.
+
+| Event  | Star, MHz           | Scans | Scans where it stands out | Chance | Outcome |
+| ------ | ------------------- | ----- | ------------------------- | ------ | ------- |
+| f027   | HIP100064, 1595.877 | 54    | 43                        | 0.017  | Closed  |
+| f024   | HIP54677, 1435.943  | 30    | 11                        | 0.0004 | Closed  |
+| f007   | HIP100064, 1560.945 | 108   | 10                        | 0.003  | Closed  |
+| f003   | HIP109427, 1559.671 | 30    | 7                         | 0.08   | Open    |
+| f002   | HIP109427, 1560.003 | 30    | 2                         | 0.16   | Open    |
+| f018   | HIP29432, 1556.346  | 47    | 0                         | 0.96   | Open    |
+| f019   | HIP42173, 1538.712  | 54    | 0                         | 1      | Open    |
+| f034   | HIP87108, 2199.097  | 30    | 0                         | 1      | Open    |
+| q00671 | HIP36357, 2051.617  | 54    | 1                         | 0.49   | Open    |
+
+- f027: the line is there toward 28 other stars over the next 27 hours,
+  sliding across a 2 kHz window within each night like a drifting
+  oscillator. None of the 174 other windows scores as high; 0.017 is the
+  smallest chance that many windows can give.
+- f024: the line is within 40 Hz toward 7 other stars, mostly 10 to 11 hours
+  before the event. None of 7,150 other windows scores as high.
+- f007: the line is within 51 Hz in seven scans of four stars 27 to 28.5
+  hours after the event, at S/N up to 21. Seven of 7,150 other windows score
+  as high. The first reading could give it no chance at all, for lack of
+  clean frequencies.
+- f003 was closed by the first reading and is open again. A line of its
+  drift is within 17 Hz in eleven scans of other stars in the hour and a
+  half before, at S/N 67 to 448, but 2.7% of the other windows of those
+  crowded spectra hold a line as steady, and the chance comes to 0.08.
+- f002 and f018 had been reported as absent toward other stars. They are
+  not: f002 has a line 25 to 28 Hz away in two scans, and f018 one in ten
+  scans in a row, sliding from 78 to 117 Hz at S/N 35 to 92. In those bands
+  a line near any frequency is common, so it proves nothing and they stay
+  open.
+- q00671 (HIP36357): absent, in clean spectra (no control window above S/N
+  6). Still open; absence proves little for a line that switches itself
+  off.
+
+Price et al. had already rejected f024 and f027 (and f022, which rule D1
+closes here) in the appendix of the survey paper, because similar signals
+were catalogued toward other stars. The raw data agree, and add for how
+long and toward how many stars.
 
 With these, 29 of the survey's 34 follow-up events are closed and 5 open.
 
-The follow-up list sits close to the geostationary belt. Of its 24 stars, 21
-were pointed within 13 degrees of the belt (median about 7), against 41% of
-the 769 queue cases (median 19); by chance that would happen about 3 times
-in a million. From Green Bank most of these pointings face south-west at
-moderate elevation, where the belt is, so pointing toward low declinations
-and pointing near the belt cannot be told apart here. The four open events
-between 1538 and 1561 MHz sit 6 to 13 degrees from it, no closer than the
-closed events of that band and drift (median about 5 degrees), so the belt
-does not single them out. Two share a pointing with lines already explained
-as local: f002 with f001 and f003 (HIP109427), f007 with f006 and f027
-(HIP100064). None of this closes a case. The queue is not a clean baseline,
-since its hits are mostly interference too; the angle of every survey
-pointing would be a better one. The angles are the `geometry` field of each
-case's evidence.
+The follow-up list is not spread over the survey. Of its 22 L-band stars,
+19 were pointed within 13 degrees of the geostationary belt (median 7
+degrees), against 33% of the survey's 890 L-band stars (median 26). They are
+also bunched in time: 18 of the 22 were observed between May and July 2016,
+when 34% of the L-band stars were. No chance is attached to this. The 13
+degrees were picked after looking (the same comparison gives anything from
+6% at 5 degrees to one in ten million at 15), a pointing within 13 degrees
+of the belt from Green Bank is simply a star at declination -19 to +7, and
+stars observed in the same sessions are not independent. What the data show
+is that the events flagged for follow-up come mostly from low-declination
+stars observed in a few months of 2016, which a satellite near the belt, a
+ground source to the south or a seasonal one would all produce. The four
+open events between 1538 and 1561 MHz sit 6 to 13 degrees from the belt, no
+closer than the closed events of that band, so the belt does not single
+them out. f002 and f003 share a pointing with f001 (HIP109427), which is
+explained as local. None of this closes a case. The numbers come from
+`paper/paper_numbers.py`.
 
 ### Errors found and fixed
 
@@ -720,7 +758,7 @@ trigger.
 - Most of the 51 open events have no AI reading of their present
   measurements. The two events added last have had none of the three
   follow-up checks yet.
-- No hidden test signal drifts faster than 1 Hz/s, and more than half of the
+- No hidden test signal drifts faster than 0.5 Hz/s, and more than half of the
   open events do. The fast-drift check tests the seed search only, not the
   rules that follow. At places where nothing is catalogued the search still
   returns a seed 14% of the time, mostly from bursts.

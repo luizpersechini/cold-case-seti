@@ -381,3 +381,30 @@ def test_probe_count_near_keeps_window_time_and_drift():
     ]
     near, scans, same = probe.count_near(hits, f, -0.12, t, 7.0)
     assert scans == {("A", 1), ("B", 2)} and same == {("A", 1)}
+
+
+def test_probe_perm_ranks_a_line_that_persists_and_not_a_crowded_band():
+    from coldcase import probe_perm
+
+    rng = np.random.default_rng(3)
+    fo, nf, k_e = 2.8, 40000, 20000.0
+
+    def scans(n, line, crowd):
+        out = []
+        for _ in range(n):
+            best = rng.normal(3.0, 1.0, nf)
+            if crowd:  # strong lines everywhere, one window in ten
+                for k in rng.choice(nf, nf // 360, replace=False):
+                    best[k] = rng.uniform(50, 500)
+            if line:
+                best[int(k_e) + rng.integers(-5, 6)] = 40.0
+            out.append((best, k_e, fo))
+        return out
+
+    clean = probe_perm.one_width(scans(12, True, False), 50.0)
+    assert clean["P"] <= 1 / clean["windows"] * 1.01  # nothing else does as well
+    assert clean["scans_standing_out"] == 12
+    empty = probe_perm.one_width(scans(12, False, False), 50.0)
+    assert empty["P"] > 0.02
+    crowded = probe_perm.one_width(scans(12, False, True), 50.0)
+    assert crowded["P"] > 0.02

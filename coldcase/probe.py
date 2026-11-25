@@ -10,11 +10,13 @@ strongest line starting within WINDOW_HZ, drift within the event's drift
 cannot follow the telescope to other stars; a line fixed to the telescope
 frequency can.
 
-Chance is measured, not assumed: the same measurement is made at NULLS
-nearby frequencies with no catalogued hit, in the same scans. The share of
-those that stand OFF_MARGIN above their controls is the chance per scan of an
-unrelated line; the chance of at least the event's number of matches follows
-from it.
+The same measurement is made at NULLS nearby frequencies with no catalogued
+hit, in the same scans, and the summary counts matches at both. That count
+describes; it does not decide. A review found the chance it gives unsound
+(nulls chosen clean, no power where the control windows hold strong lines),
+so rule D9 goes by coldcase/probe_perm.py, which reads the same cached
+cutouts and compares the event's frequency with every other frequency in
+them.
 
 The hit tables also give a free first look: catalogued hits within WINDOW_HZ
 of the event's frequency toward other stars in the window.
@@ -28,7 +30,8 @@ usage: python -m coldcase.probe CASE_ID [--days 7] [--max-gb 3]
                                           other-star hits within WINDOW_HZ in
                                           +-1, 7, 30 days against 20 nearby
                                           frequencies; cases/probe_sweep.json
-       python -m coldcase.probe close CASE_ID ...   rule D9 on approved cases
+       python -m coldcase.probe close CASE_ID ...   rule D9 on approved cases,
+                                          from probe_perm.json
 """
 
 import json
@@ -434,95 +437,97 @@ def sweep(say=print):
     return res
 
 
-MIN_MATCHED = 2
+def closure(cid):
+    """Rule D9 for a probed case, from the reading in probe_perm (which
+    compares the event's frequency with every other frequency of the same
+    spectra). The first reading, by null frequencies and control windows,
+    stays in probe_week.json as a description only: a review found its chance
+    estimate unsound. Returns (evidence text or None, why not)."""
+    from . import probe_perm
 
-
-def closure(out):
-    """Rule D9: the line at the event's telescope frequency toward other
-    stars in at least MIN_MATCHED scans, with the chance of that many
-    unrelated lines (from the null frequencies) below triage.CHANCE_MAX.
-    Returns the evidence text, or None."""
-    s = out.get("summary") or {}
-    p = s.get("chance_of_this_many")
-    if s.get("scans_matched", 0) < MIN_MATCHED or p is None or p >= triage.CHANCE_MAX:
-        return None
-    return (
-        f"D9: the same line toward {len(s['stars_matched'])} other stars in "
-        f"{s['scans_matched']} of {s['scans_measured']} scans within "
-        f"{max(abs(r['hours_from_event']) for r in out['scans'] if 'event' in r):.0f} h "
-        f"of the event; null frequencies matched {s['null_matches']} of "
-        f"{s['null_trials']}; chance of unrelated lines {p:.2g}"
-    )
+    p = remote.ROOT / "cases" / "evidence" / cid / probe_perm.NAME
+    if not p.exists():
+        return None, "no probe_perm.json: run python -m coldcase.probe_perm"
+    out = json.loads(p.read_text())
+    text = probe_perm.closure(out)
+    return text, None if text else probe_perm.describe(out)
 
 
 def close(ids, say=print):
-    """Apply D9 to the named open events from their probe_week.json."""
+    """Apply D9 to the named events. An open event that meets it is closed.
+    A follow-up event that was closed by D9 alone gets today's wording, or is
+    opened again when it no longer meets the rule."""
     from datetime import datetime, timezone
 
     from . import ledger
 
     led = ledger.connect()
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     for cid in ids:
-        p = remote.ROOT / "cases" / "evidence" / cid / NAME
-        text = closure(json.loads(p.read_text())) if p.exists() else None
-        if not text:
-            say(f"{cid}: not closed ({'no probe' if not p.exists() else 'D9 not met'})")
-            continue
+        text, why_not = closure(cid)
         if cid.startswith("f"):
             row = led.execute(
                 "select status, why from followup where case_id=?", (cid,)
             ).fetchone()
-            if not row or row[0] != "open":
-                say(f"{cid}: not open")
+            if not row:
+                say(f"{cid}: not in the follow-up list")
                 continue
             why = json.loads(row[1]) if row[1] and row[1].startswith("[") else []
-            led.execute(
-                "update followup set status='closed', verdict='rfi_identified', "
-                "why=?, updated=? where case_id=?",
-                (
-                    json.dumps(why + [text]),
-                    datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                    cid,
-                ),
-            )
-            led.commit()
-        else:
-            from . import runner
-
-            con = runner.queue_db()
-            row = con.execute(
-                "select status from queue where case_id=?", (cid,)
-            ).fetchone()
-            if not row or row[0] not in ("open", "open_unread"):
-                say(f"{cid}: not open")
+            by_d9 = bool(why) and all(w.startswith("D9") for w in why)
+            if row[0] == "closed" and not by_d9:
+                say(f"{cid}: closed by another rule, left as it is")
                 continue
-            members = [
-                r[0]
-                for r in con.execute(
-                    "select case_id from queue where status='open_member' and note=?",
-                    (cid,),
+            if text:
+                led.execute(
+                    "update followup set status='closed', verdict='rfi_identified', "
+                    "why=?, updated=? where case_id=?",
+                    (json.dumps([text]), now, cid),
                 )
-            ]
-            for m in [cid] + members:
-                ledger.add_verdict(
-                    led,
-                    {
-                        "case_id": m,
-                        "role": "triage",
-                        "agent": "code",
-                        "verdict": "rfi_identified",
-                        "confidence": 1.0,
-                        "rationale": text
-                        + (
-                            ""
-                            if m == cid
-                            else f"; this line belongs to the event of {cid}"
-                        ),
-                        "evidence_refs": [text],
-                    },
+                say(f"{cid}: closed. {text}")
+            elif row[0] == "closed":
+                led.execute(
+                    "update followup set status='open', verdict='unresolved', "
+                    "why='[]', updated=? where case_id=?",
+                    (now, cid),
                 )
-                runner.set_status(con, m, "closed", "rfi_identified")
-                runner.log(f"{m} closed: rfi_identified (probe, D9)")
+                say(f"{cid}: opened again. {why_not}")
+            else:
+                say(f"{cid}: not closed. {why_not}")
+            led.commit()
+            continue
+        if not text:
+            say(f"{cid}: not closed. {why_not}")
+            continue
+        from . import runner
+
+        con = runner.queue_db()
+        row = con.execute("select status from queue where case_id=?", (cid,)).fetchone()
+        if not row or row[0] not in ("open", "open_unread"):
+            say(f"{cid}: not open")
+            continue
+        members = [
+            r[0]
+            for r in con.execute(
+                "select case_id from queue where status='open_member' and note=?",
+                (cid,),
+            )
+        ]
+        for m in [cid] + members:
+            ledger.add_verdict(
+                led,
+                {
+                    "case_id": m,
+                    "role": "triage",
+                    "agent": "code",
+                    "verdict": "rfi_identified",
+                    "confidence": 1.0,
+                    "rationale": text
+                    + ("" if m == cid else f"; this line belongs to the event of {cid}"),
+                    "evidence_refs": [text],
+                },
+            )
+            runner.set_status(con, m, "closed", "rfi_identified")
+            runner.log(f"{m} closed: rfi_identified (probe, D9)")
         say(f"{cid}: closed. {text}")
 
 

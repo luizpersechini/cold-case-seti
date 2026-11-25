@@ -113,9 +113,9 @@ def events(con):
                 if sp.exists()
                 else "not checked",
                 "session_plot": sp.exists() and (ev / "session.png").exists(),
-                "probe": json.loads((ev / "probe_week.json").read_text())["summary"][
-                    "text"
-                ]
+                "probe": json.loads((ev / "probe_perm.json").read_text()).get("text")
+                if (ev / "probe_perm.json").exists()
+                else json.loads((ev / "probe_week.json").read_text())["summary"]["text"]
                 if (ev / "probe_week.json").exists()
                 else None,
                 "satellites": json.loads(tp.read_text())["summary"]["text"]

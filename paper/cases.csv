@@ -1,0 +1,806 @@
+set,case,target,freq_mhz,listed_drift_hz_s,mjd,listed_snr,class,rule,evidence
+near-miss,q00001,HIP112190,2262.012860,-0.0096,57731.95001,27.9,shown to be local,D1,D1: stacked OFF 23.2 above control maximum 10.7
+near-miss,q00002,HIP60910,2203.698524,-3.5970,57701.64221,32.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 195 noise units at t = 73.0 s
+near-miss,q00003,HIP60910,2203.701868,-2.2577,57701.64221,31.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 177 noise units at t = 73.0 s
+near-miss,q00004,HIP60910,2203.696339,-0.3157,57701.64221,30.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 202 noise units at t = 73.0 s
+near-miss,q00005,HIP60910,2203.704665,-3.7214,57701.64221,30.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 2034 noise units at t = 73.0 s
+near-miss,q00006,HIP60910,2203.708982,-3.1569,57701.64221,28.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 1984 noise units at t = 73.0 s
+near-miss,q00007,HIP60910,2203.645240,-3.0039,57701.64221,28.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 167 noise units at t = 73.0 s
+near-miss,q00008,HIP60910,2203.716425,3.8840,57701.64221,27.3,shown to be local,D1,D1: OFF scan margin over controls scan 3: +1924.2
+near-miss,q00009,HIP60910,2203.720135,2.6499,57701.64221,26.1,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00010,HIP60910,2203.640708,-1.9516,57701.64221,25.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 167 noise units at t = 73.0 s
+near-miss,q00011,HIP60910,2203.636448,-3.7405,57701.64221,25.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 149 noise units at t = 73.0 s
+near-miss,q00012,HIP17420,2283.089826,-0.1148,57699.25860,114.2,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00013,HIP17420,2283.220897,-0.1148,57699.25860,106.3,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00014,HIP17420,2283.351968,-0.1148,57699.25860,99.9,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00015,HIP17420,2281.647941,-0.7462,57699.25860,88.0,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00016,HIP17420,2281.516948,-0.3348,57699.25860,61.5,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00017,HIP17420,2282.041264,-0.1148,57699.25860,43.6,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00018,HIP17420,2283.876217,-0.3253,57699.25860,38.1,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00019,HIP17420,2283.614120,-0.0574,57699.25860,35.0,shown to be local,D2,"D2: 7 of 8 lines of this event are spaced by multiples of 131.069 kHz (2^17 Hz), a human clock rate"
+near-miss,q00020,HIP78072,2249.308186,0.1913,57902.13179,190.9,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00021,HIP78072,2249.281931,-3.8744,57902.13179,80.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 1042 noise units at t = 91.3 s
+near-miss,q00022,HIP78072,2249.319370,-1.1097,57902.13179,76.9,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00023,HIP78072,2249.384400,-3.5205,57902.13179,76.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 765 noise units at t = 182.5 s
+near-miss,q00024,HIP78072,2249.394891,-3.3291,57902.13179,75.7,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00025,HIP78072,2249.292487,-3.3961,57902.13179,72.7,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00026,HIP78072,2249.370995,3.5587,57902.13179,68.0,not a steady tone,D4: half or more of the power in one sample,D4: 94% of the track's power is in one time sample
+near-miss,q00027,Hip21482,1701.098847,3.3387,57613.60390,124.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00028,Hip21482,1701.093514,1.3680,57613.60390,119.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00029,Hip21482,1701.002888,-2.0377,57613.60390,91.8,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00030,Hip21482,1701.006906,-1.6837,57613.60390,70.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00031,Hip21482,1701.090750,3.3578,57613.60390,68.8,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00032,Hip21482,1702.574328,-3.3674,57613.60390,47.5,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00033,Hip21482,1701.086875,3.7788,57613.60390,38.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 547 noise units at t = 0.0 s
+near-miss,q00034,HIP21421,2047.179834,0.0096,57792.05390,109.3,not explained,,
+near-miss,q00035,HIP21421,2047.175397,0.0096,57792.05390,52.4,not explained,,
+near-miss,q00036,HIP21421,2047.189585,0.0096,57792.05390,46.8,not explained,,
+near-miss,q00037,HIP21421,2047.168273,0.0096,57792.05390,45.8,not explained,,
+near-miss,q00038,HIP21421,2047.195148,0.0191,57792.05390,44.9,not explained,,
+near-miss,q00039,HIP21421,2047.192647,0.0096,57792.05390,43.3,not explained,,
+near-miss,q00040,HIP21421,2047.186523,0.0191,57792.05390,32.8,not explained,,
+near-miss,q00041,HIP51658,2226.660391,-1.4445,58014.66289,61.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 358 noise units at t = 18.3 s
+near-miss,q00042,HIP51658,2226.669874,3.1952,58014.66289,60.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 335 noise units at t = 18.3 s
+near-miss,q00043,HIP51658,2226.675775,-0.0383,58014.66289,55.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 360 noise units at t = 0.0 s
+near-miss,q00044,HIP51658,2226.677583,3.8553,58014.66289,52.4,not a steady tone,D4: nothing left without the strongest sample,D4: 53% of the track's power is in one time sample
+near-miss,q00045,HIP51658,2226.653085,0.5740,58014.66289,50.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 194 noise units at t = 0.0 s
+near-miss,q00046,HIP51658,2226.651364,1.4828,58014.66289,47.2,not explained,,
+near-miss,q00047,HIP87579,2268.458105,-2.6212,57907.41753,59.9,not reproduced,no line at the catalogue position,
+near-miss,q00048,HIP87579,2268.499677,-0.7462,57907.41753,38.6,not reproduced,no line at the catalogue position,
+near-miss,q00049,HIP87579,2268.503971,3.1282,57907.41753,35.6,not reproduced,no line at the catalogue position,
+near-miss,q00050,HIP87579,2268.506916,2.5734,57907.41753,32.8,not reproduced,no line at the catalogue position,
+near-miss,q00051,HIP87579,2268.509886,2.2194,57907.41753,29.9,not reproduced,no line at the catalogue position,
+near-miss,q00052,HIP87579,2268.513627,3.3578,57907.41753,26.8,not reproduced,no line at the catalogue position,
+near-miss,q00053,HIP18280,2491.628113,-2.5160,57699.35731,46.2,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00054,HIP18280,2491.619091,3.0134,57699.35731,46.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 337 noise units at t = 146.0 s
+near-miss,q00055,HIP18280,2491.621025,-3.2143,57699.35731,33.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 339 noise units at t = 146.0 s
+near-miss,q00056,HIP18280,2491.635307,1.0906,57699.35731,28.4,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00057,HIP18280,2491.606507,-3.2143,57699.35731,25.6,not a steady tone,D4: nothing left without the strongest sample,D4: 76% of the track's power is in one time sample
+near-miss,q00058,HIP18280,2491.632240,-2.1525,57699.35731,25.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 249 noise units at t = 182.5 s
+near-miss,q00059,HIP49973,1637.580088,0.5931,57927.82097,43.3,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00060,HIP49973,1637.591448,0.5740,57927.82097,38.6,not a steady tone,D4: half or more of the power in one sample,D4: 72% of the track's power is in one time sample
+near-miss,q00061,HIP49973,1637.586922,0.4783,57927.82097,36.4,not a steady tone,D4: nothing left without the strongest sample,D4: 66% of the track's power is in one time sample
+near-miss,q00062,HIP49973,1637.555076,0.4879,57927.82097,35.6,not reproduced,no line at the catalogue position,
+near-miss,q00063,HIP49973,1637.566439,0.5549,57927.82097,28.9,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00064,HIP49973,1637.561927,0.5357,57927.82097,26.8,not a steady tone,D8: companion is a burst,"D8: its companion at 1637.580088 MHz, which rises and falls with it, is itself closed: D4: 62% of the track's power is in one time sample"
+near-miss,q00065,GJ860B,1156.125330,-0.5813,57535.50391,42.7,not a steady tone,D4: nothing left without the strongest sample,"D4: nothing is left of the track without its strongest time sample (S/N 6.24 on the whole scan, 2.95 without it, against 3.97 in its control windows): a flash"
+near-miss,q00066,GJ860B,1156.108257,-1.6159,57535.50391,40.9,not a steady tone,D4: nothing left without the strongest sample,D4: 61% of the track's power is in one time sample
+near-miss,q00067,GJ860B,1156.119664,1.6258,57535.50391,40.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 201 noise units at t = 251.8 s
+near-miss,q00068,GJ860B,1156.122103,-1.7735,57535.50391,39.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 193 noise units at t = 251.8 s
+near-miss,q00069,GJ860B,1156.111299,1.9608,57535.50391,37.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 216 noise units at t = 233.8 s
+near-miss,q00070,GJ860B,1156.099498,3.4289,57535.50391,28.5,not reproduced,no line at the catalogue position,
+near-miss,q00071,HIP49699,1628.447826,0.1182,57521.03212,28.2,not explained,,
+near-miss,q00072,HIP49699,1628.441675,0.1084,57521.03212,28.2,not explained,,
+near-miss,q00073,HIP49699,1628.400674,0.0887,57521.03212,27.6,not explained,,
+near-miss,q00074,HIP49699,1628.458606,0.0394,57521.03212,26.3,not explained,,
+near-miss,q00075,HIP49699,1628.402974,0.0887,57521.03212,25.6,not explained,,
+near-miss,q00076,HIP49699,1628.379533,0.1675,57521.03212,25.6,not explained,,
+near-miss,q00077,GJ702A,2295.629292,-2.8030,57689.94390,724.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00078,GJ702A,2295.693939,-0.3635,57689.94390,71.5,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00079,GJ702A,2295.617574,3.3483,57689.94390,69.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 502 noise units at t = 164.3 s
+near-miss,q00080,GJ702A,2295.544749,-1.6454,57689.94390,27.8,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00081,GJ702A,2295.675105,-1.3010,57689.94390,26.9,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00082,Hip46733,1644.819436,0.0861,57605.79986,562.1,carrier with sidebands,D8,"D8: with two lines that rise and fall with it, it forms three lines spaced equally to within 10 Hz (11.204 and 11.198 kHz apart): a carrier and its sidebands"
+near-miss,q00083,Hip46733,1644.838468,0.0670,57605.79986,516.2,carrier with sidebands,D8,"D8: with two lines that rise and fall with it, it forms three lines spaced equally to within 10 Hz (11.204 and 11.198 kHz apart): a carrier and its sidebands"
+near-miss,q00084,Hip46733,1644.822797,0.0861,57605.79986,487.9,carrier with sidebands,D8,"D8: with two lines that rise and fall with it, it forms three lines spaced equally to within 10 Hz (11.204 and 11.198 kHz apart): a carrier and its sidebands"
+near-miss,q00085,Hip46733,1644.845193,0.0670,57605.79986,388.9,carrier with sidebands,D8,"D8: with two lines that rise and fall with it, it forms three lines spaced equally to within 10 Hz (11.204 and 11.198 kHz apart): a carrier and its sidebands"
+near-miss,q00086,Hip46733,1644.813831,0.0670,57605.79986,176.4,carrier with sidebands,D8,"D8: with two lines that rise and fall with it, it forms three lines spaced equally to within 10 Hz (11.204 and 11.198 kHz apart): a carrier and its sidebands"
+near-miss,q00087,Hip21482,1708.134983,0.1339,57613.60390,270.3,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00088,Hip21482,1708.772887,-2.9178,57613.60390,86.6,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00089,Hip21482,1708.775729,2.0664,57613.60390,77.9,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00090,Hip21482,1709.280448,-1.8942,57613.60390,35.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00091,Hip21482,1709.276802,-0.0765,57613.60390,27.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00092,HIP84616,2280.710799,-1.9324,57720.72627,110.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 349 noise units at t = 91.3 s
+near-miss,q00093,HIP84616,2280.657865,-1.6454,57720.72627,40.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 362 noise units at t = 73.0 s
+near-miss,q00094,HIP84616,2280.778100,2.8317,57720.72627,35.7,not a steady tone,D4: half or more of the power in one sample,D4: 86% of the track's power is in one time sample
+near-miss,q00095,HIP84616,2280.647038,2.9752,57720.72627,34.8,not a steady tone,D4: half or more of the power in one sample,D4: 87% of the track's power is in one time sample
+near-miss,q00096,HIP84616,2280.649877,1.9037,57720.72627,33.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 336 noise units at t = 73.0 s
+near-miss,q00097,HIP42806,2251.114349,-1.8081,57860.97031,84.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00098,HIP42806,2250.318303,-0.2583,57860.97031,81.5,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00099,HIP42806,2249.468180,-3.1187,57860.97031,68.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00100,HIP42806,2250.312182,-3.1856,57860.97031,55.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 148 noise units at t = 255.6 s
+near-miss,q00101,HIP42806,2251.004792,-1.0045,57860.97031,38.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00102,HIP21421,2191.547295,-2.8604,57792.05390,72.8,not reproduced,no line at the catalogue position,
+near-miss,q00103,HIP21421,2191.560304,2.3247,57792.05390,53.3,not reproduced,no line at the catalogue position,
+near-miss,q00104,HIP21421,2191.557303,-0.0287,57792.05390,52.6,not explained,,
+near-miss,q00105,HIP21421,2191.562036,3.6257,57792.05390,52.3,not reproduced,no line at the catalogue position,
+near-miss,q00106,HIP21421,2191.535915,1.4158,57792.05390,34.6,not reproduced,no line at the catalogue position,
+near-miss,q00107,HIP12843,2257.411240,0.8801,57838.80541,63.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00108,HIP12843,2257.322948,1.0332,57838.80541,59.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00109,HIP12843,2257.302714,-2.6595,57838.80541,29.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00110,HIP12843,2257.300445,-1.9229,57838.80541,29.0,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00111,HIP12843,2257.434827,3.4057,57838.80541,27.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00112,Hip14150,2253.755266,-1.0332,57655.45953,44.1,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00113,Hip14150,2253.750975,-1.6072,57655.45953,42.0,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00114,Hip14150,2253.886407,0.8419,57655.45953,40.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 415 noise units at t = 36.5 s
+near-miss,q00115,Hip14150,2253.758865,-1.7220,57655.45953,32.0,not a steady tone,D4: nothing left without the strongest sample,D4: 85% of the track's power is in one time sample
+near-miss,q00116,Hip14150,2253.889109,3.0517,57655.45953,29.1,not a steady tone,D4: half or more of the power in one sample,D4: 80% of the track's power is in one time sample
+near-miss,q00117,HIP39157,1140.483791,-0.9163,57456.01492,43.2,not reproduced,no line at the catalogue position,
+near-miss,q00118,HIP39157,1140.392360,2.0297,57456.02272,34.2,not explained,,
+near-miss,q00119,HIP39157,1140.394019,3.2121,57456.02272,33.8,not reproduced,no line at the catalogue position,
+near-miss,q00120,HIP39157,1140.403504,3.4584,57456.02272,29.3,not reproduced,no line at the catalogue position,
+near-miss,q00121,HIP39157,1140.405602,2.2465,57456.02272,27.0,not reproduced,no line at the catalogue position,
+near-miss,q00122,HIP105769,1635.924385,-0.0788,57458.76591,32.8,not a steady tone,D8: companion is a burst,"D8: its companion at 1635.913184 MHz, which rises and falls with it, is itself closed: D4: 58% of the track's power is in one time sample"
+near-miss,q00123,HIP105769,1635.926636,0.4237,57458.76591,30.6,not a steady tone,D4: nothing left without the strongest sample,"D4: nothing is left of the track without its strongest time sample (S/N 16.27 on the whole scan, 9.66 without it, against 9.8 in its control windows): a flash"
+near-miss,q00124,HIP105769,1635.934981,-0.0985,57458.76591,28.9,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00125,HIP105769,1635.937955,0.5813,57458.76591,28.0,not a steady tone,D4: nothing left without the strongest sample,D4: 63% of the track's power is in one time sample
+near-miss,q00126,HIP105769,1635.929094,1.0444,57458.76591,26.6,not a steady tone,D4: nothing left without the strongest sample,D4: 62% of the track's power is in one time sample
+near-miss,q00127,HIP117779,1646.699274,-1.9994,58452.82854,805.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00128,HIP117779,1647.371911,0.2009,58452.82093,144.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00129,HIP117779,1647.377189,0.4975,58452.82093,116.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00130,HIP117779,1647.377764,-0.9758,58452.81322,49.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00131,HIP103256,2495.065350,-0.9184,57697.00752,399.6,not a steady tone,D4: half or more of the power in one sample,D4: 58% of the track's power is in one time sample
+near-miss,q00132,HIP103256,2495.056929,-2.6786,57697.00752,143.8,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00133,HIP103256,2495.054059,-3.6066,57697.00752,59.3,not a steady tone,D4: half or more of the power in one sample,D4: 54% of the track's power is in one time sample
+near-miss,q00134,HIP103256,2494.586514,-2.4682,57697.00752,25.6,not explained,,
+near-miss,q00135,HIP66704,2248.102779,2.8317,57823.37560,282.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00136,HIP66704,2248.096048,-3.1378,57823.37560,112.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 3477 noise units at t = 273.8 s
+near-miss,q00137,HIP66704,2247.775902,0.5549,57823.37560,34.5,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00138,HIP66704,2248.370827,2.7169,57823.37560,32.7,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00139,HIP75312,2212.869150,3.8744,57812.47363,193.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00140,HIP75312,2212.886794,3.6927,57812.47363,36.1,not reproduced,no line at the catalogue position,
+near-miss,q00141,HIP75312,2212.670516,-3.5587,57812.47363,29.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00142,HIP75312,2212.933780,1.0427,57812.47363,28.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 157 noise units at t = 255.6 s
+near-miss,q00143,Hip105932,1466.088862,0.0096,57587.34834,105.0,shown to be local,D1,D1: OFF scan margin over controls scan 5: +4.0
+near-miss,q00144,Hip105932,1466.035587,0.0096,57587.34834,74.2,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 3: S/N 14.1 at +4.1 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.034"
+near-miss,q00145,Hip105932,1466.055050,0.0096,57587.34834,73.9,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 3: S/N 14.1 at +4.1 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.034"
+near-miss,q00146,Hip105932,1466.149262,0.0096,57587.34834,69.6,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 3: S/N 14.1 at +4.1 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.034"
+near-miss,q00147,HIP37349,2248.580718,2.8508,57810.14406,63.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00148,HIP37349,2248.590561,3.1665,57810.14406,53.2,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00149,HIP37349,2248.490364,-0.7940,57810.14406,34.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 180 noise units at t = 109.5 s
+near-miss,q00150,HIP37349,2248.544531,-1.9516,57810.14406,31.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00151,HIP98698,2230.105365,3.0326,57885.44851,60.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 712 noise units at t = 146.0 s
+near-miss,q00152,HIP98698,2229.008928,2.6404,57885.44851,60.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00153,HIP98698,2230.109120,1.7220,57885.44851,53.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00154,HIP98698,2229.191396,3.4439,57885.44851,27.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 372 noise units at t = 146.0 s
+near-miss,q00155,HIP12158,2208.547497,-3.0134,57817.89616,53.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00156,HIP12158,2208.690657,1.7698,57817.89616,41.3,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00157,HIP12158,2209.429673,0.0478,57817.89616,27.4,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00158,HIP12158,2210.589474,1.4445,57817.89616,26.3,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00159,HIP49127,1658.548642,2.3253,57464.18242,52.4,not a steady tone,D4: nothing left without the strongest sample,D4: 81% of the track's power is in one time sample
+near-miss,q00160,HIP49127,1658.486871,0.5222,57464.18242,44.1,not explained,,
+near-miss,q00161,HIP49127,1657.107090,2.7687,57464.18242,36.0,not a steady tone,D4: nothing left without the strongest sample,D4: 74% of the track's power is in one time sample
+near-miss,q00162,HIP49127,1658.541854,1.4780,57464.18242,27.7,not a steady tone,D4: half or more of the power in one sample,D4: 61% of the track's power is in one time sample
+near-miss,q00163,HIP20648,2226.679202,-0.6601,57740.13330,47.6,not a steady tone,D4: nothing left without the strongest sample,D4: 93% of the track's power is in one time sample
+near-miss,q00164,HIP20648,2226.674287,-1.0906,57740.13330,43.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 341 noise units at t = 54.8 s
+near-miss,q00165,HIP20648,2226.671666,0.6314,57740.13330,40.2,not a steady tone,D4: nothing left without the strongest sample,D4: 91% of the track's power is in one time sample
+near-miss,q00166,HIP20648,2226.695041,3.6640,57740.13330,35.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 138 noise units at t = 54.8 s
+near-miss,q00167,HIP34414,1630.736216,1.8081,57887.03288,43.0,not a steady tone,D8: companion is a burst,"D8: its companion at 1544.050470 MHz, which rises and falls with it, is itself closed: D4: 58% of the track's power is in one time sample"
+near-miss,q00168,HIP34414,1630.731151,1.7124,57887.03288,39.1,not a steady tone,D8: companion is a burst,"D8: its companion at 1544.050470 MHz, which rises and falls with it, is itself closed: D4: 58% of the track's power is in one time sample"
+near-miss,q00169,HIP34414,1630.719277,1.7315,57887.03288,32.0,not a steady tone,D8: companion is a burst,"D8: its companion at 1544.050470 MHz, which rises and falls with it, is itself closed: D4: 58% of the track's power is in one time sample"
+near-miss,q00170,HIP34414,1630.726435,3.5396,57887.03288,27.7,not reproduced,no line at the catalogue position,
+near-miss,q00171,HIP103256,2495.826382,-2.4012,57697.00752,1582.0,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00172,HIP103256,2497.992701,-1.6454,57697.00752,63.0,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00173,HIP103256,2495.325775,3.7022,57697.00752,29.0,shown to be local,D1,D1: a line at the candidate's drift within 1000 Hz of the predicted place in 1 of 3 OFF scans (scan 5: S/N 30.3 at +955 Hz); chance of an unrelated line 0.030
+near-miss,q00174,HIP14862,2489.248298,0.0861,57681.35213,1235.9,not a steady tone,D4: half or more of the power in one sample,D4: 77% of the track's power is in one time sample
+near-miss,q00175,HIP14862,2488.551463,-2.3821,57681.35213,54.0,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00176,HIP14862,2488.547375,0.0191,57681.35213,40.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 331 noise units at t = 54.8 s
+near-miss,q00177,HIP21421,2038.438076,0.0096,57792.05390,606.3,not explained,,
+near-miss,q00178,HIP21421,2038.435075,0.0096,57792.05390,189.8,not explained,,
+near-miss,q00179,HIP21421,2038.446075,0.0096,57792.05390,173.3,not explained,,
+near-miss,q00180,HIP77257,2487.981879,3.5396,58008.82596,283.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00181,HIP77257,2487.990959,0.8897,58008.82596,134.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00182,HIP77257,2487.998548,-3.4822,58008.82596,45.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00183,HIP39494,2261.390367,-3.5587,57817.08816,257.9,shown to be local,D1,D1: OFF scan margin over controls scan 1: +392.8
+near-miss,q00184,HIP39494,2263.054795,1.4828,57817.08816,167.8,not a steady tone,D4: half or more of the power in one sample,D4: 61% of the track's power is in one time sample
+near-miss,q00185,HIP39494,2261.945185,-1.2628,57817.08816,33.8,not a steady tone,D4: half or more of the power in one sample,D4: 57% of the track's power is in one time sample
+near-miss,q00186,HIP77655,2266.819067,3.8553,57868.27074,203.4,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00187,HIP77655,2266.884569,0.7175,57868.27074,42.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 180 noise units at t = 54.8 s
+near-miss,q00188,HIP77655,2266.858784,-3.8936,57868.27074,34.4,not a steady tone,D4: nothing left without the strongest sample,D4: 92% of the track's power is in one time sample
+near-miss,q00189,HIP12706,1644.783039,-0.3449,57472.86484,192.2,shown to be local,D1,D1: stacked OFF 42.4 above control maximum 29.9
+near-miss,q00190,HIP12706,1644.785287,-0.3449,57472.86484,173.5,shown to be local,D1,D1: stacked OFF 49.8 above control maximum 29.3
+near-miss,q00191,HIP12706,1644.769664,-0.0985,57472.86484,140.8,shown to be local,D1,D1: stacked OFF 39.4 above control maximum 37.7
+near-miss,q00192,HIP41307,2751.366087,-0.0191,57838.09981,192.1,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00193,HIP41307,2751.391596,0.0478,57838.09981,53.0,not a steady tone,D4: half or more of the power in one sample,D4: 54% of the track's power is in one time sample
+near-miss,q00194,HIP41307,2751.399492,3.1378,57838.09981,27.1,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00195,HIP7918,2200.130240,0.2487,57884.67971,162.3,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00196,HIP7918,2201.824935,-0.7940,57884.67971,28.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00197,HIP7918,2199.415317,0.9375,57884.67971,25.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00198,HIP55705,2280.675578,2.5256,57810.26576,155.3,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00199,HIP55705,2280.761239,1.6646,57810.26576,45.9,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00200,HIP55705,2280.629344,-2.4108,57810.26576,42.6,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00201,HIP40693,2207.626896,2.4395,57835.11429,146.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00202,HIP40693,2207.691154,1.4732,57835.11429,106.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00203,HIP40693,2207.431290,2.7647,57835.11429,104.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00204,HIP39826,1140.507476,-2.8475,57456.04631,144.7,not reproduced,no line at the catalogue position,
+near-miss,q00205,HIP39826,1140.501394,1.2218,57456.03860,34.4,not reproduced,no line at the catalogue position,
+near-miss,q00206,HIP39826,1140.487868,-3.7047,57456.03860,28.1,not reproduced,no line at the catalogue position,
+near-miss,q00207,Gj244,2289.548801,1.6359,57627.54826,136.4,not a steady tone,D4: half or more of the power in one sample,D4: 74% of the track's power is in one time sample
+near-miss,q00208,Gj244,2289.614683,3.4057,57627.54826,40.1,not a steady tone,D4: nothing left without the strongest sample,D4: 87% of the track's power is in one time sample
+near-miss,q00209,Gj244,2289.483648,3.5683,57627.54826,38.8,not a steady tone,D4: nothing left without the strongest sample,D4: 83% of the track's power is in one time sample
+near-miss,q00210,HIP44897,2225.521057,3.8840,57660.67134,103.6,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00211,HIP44897,2225.519127,2.2003,57660.67134,69.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 551 noise units at t = 109.5 s
+near-miss,q00212,HIP44897,2225.454229,-1.0332,57660.67134,29.0,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00213,HIP4454,1158.282938,-3.7146,57507.72303,94.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00214,HIP4454,1157.099728,2.0002,57507.72303,39.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00215,HIP4454,1157.043454,2.6603,57507.72303,35.0,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00216,HIP12929,1701.030078,0.9360,57476.80402,85.9,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00217,HIP12929,1701.027858,-2.2859,57476.80402,72.9,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00218,HIP12929,1701.032987,-2.2268,57476.80402,63.2,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00219,HIP21932,2266.316381,2.2768,57803.99376,81.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 135 noise units at t = 219.0 s
+near-miss,q00220,HIP21932,2266.332899,1.3871,57803.99376,65.2,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 140 noise units at t = 127.8 s
+near-miss,q00221,HIP21932,2266.327574,2.0281,57803.99376,43.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 270 noise units at t = 127.8 s
+near-miss,q00222,HIP77655,1696.675477,2.6882,57749.53059,79.2,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00223,HIP77655,1696.669137,1.5498,57749.53059,46.9,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00224,HIP77655,1696.671749,2.0951,57749.53059,31.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 411 noise units at t = 0.0 s
+near-miss,q00225,GJ280,1655.883116,0.9557,57447.12630,78.0,shown to be local,D6,"D6: 2 lines of one scan (q00373, q00225) sit at 62, 69 x 24 MHz, each -70.62 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0089"
+near-miss,q00226,GJ280,1655.882552,0.7094,57447.13387,65.0,shown to be local,D6,"D6: 3 lines of one scan (q00238, q00374, q00226) sit at 59, 62, 69 x 24 MHz, each -70.97 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0089"
+near-miss,q00227,GJ280,1655.883870,1.4977,57447.11873,50.9,shown to be local,D6,"D6: 2 lines of one scan (q00239, q00227) sit at 59, 69 x 24 MHz, each -70.21 ppm from nominal (spread 0.00 ppm): harmonics of one oscillator; chance of an unrelated match 0.0085"
+near-miss,q00228,HIP22498,1647.845148,1.5498,57927.71720,58.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00229,HIP22498,1646.247691,1.8176,57927.71720,53.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00230,HIP22498,1646.242271,0.9375,57927.71720,29.2,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00231,HIP91009,2209.862813,0.1148,57748.64277,55.7,not a steady tone,D4: nothing left without the strongest sample,D4: 63% of the track's power is in one time sample
+near-miss,q00232,HIP91009,2209.730859,-3.1091,57748.64277,49.2,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00233,HIP91009,2209.742016,3.6448,57748.64277,38.5,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00234,Hip21482,1699.102345,3.4822,57613.60390,52.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00235,Hip21482,1698.875257,-0.6505,57613.60390,42.9,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00236,Hip21482,1699.106066,2.7360,57613.60390,37.2,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00237,GJ280,1415.900057,0.8277,57447.12630,45.0,shown to be local,D1,D1: stacked OFF 229.6 above control maximum 18.2
+near-miss,q00238,GJ280,1415.899584,0.6897,57447.13387,32.5,shown to be local,D6,"D6: 3 lines of one scan (q00238, q00374, q00226) sit at 59, 62, 69 x 24 MHz, each -70.97 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0089"
+near-miss,q00239,GJ280,1415.900698,1.2513,57447.11873,28.4,shown to be local,D6,"D6: 2 lines of one scan (q00239, q00227) sit at 59, 69 x 24 MHz, each -70.21 ppm from nominal (spread 0.00 ppm): harmonics of one oscillator; chance of an unrelated match 0.0085"
+near-miss,q00240,HIP14445,1885.650633,-0.0287,57992.45839,42.0,shown to be local,D1,D1: stacked OFF 399.3 above control maximum 329.2
+near-miss,q00241,HIP14445,1885.650111,-0.0287,57992.45068,29.1,shown to be local,D1,D1: stacked OFF 404.6 above control maximum 401.7
+near-miss,q00242,HIP14445,1885.650589,-0.0287,57992.44291,27.5,shown to be local,D1,D1: stacked OFF 399.7 above control maximum 329.8
+near-miss,q00243,HIP54651,1633.468064,0.7271,57899.04918,39.3,not a steady tone,D4: half or more of the power in one sample,D4: 86% of the track's power is in one time sample
+near-miss,q00244,HIP54651,1633.462468,0.7462,57899.04918,35.7,not a steady tone,D4: nothing left without the strongest sample,D4: 88% of the track's power is in one time sample
+near-miss,q00245,HIP54651,1633.487066,0.4879,57899.04918,28.7,not a steady tone,D4: half or more of the power in one sample,D4: 57% of the track's power is in one time sample
+near-miss,q00246,GJ699,2460.839755,-3.6161,57689.90383,39.2,not explained,,
+near-miss,q00247,GJ699,2461.839909,-3.0230,57689.90383,31.7,not a steady tone,D4: nothing left without the strongest sample,D4: 52% of the track's power is in one time sample
+near-miss,q00248,GJ699,2460.221036,3.1187,57689.90383,28.1,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00249,Gj876,2262.460066,-0.0383,57628.29947,34.3,not explained,,
+near-miss,q00250,Gj876,2262.641883,-0.0383,57628.29947,28.6,not explained,,
+near-miss,q00251,Gj876,2262.369158,-0.0191,57628.29947,26.6,not explained,,
+near-miss,q00252,HIP45493,1629.063140,0.2009,57636.79863,32.0,not explained,,
+near-miss,q00253,HIP45493,1629.080471,0.6601,57636.79863,27.7,not explained,,
+near-miss,q00254,HIP45493,1629.087394,0.2487,57636.79863,27.1,not reproduced,no line at the catalogue position,
+near-miss,q00255,HIP9598,2206.020660,1.6263,57903.56660,31.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 163 noise units at t = 18.3 s
+near-miss,q00256,HIP9598,2206.023924,-3.4726,57903.56660,29.9,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00257,HIP9598,2206.155064,0.1148,57903.56660,28.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 187 noise units at t = 18.3 s
+near-miss,q00258,Hip17496,1144.051247,0.2774,57592.57213,28.0,not explained,,
+near-miss,q00259,Hip17496,1144.044444,0.2774,57592.57213,25.8,not explained,,
+near-miss,q00260,Hip17496,1146.969700,0.3157,57592.57213,25.0,not explained,,
+near-miss,q00261,HIP69526,1640.806857,2.9847,57955.12426,2695.5,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00262,HIP69526,1640.804283,1.3584,57955.13220,1429.7,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00263,HIP32984,1791.779873,3.5396,57887.00854,648.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00264,HIP32984,1792.852570,0.9949,57887.00854,47.6,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00265,HIP77655,1703.597864,1.1862,57749.53059,611.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00266,HIP77655,1703.329749,-0.0478,57749.53059,73.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00267,HIP31703,1645.815460,0.2487,57556.71186,525.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00268,HIP31703,1645.808067,-0.3922,57556.71186,58.2,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00269,HIP12097,2248.856452,2.0281,57817.83197,504.3,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00270,HIP12097,2246.194767,1.5402,57817.83197,177.9,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00271,HIP11090,2438.872736,-0.5836,57813.90147,462.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00272,HIP11090,2438.866958,-1.6072,57813.90147,73.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00273,HIP1692,2287.582356,3.7788,57697.13098,397.9,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00274,HIP1692,2287.838454,-3.4631,57697.13098,29.1,not a steady tone,D4: half or more of the power in one sample,D4: 74% of the track's power is in one time sample
+near-miss,q00275,HIP82817,2265.229125,3.7405,58019.00207,361.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 303 noise units at t = 237.3 s
+near-miss,q00276,HIP82817,2264.178733,3.4918,58019.00207,56.3,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00277,Hip42220,1646.787318,1.3584,57598.81294,347.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00278,Hip42220,1646.347690,2.8125,57598.81294,35.5,not a steady tone,D4: half or more of the power in one sample,D4: 90% of the track's power is in one time sample
+near-miss,q00279,HIP1242,1703.561341,3.8457,57573.56166,344.2,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00280,HIP1242,1703.300734,2.5543,57573.56166,31.4,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00281,HIP82817,2209.466410,3.4918,58019.00207,200.9,not reproduced,no line at the catalogue position,
+near-miss,q00282,HIP82817,2209.474091,-2.2577,58019.00207,30.1,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00283,HIP44901,1648.750007,3.8033,57549.90208,151.4,not explained,,
+near-miss,q00284,HIP44901,1648.743491,3.8427,57549.90208,108.4,not explained,,
+near-miss,q00285,HIP98204,2253.606394,-0.7749,57929.24301,147.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 236 noise units at t = 273.8 s
+near-miss,q00286,HIP98204,2253.611655,2.8986,57929.24301,32.7,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00287,HIP96895,2214.339682,1.5115,57858.49067,138.7,not a steady tone,D4: nothing left without the strongest sample,D4: 91% of the track's power is in one time sample
+near-miss,q00288,HIP96895,2214.083755,2.4873,57858.49067,64.1,not a steady tone,D4: nothing left without the strongest sample,D4: 91% of the track's power is in one time sample
+near-miss,q00289,HIP88771,2274.326337,-3.8457,57790.69163,126.9,not a steady tone,D4: half or more of the power in one sample,D4: 97% of the track's power is in one time sample
+near-miss,q00290,HIP88771,2274.261260,2.2481,57790.69163,40.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00291,HIP105932,1703.560410,1.9115,57521.56590,116.0,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00292,HIP105932,1703.295019,3.5175,57521.56590,27.9,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00293,HIP51248,1701.033804,3.2219,57536.04084,115.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00294,HIP51248,1701.047831,-2.7589,57536.04084,35.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00295,HIP82003,2789.071869,0.3157,57860.33403,112.3,not a steady tone,D4: half or more of the power in one sample,D4: 70% of the track's power is in one time sample
+near-miss,q00296,HIP82003,2790.009128,2.1812,57860.33403,65.5,not explained,,
+near-miss,q00297,HIP20635,2280.638426,0.1148,57727.27051,106.9,not a steady tone,D4: half or more of the power in one sample,D4: 90% of the track's power is in one time sample
+near-miss,q00298,HIP20635,2280.659635,-1.1480,57727.27051,29.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00299,HIP70865,1156.982063,-3.3993,57511.20293,104.1,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00300,HIP70865,1157.261442,3.5668,57511.20293,54.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00301,HIP85295,2280.688681,-0.4018,57915.26277,100.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 490 noise units at t = 164.3 s
+near-miss,q00302,HIP85295,2280.758513,-0.4114,57915.26277,26.9,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00303,HIP20635,2266.852358,-2.5830,57727.27051,95.7,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00304,HIP20635,2266.721795,2.4108,57727.27051,38.5,not a steady tone,D4: nothing left without the strongest sample,D4: 93% of the track's power is in one time sample
+near-miss,q00305,Hip75722,1700.517065,2.4012,57657.85156,92.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 621 noise units at t = 91.3 s
+near-miss,q00306,Hip75722,1700.581608,2.7934,57657.85156,25.3,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00307,HIP98698,2228.241218,2.7360,57885.44851,91.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00308,HIP98698,2227.216749,3.5492,57885.44851,34.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 232 noise units at t = 146.0 s
+near-miss,q00309,HIP114233,2209.701453,2.5543,57848.64668,90.8,not a steady tone,D4: half or more of the power in one sample,D4: 76% of the track's power is in one time sample
+near-miss,q00310,HIP114233,2209.896329,3.8457,57848.64668,26.2,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00311,HIP103256,2490.065307,0.2009,57697.00752,89.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00312,HIP103256,2492.155161,-2.6212,57697.00752,33.6,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00313,HIP99427,2248.845308,3.8840,57885.37247,87.1,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00314,HIP99427,2248.848415,0.7940,57885.37247,42.9,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00315,HIP14445,1834.976282,0.0096,57992.44291,82.4,shown to be local,D1,D1: stacked OFF 808.4 above control maximum 797.3
+near-miss,q00316,HIP14445,1834.961775,-0.0096,57992.45068,57.5,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 3 of 3 OFF scans (scan 5: S/N 150.9 at -3.7 Hz, where 4 of 46 control windows hold one as strong); chance of an unrelated line that close 0.012"
+near-miss,q00317,HIP59504,2203.729903,-0.8132,57665.73817,81.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00318,HIP59504,2203.697222,0.8610,57665.73817,40.4,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00319,HIP105038,2488.048069,-2.0281,57691.07578,76.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 192 noise units at t = 273.8 s
+near-miss,q00320,HIP105038,2488.042660,-0.2200,57691.07578,29.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 300 noise units at t = 200.8 s
+near-miss,q00321,HIP83608,2468.086574,-2.2099,57719.74147,74.1,not a steady tone,D4: half or more of the power in one sample,D4: 59% of the track's power is in one time sample
+near-miss,q00322,HIP83608,2468.090552,0.4209,57719.74147,68.2,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00323,HIP42940,2248.393424,-3.7788,57846.95721,72.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00324,HIP42940,2247.370896,2.9273,57846.95721,29.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00325,Hip2,1617.544225,-1.8846,57579.55593,72.1,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00326,Hip2,1617.526252,1.0810,57579.55593,28.2,not a steady tone,D4: nothing left without the strongest sample,D4: 92% of the track's power is in one time sample
+near-miss,q00327,HIP4872,1158.082785,-0.8868,57507.73866,71.2,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00328,HIP4872,1157.279859,1.4287,57507.73866,32.9,not a steady tone,D4: half or more of the power in one sample,D4: 96% of the track's power is in one time sample
+near-miss,q00329,HIP85295,2266.774057,-0.7366,57915.26277,67.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 596 noise units at t = 164.3 s
+near-miss,q00330,HIP85295,2266.854302,-3.2526,57915.26277,36.1,not a steady tone,D4: half or more of the power in one sample,D4: 65% of the track's power is in one time sample
+near-miss,q00331,HIP108752,2295.001362,0.8706,58223.65925,66.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00332,HIP108752,2294.973000,-2.0377,58223.65925,37.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 180 noise units at t = 146.0 s
+near-miss,q00333,HIP52469,2248.390053,1.1384,57869.95782,55.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00334,HIP52469,2247.366056,-3.5587,57869.95782,27.4,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00335,HIP116727,2266.734437,2.1046,57826.68106,55.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 576 noise units at t = 54.8 s
+near-miss,q00336,HIP116727,2266.726602,-1.5880,57826.68106,47.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 589 noise units at t = 73.0 s
+near-miss,q00337,HIP76603,2264.876102,-1.1480,58013.99447,55.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00338,HIP76603,2264.857161,-1.5402,58013.99447,26.9,not a steady tone,D4: nothing left without the strongest sample,D4: 89% of the track's power is in one time sample
+near-miss,q00339,HIP87579,1655.829032,-0.6503,57450.67191,54.4,shown to be local,D6,"D6: 2 lines of one scan (q00380, q00339) sit at 59, 69 x 24 MHz, each -103.18 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0085"
+near-miss,q00340,HIP87579,1655.829993,-1.9016,57450.67950,52.2,shown to be local,D1,D1: stacked OFF 293.8 above control maximum 13.3
+near-miss,q00341,HIP110951,2228.399980,3.8362,57722.97146,54.2,not a steady tone,D4: half or more of the power in one sample,D4: 54% of the track's power is in one time sample
+near-miss,q00342,HIP110951,2227.466577,-1.2628,57722.97146,36.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00343,HIP83608,2203.705433,-3.7788,57719.74147,53.2,shown to be local,D1,D1: stacked OFF 1920.7 above control maximum 13.5
+near-miss,q00344,HIP83608,2203.707358,3.7501,57719.74147,51.9,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00345,LHS292,2252.864290,3.3770,57842.11854,52.5,not a steady tone,D4: nothing left without the strongest sample,D4: 66% of the track's power is in one time sample
+near-miss,q00346,LHS292,2252.979066,-0.3061,57842.11854,26.8,not a steady tone,D4: nothing left without the strongest sample,D4: 89% of the track's power is in one time sample
+near-miss,q00347,HIP74666,2214.575541,-0.5357,57738.71810,52.4,shown to be local,D1,D1: stacked OFF 24.7 above control maximum 15.7
+near-miss,q00348,HIP74666,2214.575158,-0.5357,57738.70993,25.9,shown to be local,D1,D1: stacked OFF 24.6 above control maximum 15.9
+near-miss,q00349,HIP49841,2270.143007,3.8936,57718.54381,51.1,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00350,HIP49841,2270.139373,2.0185,57718.54381,49.3,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00351,HIP57494,2266.747001,3.8840,57838.13236,51.0,not a steady tone,D4: half or more of the power in one sample,D4: 61% of the track's power is in one time sample
+near-miss,q00352,HIP57494,2267.454764,0.2870,57838.12465,29.4,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00353,HIP99427,2244.874317,2.2673,57885.37247,51.0,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00354,HIP99427,2246.183593,3.5109,57885.37247,29.3,not a steady tone,D4: half or more of the power in one sample,D4: 98% of the track's power is in one time sample
+near-miss,q00355,HIP18280,2495.042042,0.8801,57699.35731,50.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 370 noise units at t = 273.8 s
+near-miss,q00356,HIP18280,2495.045926,-2.4203,57699.35731,45.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 151 noise units at t = 273.8 s
+near-miss,q00357,HIP77655,1699.069292,1.3680,57749.53059,50.2,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00358,HIP77655,1698.866654,-3.0230,57749.53059,28.1,not a steady tone,D4: half or more of the power in one sample,D4: 96% of the track's power is in one time sample
+near-miss,q00359,Hip103039,1344.432360,0.0096,57580.27785,48.2,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00360,Hip103039,1344.434322,-2.1429,57580.27785,33.1,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00361,HIP21556,1577.457280,0.5321,57541.71425,46.6,shown to be local,D1,D1: stacked OFF 31.6 above control maximum 15.1
+near-miss,q00362,HIP21556,1577.317971,0.5321,57541.71425,40.8,shown to be local,D1,D1: OFF scan margin over controls scan 1: +5.0
+near-miss,q00363,Hip75722,1697.702472,-2.0951,57657.85156,43.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00364,Hip75722,1697.112816,3.7692,57657.85156,31.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 274 noise units at t = 91.3 s
+near-miss,q00365,HIP71395,1158.223526,1.1922,57511.28542,43.0,not a steady tone,D4: half or more of the power in one sample,D4: 98% of the track's power is in one time sample
+near-miss,q00366,HIP71395,1156.507136,-2.4041,57511.28542,26.0,not a steady tone,D4: nothing left without the strongest sample,D4: 93% of the track's power is in one time sample
+near-miss,q00367,HIP112918,2252.343863,-1.5785,57760.98242,42.9,not a steady tone,D4: half or more of the power in one sample,D4: 93% of the track's power is in one time sample
+near-miss,q00368,HIP112918,2252.596485,-0.8706,57760.98242,28.6,not a steady tone,D4: nothing left without the strongest sample,D4: 69% of the track's power is in one time sample
+near-miss,q00369,HIP49841,2262.155794,1.4254,57718.54381,42.0,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00370,HIP49841,2262.152299,1.9516,57718.54381,39.5,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00371,GJ702B,2256.248948,-3.0039,57689.95184,41.8,not a steady tone,D4: half or more of the power in one sample,D4: 96% of the track's power is in one time sample
+near-miss,q00372,GJ702B,2256.219402,3.6257,57689.95184,41.1,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00373,GJ280,1487.894978,0.8769,57447.12630,40.4,shown to be local,D6,"D6: 2 lines of one scan (q00373, q00225) sit at 62, 69 x 24 MHz, each -70.62 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0089"
+near-miss,q00374,GJ280,1487.894482,0.7488,57447.13387,26.3,shown to be local,D6,"D6: 3 lines of one scan (q00238, q00374, q00226) sit at 59, 62, 69 x 24 MHz, each -70.97 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0089"
+near-miss,q00375,HIP98819,1627.141781,0.4688,57676.98873,39.1,not a steady tone,D4: half or more of the power in one sample,D4: 68% of the track's power is in one time sample
+near-miss,q00376,HIP98819,1627.181972,0.5262,57676.98873,27.7,not a steady tone,D4: nothing left without the strongest sample,D4: 71% of the track's power is in one time sample
+near-miss,q00377,HIP17420,2280.992702,-0.1148,57699.25860,38.5,shown to be local,D2,"D2: this line is on the comb of one scan that 8 lines closed earlier belong to (q00012, q00013, q00014, q00015, q00016, q00017, q00018, q00019): teeth 131.068 kHz apart (2^17 Hz), a human clock rate. It sits 4 teeth below its lowest line, -50 Hz off the grid (the comb's own lines are within 36 Hz, and 120 Hz counts as on a tooth). Chance of an unrelated line that close 0.0037"
+near-miss,q00378,HIP17420,2280.861629,-0.1339,57699.25860,28.1,shown to be local,D2,"D2: this line is on the comb of one scan that 8 lines closed earlier belong to (q00012, q00013, q00014, q00015, q00016, q00017, q00018, q00019): teeth 131.068 kHz apart (2^17 Hz), a human clock rate. It sits 5 teeth below its lowest line, -49 Hz off the grid (the comb's own lines are within 36 Hz, and 120 Hz counts as on a tooth). Chance of an unrelated line that close 0.0037"
+near-miss,q00379,HIP87579,1415.853274,-0.8079,57450.66431,38.4,shown to be local,D1,D1: stacked OFF 65.7 above control maximum 54.6
+near-miss,q00380,HIP87579,1415.853808,-0.5715,57450.67191,29.6,shown to be local,D6,"D6: 2 lines of one scan (q00380, q00339) sit at 59, 69 x 24 MHz, each -103.18 ppm from nominal (spread 0.01 ppm): harmonics of one oscillator; chance of an unrelated match 0.0085"
+near-miss,q00381,HIP13081,2284.995924,3.0804,57838.86429,38.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00382,HIP13081,2284.998084,-2.1525,57838.86429,34.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00383,HIP75101,2490.580224,-1.5019,57753.74690,37.7,not a steady tone,D4: half or more of the power in one sample,D4: 57% of the track's power is in one time sample
+near-miss,q00384,HIP75101,2490.575594,2.8030,57753.74690,36.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00385,HIP70497,2273.473107,-3.8075,57691.74064,35.7,not a steady tone,D4: nothing left without the strongest sample,D4: 63% of the track's power is in one time sample
+near-miss,q00386,HIP70497,2273.471020,-2.5638,57691.74064,33.4,not a steady tone,D4: nothing left without the strongest sample,D4: 72% of the track's power is in one time sample
+near-miss,q00387,HIP18413,1121.645344,0.6697,57900.76899,35.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00388,HIP18413,1121.647599,-3.4344,57900.76899,33.0,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00389,HIP28267,2289.619284,0.3348,57835.02159,35.4,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00390,HIP28267,2289.613124,-2.5064,57835.02159,25.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 367 noise units at t = 36.5 s
+near-miss,q00391,HIP22715,2230.520884,-0.5644,57824.95628,35.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00392,HIP22715,2230.524954,-1.1862,57824.95628,26.3,not a steady tone,D4: half or more of the power in one sample,D4: 97% of the track's power is in one time sample
+near-miss,q00393,HIP6706,2248.616274,-3.1187,57899.67200,34.5,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00394,HIP6706,2248.559992,-3.1474,57899.67200,27.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 116 noise units at t = 255.6 s
+near-miss,q00395,HIP49841,2272.801719,2.0568,57718.54381,34.5,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00396,HIP49841,2272.805226,1.2819,57718.54381,28.8,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00397,HIP42940,2255.562863,2.8412,57846.95721,34.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00398,HIP42940,2256.586140,-0.4401,57846.95721,34.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00399,HIP70956,1531.851031,0.0197,57511.23642,34.1,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 5: S/N 10.2 at +0.1 Hz, where 6 of 46 control windows hold one as strong); chance of an unrelated line that close 0.014"
+near-miss,q00400,HIP70956,1531.867979,0.0099,57511.23642,27.0,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 5: S/N 10.2 at +0.1 Hz, where 6 of 46 control windows hold one as strong); chance of an unrelated line that close 0.014"
+near-miss,q00401,HIP112935,2208.535083,3.7979,57761.00699,34.1,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00402,HIP112935,2208.533066,-1.0906,57761.00699,28.4,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00403,HIP101955,2212.910294,-2.4586,57693.93032,34.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00404,HIP101955,2212.827277,0.9471,57693.93032,28.5,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 145 noise units at t = 255.6 s
+near-miss,q00405,HIP1692,2286.563393,1.4158,57697.13098,33.4,not a steady tone,D4: half or more of the power in one sample,D4: 83% of the track's power is in one time sample
+near-miss,q00406,HIP1692,2286.554581,0.7749,57697.13098,32.9,not a steady tone,D4: half or more of the power in one sample,D4: 79% of the track's power is in one time sample
+near-miss,q00407,HIP59280,2254.266006,2.1525,57660.76925,33.2,not reproduced,no line at the catalogue position,
+near-miss,q00408,HIP59280,2254.396203,-1.0427,57660.76925,33.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00409,HIP29432,2261.998983,0.1913,57668.48860,33.2,shown to be local,D1,D1: stacked OFF 32.7 above control maximum 11.2
+near-miss,q00410,HIP29432,2262.998977,0.1626,57668.48860,29.6,shown to be local,D1,D1: stacked OFF 32.1 above control maximum 11.3
+near-miss,q00411,HIP42172,1344.348041,-1.7411,57872.95220,32.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 451 noise units at t = 273.8 s
+near-miss,q00412,HIP42172,1344.361913,3.0995,57872.95220,31.1,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 529 noise units at t = 273.8 s
+near-miss,q00413,HIP46843,1896.473948,0.2200,57678.62500,31.7,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 1: S/N 9.2 at +0.9 Hz, where 3 of 46 control windows hold one as strong); chance of an unrelated line that close 0.015"
+near-miss,q00414,HIP46843,1896.475107,1.3967,57678.61661,26.0,shown to be local,D1,D1: stacked OFF 36.2 above control maximum 16.8
+near-miss,q00415,GJ166,1487.985484,0.5025,57454.98493,31.1,shown to be local,D1,D1: stacked OFF 92.0 above control maximum 28.4
+near-miss,q00416,GJ166,1487.985740,0.1971,57454.97736,28.7,shown to be local,D7,"D7: the same line toward other stars in 1 of 5 scans within half an hour (e.g. HIP19832_OFF, -6 min: +36.6 over controls at +138 Hz); chance of unrelated lines 0.049"
+near-miss,q00417,HIP44001,2228.303268,-2.8030,57701.51223,31.1,not a steady tone,D4: half or more of the power in one sample,D4: 59% of the track's power is in one time sample
+near-miss,q00418,HIP44001,2228.306121,2.5925,57701.51223,25.7,not a steady tone,D4: half or more of the power in one sample,D4: 94% of the track's power is in one time sample
+near-miss,q00419,HIP86340,1641.741310,0.5740,57710.84381,30.2,not explained,,
+near-miss,q00420,HIP86340,1641.793205,0.9566,57710.84381,25.9,not reproduced,no line at the catalogue position,
+near-miss,q00421,HIP59514,2250.327663,-1.6837,57665.74663,29.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00422,HIP59514,2251.095890,-0.2679,57665.74663,27.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00423,HIP10416,2280.777544,1.5402,57669.26073,28.6,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00424,HIP10416,2280.645337,3.4726,57669.26073,28.2,not a steady tone,D4: half or more of the power in one sample,D4: 85% of the track's power is in one time sample
+near-miss,q00425,HIP72603,2252.788358,3.3770,57732.68291,28.3,not a steady tone,D4: half or more of the power in one sample,D4: 98% of the track's power is in one time sample
+near-miss,q00426,HIP72603,2252.786637,-1.9420,57732.68291,28.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00427,HIP114622,1366.819158,0.1339,57752.85146,28.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00428,HIP114622,1367.818479,0.7845,57752.85146,26.2,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00429,HIP96285,2205.991771,-0.9949,57867.48168,27.2,not a steady tone,D4: nothing left without the strongest sample,D4: 89% of the track's power is in one time sample
+near-miss,q00430,HIP96285,2206.123551,1.0140,57867.48168,25.2,not a steady tone,D4: nothing left without the strongest sample,D4: 87% of the track's power is in one time sample
+near-miss,q00431,HIP88601,1511.879880,-2.1874,57446.65485,27.2,shown to be local,D1,D1: stacked OFF 177.0 above control maximum 13.7
+near-miss,q00432,HIP88601,1511.879095,-1.2021,57446.64730,26.7,shown to be local,D1,D1: stacked OFF 108.6 above control maximum 23.8
+near-miss,q00433,HIP92311,1344.388621,-3.4248,57660.06760,26.1,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00434,HIP92311,1344.390468,3.3100,57660.06760,26.1,not a steady tone,D4: half or more of the power in one sample,D4: 96% of the track's power is in one time sample
+near-miss,q00435,Hip45688,1646.527422,0.3922,57642.73597,3748.2,shown to be local,D7,"D7: the same line toward other stars in 1 of 5 scans within half an hour (e.g. Hip44856, -6 min: +129.1 over controls at +304 Hz); chance of unrelated lines 0.049"
+near-miss,q00436,HIP49127,1342.888861,-0.0296,57464.18242,1586.7,not explained,,
+near-miss,q00437,HIP75809,1137.196774,-0.8132,58064.76737,1106.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00438,HIP19719,1489.358169,-1.0543,57454.93117,1065.2,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 1: S/N 10.9 at -15.2 Hz, where 1 of 46 control windows hold one as strong); chance of an unrelated line that close 0.034"
+near-miss,q00439,HIP99452,1646.898141,1.7220,58210.55840,1033.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 174 noise units at t = 255.6 s
+near-miss,q00440,HIP1086,1708.425581,1.7124,57803.85353,985.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00441,HIP42333,1538.603567,0.8079,57498.03360,710.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00442,HIP117779,1646.780470,2.4586,58452.88150,618.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00443,HIP104521,1155.279476,0.1339,58210.43373,488.7,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00444,HIP40035,2495.868090,1.6550,57835.07538,405.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00445,HIP91608,2446.346722,0.8992,57825.64380,387.6,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00446,HIP73470,1873.755809,2.2194,57689.78904,271.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00447,HIP14862,2495.849147,0.0478,57681.35213,234.8,not a steady tone,D4: half or more of the power in one sample,D4: 66% of the track's power is in one time sample
+near-miss,q00448,HIP58576,2451.984262,3.3291,57692.68800,230.1,not explained,,
+near-miss,q00449,HIP104521,1588.509102,-0.6888,58210.43373,208.2,shown to be local,D1,D1: stacked OFF 16.6 above control maximum 12.3
+near-miss,q00450,HIP14862,2492.178010,0.2200,57681.35213,191.6,not a steady tone,D4: half or more of the power in one sample,D4: 77% of the track's power is in one time sample
+near-miss,q00451,HIP12097,2243.265080,3.6161,57817.83197,183.7,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00452,HIP8362,2501.383764,0.3922,57884.72711,174.2,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00453,HIP37826,2416.381267,0.7845,57824.01060,162.7,shown to be local,D1,D1: stacked OFF 13.1 above control maximum 11.8
+near-miss,q00454,HIP92043,1703.820457,3.7639,57552.35722,153.2,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 353 noise units at t = 251.8 s
+near-miss,q00455,HIP63366,2270.642507,2.9847,57734.60064,147.7,shown to be local,D1,D1: stacked OFF 168.5 above control maximum 112.0
+near-miss,q00456,HIP78353,2272.441744,2.8604,57902.18801,141.9,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00457,HIP51933,2230.168272,2.7264,57734.50458,141.7,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00458,HIP40774,1700.658479,2.3629,57677.55116,140.8,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00459,HIP81300,2224.522432,2.8317,57841.42164,139.5,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00460,HIP80644,2246.166043,-0.1531,57841.37251,128.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00461,HIP8051,2438.345567,-2.1812,57899.77726,127.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00462,HIP18512,2492.124579,-3.6544,57699.36524,126.5,not explained,,
+near-miss,q00463,HIP27918,1645.991190,0.9557,57470.03687,121.8,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00464,HIP86776,1708.424633,2.8125,57710.86810,119.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00465,HIP9724,1659.020995,-0.1913,57928.59740,118.7,not explained,,
+near-miss,q00466,HIP91699,2491.834710,2.6786,57826.52731,118.6,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00467,HIP53767,2248.841619,3.2909,57756.35054,117.1,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00468,HIP75312,2295.658624,-3.8840,57812.47363,116.3,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00469,HIP36627,1646.100712,-3.3894,57543.92041,114.3,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00470,HIP103256,2489.225440,-1.4158,57697.00752,113.6,not a steady tone,D4: half or more of the power in one sample,D4: 58% of the track's power is in one time sample
+near-miss,q00471,HIP100064,1891.251540,2.4731,57529.38579,112.4,not a steady tone,D4: half or more of the power in one sample,D4: 69% of the track's power is in one time sample
+near-miss,q00472,HIP59496,1489.680699,2.2662,57548.97104,111.2,not a steady tone,D4: half or more of the power in one sample,D4: 69% of the track's power is in one time sample
+near-miss,q00473,HIP75312,2289.119119,-0.8706,57812.48184,110.5,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00474,HIP77660,2093.418039,-0.4114,57902.06940,110.0,shown to be local,D1,D1: stacked OFF 31.6 above control maximum 29.8
+near-miss,q00475,HIP73457,1843.197853,3.1333,57477.38926,109.5,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00476,HIP12097,2250.185920,-2.6499,57817.83197,108.3,not a steady tone,D4: half or more of the power in one sample,D4: 98% of the track's power is in one time sample
+near-miss,q00477,HIP77660,2706.532913,-0.0765,57902.06940,107.0,not a steady tone,D4: half or more of the power in one sample,D4: 61% of the track's power is in one time sample
+near-miss,q00478,HIP42748,2256.249455,-2.5064,57860.93054,104.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00479,HIP99427,1646.312783,0.3540,57752.96095,102.9,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00480,HIP98792,2230.203422,3.7596,57885.49786,100.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00481,Hip19930,1650.801237,2.4012,57606.51743,99.0,not explained,,
+near-miss,q00482,HIP105406,2072.000055,0.6792,57790.80611,96.0,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00483,HIP171,2207.299434,2.9560,57992.33979,95.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 115 noise units at t = 255.6 s
+near-miss,q00484,HIP20635,2263.857579,0.7366,57727.27051,93.2,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00485,HIP35550,2275.487935,3.7596,57756.34017,89.6,not a steady tone,D4: half or more of the power in one sample,D4: 97% of the track's power is in one time sample
+near-miss,q00486,HIP21421,2045.500075,0.0096,57792.05390,89.1,not explained,,
+near-miss,q00487,HIP38048,2206.478307,3.1091,57824.05213,87.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 111 noise units at t = 127.8 s
+near-miss,q00488,HIP78180,2272.449433,2.3438,57692.76971,84.9,shown to be local,D1,D1: a line at the candidate's drift within 300 Hz of the predicted place in 1 of 3 OFF scans (scan 1: S/N 88.8 at +96 Hz); chance of an unrelated line 0.030
+near-miss,q00489,HIP105932,2172.610836,3.0517,57731.93337,84.5,shown to be local,D1,D1: stacked OFF 62.1 above control maximum 38.2
+near-miss,q00490,HIP80644,2249.095722,-0.1818,57841.37251,83.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00491,HIP116819,2271.214701,0.5644,57867.57355,82.8,not explained,,
+near-miss,q00492,HIP40693,2491.801537,0.0574,57835.11429,82.7,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00493,HIP108782,2213.243845,0.5262,58223.69059,82.2,not reproduced,no line at the catalogue position,
+near-miss,q00494,HIP91973,2256.262595,-1.4158,57895.47280,80.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 215 noise units at t = 200.8 s
+near-miss,q00495,HIP75761,2282.561934,0.7175,58008.77145,79.0,not explained,,
+near-miss,q00496,HIP46509,2277.000444,2.1812,57671.60716,78.7,shown to be local,D1,D1: stacked OFF 271.9 above control maximum 12.0
+near-miss,q00497,HIP74537,2263.631015,2.2673,57738.65159,78.3,not reproduced,no line at the catalogue position,
+near-miss,q00498,HIP89348,1655.807930,-3.4893,57445.59439,77.1,shown to be local,D1,D1: stacked OFF 610.3 above control maximum 13.5
+near-miss,q00499,HIP76219,2295.003643,-0.1052,57823.42707,75.3,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00500,HIP46580,2269.993396,1.5880,57671.64707,74.5,shown to be local,D1,D1: stacked OFF 35.6 above control maximum 13.1
+near-miss,q00501,Hip81919,1699.653855,0.6314,57619.04894,74.0,not reproduced,no line at the catalogue position,
+near-miss,q00502,HIP65420,1821.583448,0.0765,57809.35950,73.3,shown to be local,D1,D1: stacked OFF 26.7 above control maximum 10.4
+near-miss,q00503,HIP60965,2286.402153,-1.5115,57701.68264,71.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 432 noise units at t = 273.8 s
+near-miss,q00504,HIP103800,2148.741485,3.8553,57691.02581,71.5,not explained,,
+near-miss,q00505,HIP40774,2270.213863,3.1474,57837.97078,71.0,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00506,HIP40774,2204.887097,3.0708,57837.97078,70.8,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00507,HIP40774,2264.888856,2.3438,57837.97078,70.3,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00508,HIP27288,2501.371324,1.3106,57834.97853,70.1,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00509,HIP12097,2266.319559,2.8030,57998.52742,69.7,not a steady tone,D4: half or more of the power in one sample,D4: 57% of the track's power is in one time sample
+near-miss,q00510,HIP37766,1655.878287,0.5222,57447.17936,69.5,shown to be local,D6,"D6: 2 lines of one scan (q00510, q00673) sit at 69, 77 x 24 MHz, each -73.60 ppm from nominal (spread 0.10 ppm): harmonics of one oscillator; chance of an unrelated match 0.0111"
+near-miss,q00511,HIP15919,2261.489190,-0.7079,57661.46275,68.2,not explained,,
+near-miss,q00512,HIP73457,1456.896750,0.2069,57477.38926,66.8,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00513,Hip55718,1350.091908,0.1244,57626.74119,66.4,not explained,,
+near-miss,q00514,HIP42333,1697.757289,3.5274,57498.04117,65.8,not reproduced,no line at the catalogue position,
+near-miss,q00515,HIP64924,1703.797263,-2.7983,57459.32437,65.4,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00516,HIP19832,1437.491619,-0.0985,57454.95446,65.0,shown to be local,D1,D1: OFF scan margin over controls scan 1: +174.8
+near-miss,q00517,HIP3092,1646.124649,0.4018,57557.56880,64.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00518,HIP40774,2210.212087,3.8457,57837.97078,63.1,not a steady tone,D4: half or more of the power in one sample,D4: 54% of the track's power is in one time sample
+near-miss,q00519,HIP96895,2230.201616,3.5300,57858.49067,63.0,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00520,HIP87579,1650.800488,-1.0543,57450.67191,62.3,not reproduced,no line at the catalogue position,
+near-miss,q00521,HIP104139,2431.356739,0.8514,57669.13146,61.5,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00522,HIP12843,2272.465999,1.0045,57838.80541,61.4,shown to be local,D1,D1: stacked OFF 13.0 above control maximum 11.9
+near-miss,q00523,HIP50341,2289.087763,1.1767,57726.46825,60.4,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00524,HIP42080,2500.180560,0.3827,57817.12972,59.7,not a steady tone,D4: half or more of the power in one sample,D4: 70% of the track's power is in one time sample
+near-miss,q00525,HIP60910,2413.866048,3.7596,57701.65025,58.5,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00526,HIP49841,2264.814648,2.0281,57718.54381,57.6,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00527,HIP12158,2202.404431,3.4439,57817.89616,57.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00528,Hip14729,2416.840188,-2.8508,57635.46079,57.0,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00529,HIP2422,1645.886574,0.2956,57401.92736,56.5,no public data,,
+near-miss,q00530,HIP42940,2249.560618,0.2774,57846.95721,56.4,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00531,HIP11783,2251.065894,2.3916,57817.82316,56.3,not a steady tone,D4: half or more of the power in one sample,D4: 54% of the track's power is in one time sample
+near-miss,q00532,HIP49127,1654.181451,0.0296,57464.18242,55.1,not explained,,
+near-miss,q00533,HIP35550,2272.530995,3.2813,57756.34017,53.7,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00534,HIP27918,1353.351242,2.3450,57470.03687,52.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00535,HIP8543,1657.014993,-0.1531,57928.65472,52.3,shown to be local,D1,D1: stacked OFF 36.6 above control maximum 31.2
+near-miss,q00536,HIP64797,1700.980925,3.2811,57406.59438,51.9,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00537,HIP91217,1708.524237,2.9461,57545.35711,51.4,not a steady tone,D4: nothing left without the strongest sample,D4: 66% of the track's power is in one time sample
+near-miss,q00538,HIP14445,1840.038225,0.0096,57992.45068,51.1,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 3 of 3 OFF scans (scan 1: S/N 184.6 at -6.3 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.016"
+near-miss,q00539,HIP28267,2246.489070,-0.4975,57835.02159,51.0,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00540,HIP51814,2413.985296,3.8649,57869.94944,50.6,not a steady tone,D4: half or more of the power in one sample,D4: 62% of the track's power is in one time sample
+near-miss,q00541,HIP40774,2272.876095,1.7315,57837.97078,50.0,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00542,HIP80644,2250.158726,0.8897,57841.37251,49.6,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00543,HIP12447,2251.405454,-2.6499,58016.42713,49.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00544,Hip14954,2737.145249,0.0383,57635.49294,48.7,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 1: S/N 13.1 at -8.2 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.038"
+near-miss,q00545,HIP19859,2205.004952,0.4114,57722.29558,48.7,shown to be local,D1,D1: a line at the candidate's drift within 300 Hz of the predicted place in 2 of 3 OFF scans (scan 3: S/N 42.3 at +16 Hz); chance of an unrelated line 0.005
+near-miss,q00546,HIP11048,2450.991336,2.8508,57813.89304,48.2,not a steady tone,D4: nothing left without the strongest sample,D4: 57% of the track's power is in one time sample
+near-miss,q00547,HIP28103,2282.431931,-2.2673,57906.71536,48.2,shown to be local,D1,D1: stacked OFF 26.7 above control maximum 13.0
+near-miss,q00548,HIP53767,1699.693192,2.5125,57458.19865,47.9,not explained,,
+near-miss,q00549,HIP79672,2289.088453,-1.1193,57809.47277,47.8,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00550,HIP76603,2270.200046,-0.8897,58013.99447,47.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00551,Hip62956,1457.983604,0.8514,57642.78642,47.4,shown to be local,D1,D1: a line at the candidate's drift within 300 Hz of the predicted place in 1 of 3 OFF scans (scan 1: S/N 38.3 at -219 Hz); chance of an unrelated line 0.030
+near-miss,q00552,HIP63742,2413.865625,-1.9324,58174.30669,47.3,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00553,HIP40774,1345.298608,0.7462,57677.55941,47.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00554,HIP11759,2246.492026,-3.5396,57817.79969,46.5,not a steady tone,D4: half or more of the power in one sample,D4: 97% of the track's power is in one time sample
+near-miss,q00555,HIP2,1895.023724,-1.0140,57573.60031,46.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00556,HIP49973,1541.561456,0.0861,57927.80509,46.4,shown to be local,D1,D1: stacked OFF 12.9 above control maximum 10.1
+near-miss,q00557,HIP38625,2252.983078,3.1378,57824.14631,46.2,not a steady tone,D4: nothing left without the strongest sample,D4: 59% of the track's power is in one time sample
+near-miss,q00558,HIP114622,1392.050662,2.4395,57752.85146,46.1,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00559,HIP91973,2289.111492,0.2105,57895.48869,46.1,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00560,HIP45688,2289.592431,2.5734,57665.69778,46.0,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 180 noise units at t = 255.6 s
+near-miss,q00561,HIP25486,2229.193348,2.9943,57817.97594,45.8,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00562,HIP37629,2243.893575,-3.1378,57810.16118,45.8,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00563,HIP77655,2280.800202,-0.1339,57868.27074,45.4,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 202 noise units at t = 73.0 s
+near-miss,q00564,HIP22044,2209.863816,-0.3635,57906.64395,45.2,not a steady tone,D4: nothing left without the strongest sample,D4: 80% of the track's power is in one time sample
+near-miss,q00565,HIP23941,2418.463433,-2.7838,57906.69931,45.0,not explained,,
+near-miss,q00566,HIP21556,1647.639341,-2.2465,57541.71425,44.7,not explained,,
+near-miss,q00567,HIP114622,1558.570337,-0.0191,57680.02935,44.5,not explained,,
+near-miss,q00568,HIP113409,2172.207547,2.7456,57929.40782,43.9,not explained,,
+near-miss,q00569,HIP85582,1708.453347,3.1825,57502.34912,43.4,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 3: S/N 25.1 at -29.6 Hz, where 1 of 46 control windows hold one as strong); chance of an unrelated line that close 0.029"
+near-miss,q00570,HIP116215,2237.436598,-0.1913,57858.58309,43.4,shown to be local,D1,D1: stacked OFF 19.2 above control maximum 11.3
+near-miss,q00571,HIP38117,1344.303740,-3.1761,57872.87502,43.4,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00572,HIP106106,2207.581770,-1.2532,57697.10562,43.3,not a steady tone,D4: half or more of the power in one sample,D4: 77% of the track's power is in one time sample
+near-miss,q00573,HIP11090,2450.980870,0.4688,57813.90147,43.0,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00574,HIP46580,2248.992328,2.3534,57671.64707,42.7,shown to be local,D1,D1: stacked OFF 54.8 above control maximum 13.4
+near-miss,q00575,HIP44984,2244.146839,-3.3961,57660.72770,42.4,not explained,,
+near-miss,q00576,HIP86620,1640.961583,1.5272,57405.81705,42.2,shown to be local,D1,"D1: the line followed from scan to scan reaches off-star scan 1 (S/N 97.7, drift -3.981 Hz/s, -63 Hz from where it was heading); chance of an unrelated line that close 0.030"
+near-miss,q00577,HIP37349,2275.401255,0.3540,57810.12811,41.6,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00578,HIP98792,1374.850532,3.2335,57972.17853,41.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00579,HIP75722,1833.507493,0.0191,58008.74828,41.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00580,HIP99427,2250.197636,2.5925,57885.37247,41.1,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00581,HIP7918,2229.392124,-3.8553,57884.67971,40.9,not a steady tone,D4: half or more of the power in one sample,D4: 98% of the track's power is in one time sample
+near-miss,q00582,HIP90979,2204.600710,3.7309,57825.52889,40.8,not a steady tone,D4: half or more of the power in one sample,D4: 93% of the track's power is in one time sample
+near-miss,q00583,HIP916,1351.439974,0.1182,57482.88380,40.8,shown to be local,D1,D1: stacked OFF 250.6 above control maximum 41.7
+near-miss,q00584,HIP69713,2229.427961,0.4828,57713.76824,40.7,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00585,HIP89962,2255.358451,-0.0096,57811.67497,40.6,shown to be local,D1,D1: stacked OFF 19.6 above control maximum 10.4
+near-miss,q00586,HIP73996,2465.786462,2.0281,57753.61110,39.9,shown to be local,D1,D1: stacked OFF 27.7 above control maximum 14.4
+near-miss,q00587,HIP84616,2266.870916,1.1384,57720.72627,39.8,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00588,HIP61099,2410.029249,0.0191,57718.58502,39.7,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00589,HIP53824,2295.004766,-3.1952,57756.38252,39.6,not reproduced,no line at the catalogue position,
+near-miss,q00590,HIP86742,1708.522371,3.1333,57513.34600,38.6,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00591,HIP44001,1344.373159,0.2105,57749.47183,38.5,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00592,HIP76603,2262.213719,1.6550,58013.99447,38.5,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00593,HIP56997,1699.935222,3.8919,57476.32700,38.4,shown to be local,D1,D1: a line at the candidate's drift within 1000 Hz of the predicted place in 1 of 3 OFF scans (scan 3: S/N 9.0 at +772 Hz); chance of an unrelated line 0.030
+near-miss,q00594,HIP83591,1594.026649,0.5518,57509.33748,38.3,shown to be local,D1,D1: stacked OFF 23.0 above control maximum 12.0
+near-miss,q00595,Gj412b,2289.653142,0.1722,57656.68748,38.3,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00596,HIP55705,2266.844178,1.0523,57810.26576,38.2,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00597,HIP108782,2187.396626,-0.0096,58223.68297,38.1,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 1: S/N 64.8 at +3.7 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.031"
+near-miss,q00598,Hip103039,1153.650960,1.9229,57580.27785,38.0,not a steady tone,D4: half or more of the power in one sample,D4: 83% of the track's power is in one time sample
+near-miss,q00599,HIP11783,2491.804507,1.2819,57817.81534,37.6,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00600,GJ380,1155.757831,3.1825,57535.96528,37.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00601,HIP76603,2272.862365,-3.8553,58013.99447,37.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00602,HIP26505,2505.409412,-0.8419,57764.25397,37.4,not a steady tone,D4: nothing left without the strongest sample,D4: 87% of the track's power is in one time sample
+near-miss,q00603,HIP10670,1984.194181,1.4254,57723.09647,37.4,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00604,HIP19990,2285.020233,1.6741,57727.18932,37.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 301 noise units at t = 219.0 s
+near-miss,q00605,HIP54651,2266.762469,1.9133,57793.25981,37.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00606,Hip42080,1427.765045,-0.0383,57598.78222,37.0,not a steady tone,D4: half or more of the power in one sample,D4: 67% of the track's power is in one time sample
+near-miss,q00607,HIP76603,2207.301616,-1.9994,58013.98681,37.0,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00608,HIP100064,1155.111393,-1.9509,57529.38579,36.9,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00609,Hip115331,1700.104572,-2.5064,57622.35792,36.4,not explained,,
+near-miss,q00610,HIP2,1356.606186,-1.5115,57573.60031,36.4,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00611,Hip56199,1701.104941,-0.9949,57626.80763,36.2,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00612,HIP46509,1107.998779,3.4726,57677.60066,36.1,not reproduced,no line at the catalogue position,
+near-miss,q00613,HIP47701,1895.627121,-0.1244,57695.58598,36.1,shown to be local,D7,"D7: the same line toward other stars in 2 of 4 scans within half an hour (e.g. HIP47741, +24 min: +12.4 over controls at -67 Hz); chance of unrelated lines 0.001"
+near-miss,q00614,HIP86282,2500.372299,-0.0383,57901.33098,36.0,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00615,HIP41211,2416.997776,-1.0523,57838.06803,36.0,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00616,HIP71075,2244.853512,2.5734,57849.38059,36.0,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00617,HIP26624,2149.315273,3.8936,57869.89801,35.8,shown to be local,D1,D1: stacked OFF 167.8 above control maximum 23.6
+near-miss,q00618,HIP11569,2256.200879,-0.8801,57813.93434,35.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 201 noise units at t = 219.0 s
+near-miss,q00619,HIP27913,2225.578792,2.3725,57661.54385,35.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00620,HIP7918,2482.135790,3.7214,57884.68747,35.6,not a steady tone,D4: half or more of the power in one sample,D4: 67% of the track's power is in one time sample
+near-miss,q00621,HIP10416,2266.859226,-0.4114,57669.26073,35.3,not a steady tone,D4: half or more of the power in one sample,D4: 81% of the track's power is in one time sample
+near-miss,q00622,HIP70956,2264.202490,1.4828,57849.34699,35.3,not explained,,
+near-miss,q00623,HIP60965,2252.781038,2.0281,57701.67479,35.2,not a steady tone,D4: nothing left without the strongest sample,D4: 66% of the track's power is in one time sample
+near-miss,q00624,HIP24786,2227.485885,3.5109,57817.94461,35.2,not a steady tone,D4: half or more of the power in one sample,D4: 59% of the track's power is in one time sample
+near-miss,q00625,HIP40671,1700.264116,2.5543,57677.52459,35.0,not explained,,
+near-miss,q00626,HIP21556,1708.058443,-3.1924,57543.77774,34.9,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 211 noise units at t = 251.8 s
+near-miss,q00627,HIP1242,1696.644285,3.8649,57573.56166,34.7,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00628,HIP42333,1702.017755,3.2417,57498.04117,34.6,not a steady tone,D4: half or more of the power in one sample,D4: 51% of the track's power is in one time sample
+near-miss,q00629,HIP11569,1708.157658,1.5568,57511.77148,34.3,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00630,HIP90959,2287.751989,2.8604,57815.67300,34.1,not a steady tone,D4: half or more of the power in one sample,D4: 76% of the track's power is in one time sample
+near-miss,q00631,HIP22044,2727.500383,2.3821,57906.65177,34.0,shown to be local,D1,"D1: the line followed from scan to scan reaches off-star scan 5 (S/N 1076.6, drift +0.010 Hz/s, +135 Hz from where it was heading); chance of an unrelated line that close 0.029"
+near-miss,q00632,HIP102851,2253.914115,-2.5638,57715.91797,33.9,not a steady tone,D4: half or more of the power in one sample,D4: 58% of the track's power is in one time sample
+near-miss,q00633,HIP112190,2172.606248,2.5256,57731.95001,33.9,shown to be local,D1,D1: OFF scan margin over controls scan 1: +21.6
+near-miss,q00634,Hip109388,1530.513173,0.0096,57580.39027,33.8,not explained,,
+near-miss,q00635,HIP38082,2286.266649,-3.7118,57824.06115,33.7,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00636,HIP96441,2789.073456,0.4401,57858.48266,33.5,shown to be local,D1,D1: stacked OFF 21.8 above control maximum 17.0
+near-miss,q00637,Hip19076,2403.376686,3.4248,57627.58134,33.4,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00638,HIP94346,1344.401364,-2.4203,57754.85238,33.4,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00639,HIP41307,2149.498973,3.3100,57838.09981,33.3,shown to be local,D1,D1: OFF scan margin over controls scan 1: +36.7
+near-miss,q00640,HIP72603,2201.009162,-3.6448,57732.67478,33.2,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 177 noise units at t = 73.0 s
+near-miss,q00641,HIP80093,2227.996161,0.8419,57715.84036,33.2,shown to be local,D1,D1: stacked OFF 22.2 above control maximum 12.4
+near-miss,q00642,Hip104139,1698.232650,-2.2194,57580.35025,33.2,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00643,HIP18324,2208.388942,0.1913,57707.28081,33.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00644,HIP59280,2229.305179,3.8840,57660.76925,33.0,not reproduced,no line at the catalogue position,
+near-miss,q00645,HIP59496,1492.610386,2.2465,57548.97104,33.0,not a steady tone,D4: half or more of the power in one sample,D4: 70% of the track's power is in one time sample
+near-miss,q00646,HIP26624,2172.709023,2.5543,57869.89801,32.8,not a steady tone,D4: nothing left without the strongest sample,D4: 55% of the track's power is in one time sample
+near-miss,q00647,HIP20641,2254.395519,-3.2430,57727.30248,32.6,not a steady tone,D4: half or more of the power in one sample,D4: 82% of the track's power is in one time sample
+near-miss,q00648,HIP12530,2229.504416,2.7934,58016.46600,32.6,not a steady tone,D4: half or more of the power in one sample,D4: 61% of the track's power is in one time sample
+near-miss,q00649,HIP116727,2243.856418,3.0708,57826.68898,32.5,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00650,Hip62956,1125.337439,0.1722,57642.78642,32.3,shown to be local,D1,D1: stacked OFF 36.6 above control maximum 11.6
+near-miss,q00651,HIP42172,1374.903442,-3.7022,57872.95220,32.2,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00652,HIP27435,1708.452944,2.1677,57543.85164,32.1,not a steady tone,D4: nothing left without the strongest sample,D4: 82% of the track's power is in one time sample
+near-miss,q00653,HIP52469,2256.582020,-1.5880,57869.95782,31.8,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00654,HIP8051,2412.010655,3.1569,57899.77726,31.8,not a steady tone,D4: half or more of the power in one sample,D4: 82% of the track's power is in one time sample
+near-miss,q00655,HIP117795,2497.652251,0.4401,57838.73586,31.8,not a steady tone,D4: half or more of the power in one sample,D4: 91% of the track's power is in one time sample
+near-miss,q00656,HIP60994,2201.003426,3.6544,57701.69043,31.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 117 noise units at t = 273.8 s
+near-miss,q00657,HIP63742,2202.447853,-2.0090,58174.31440,31.6,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 117 noise units at t = 164.3 s
+near-miss,q00658,HIP88601,1655.869594,-2.9559,57446.66240,31.4,shown to be local,D1,D1: stacked OFF 147.4 above control maximum 13.2
+near-miss,q00659,HIP54872,1890.059132,3.6358,57517.13748,31.3,not a steady tone,D4: half or more of the power in one sample,D4: 64% of the track's power is in one time sample
+near-miss,q00660,Hip17420,1617.290366,2.1812,57585.61097,31.1,shown to be local,D1,D1: a line at the candidate's drift within 1000 Hz of the predicted place in 1 of 3 OFF scans (scan 1: S/N 10.2 at +786 Hz); chance of an unrelated line 0.030
+near-miss,q00661,HIP87108,1415.847079,0.0690,57450.61852,31.0,shown to be local,D6,"D6: 3 lines of one scan (q00661 companion 1391.8497 MHz, q00661, q00661 companion 1487.8393 MHz) sit at 58, 59, 62 x 24 MHz, each -108.00 ppm from nominal (spread 0.00 ppm): harmonics of one oscillator; chance of an unrelated match 0.0136"
+near-miss,q00662,HIP12447,2276.489132,0.4209,58016.42713,30.9,shown to be local,D1,D1: stacked OFF 21.8 above control maximum 10.6
+near-miss,q00663,HIP80331,2494.235089,3.0326,57697.78890,30.9,not a steady tone,D4: nothing left without the strongest sample,D4: 60% of the track's power is in one time sample
+near-miss,q00664,HIP27207,2495.518735,-0.0574,57835.01227,30.9,not a steady tone,D4: half or more of the power in one sample,D4: 56% of the track's power is in one time sample
+near-miss,q00665,HIP51248,1695.063300,2.7194,57536.04084,30.9,not a steady tone,D4: half or more of the power in one sample,D4: 50% of the track's power is in one time sample
+near-miss,q00666,HIP80093,2234.327920,0.2870,57715.84036,30.8,shown to be local,D1,D1: stacked OFF 87.6 above control maximum 11.4
+near-miss,q00667,HIP83591,1606.205405,-1.8228,57509.33748,30.8,not explained,,
+near-miss,q00668,HIP47701,2500.481652,-3.3004,57695.56920,30.5,not a steady tone,D4: nothing left without the strongest sample,D4: 89% of the track's power is in one time sample
+near-miss,q00669,Hip42940,1697.086728,2.8412,57598.85286,30.4,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00670,HIP92283,1626.340239,-2.8699,57660.05117,30.2,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00671,HIP36357,2051.616731,0.1052,57807.06872,30.2,not explained,,
+near-miss,q00672,HIP6706,2438.515312,-0.1818,57899.66388,30.1,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00673,HIP37766,1847.864181,0.5813,57447.17936,30.0,shown to be local,D6,"D6: 2 lines of one scan (q00510, q00673) sit at 69, 77 x 24 MHz, each -73.60 ppm from nominal (spread 0.10 ppm): harmonics of one oscillator; chance of an unrelated match 0.0111"
+near-miss,q00674,HIP25486,2149.100064,3.3196,57817.97594,29.7,shown to be local,D1,D1: stacked OFF 56.5 above control maximum 18.0
+near-miss,q00675,HIP99452,1378.020316,-1.6263,58210.40204,29.7,not a steady tone,D4: half or more of the power in one sample,D4: 67% of the track's power is in one time sample
+near-miss,q00676,HIP38956,2416.018507,0.5644,57817.06219,29.6,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00677,HIP25578,1642.323872,2.0987,57477.96285,29.6,not explained,,
+near-miss,q00678,HIP58576,2215.480962,2.7743,57692.67221,29.6,not a steady tone,D4: half or more of the power in one sample,D4: 52% of the track's power is in one time sample
+near-miss,q00679,HIP102488,1156.618999,3.5077,57514.44319,29.5,not a steady tone,D4: nothing left without the strongest sample,D4: 81% of the track's power is in one time sample
+near-miss,q00680,HIP13258,1648.343405,3.1825,57476.82678,29.4,not explained,,
+near-miss,q00681,HIP55705,2263.851545,3.3196,57810.26576,29.4,not a steady tone,D4: half or more of the power in one sample,D4: 60% of the track's power is in one time sample
+near-miss,q00682,HIP42748,1626.381126,-3.2239,57749.36716,29.2,not a steady tone,D4: half or more of the power in one sample,D4: 93% of the track's power is in one time sample
+near-miss,q00683,GJ702A,2212.882968,0.3348,57689.94390,29.1,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00684,HIP32851,1989.829515,-0.0191,57722.38747,29.0,not explained,,
+near-miss,q00685,HIP79672,1607.049053,-0.0197,57444.52860,29.0,shown to be local,D1,D1: stacked OFF 58.4 above control maximum 11.3
+near-miss,q00686,HIP21556,1617.433854,3.1924,57543.77774,29.0,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00687,HIP117712,1156.471934,-3.5779,57752.85988,28.9,not a steady tone,D4: nothing left without the strongest sample,D4: 88% of the track's power is in one time sample
+near-miss,q00688,HIP24874,2173.233960,-2.6882,57817.96802,28.8,shown to be local,D1,"D1: the line followed from scan to scan reaches off-star scan 5 (S/N 44.5, drift -3.607 Hz/s, -9 Hz from where it was heading); chance of an unrelated line that close 0.033"
+near-miss,q00689,HIP100064,2186.149106,0.1339,58223.53876,28.8,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 3 of 3 OFF scans (scan 1: S/N 134.9 at -6.1 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.013"
+near-miss,q00690,HIP58576,2274.317125,2.8317,57692.68010,28.8,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00691,HIP42172,1640.618213,-2.8030,57872.96812,28.7,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 2367 noise units at t = 164.3 s
+near-miss,q00692,HIP75809,1647.864962,-3.2813,58064.76737,28.6,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00693,HIP105932,2253.915914,-1.1384,57731.93337,28.5,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00694,HIP80093,2246.455632,-0.4401,57715.82458,28.5,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00695,HIP104139,1617.233603,0.3157,57574.40047,28.4,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00696,HIP40693,2245.755824,2.7743,57835.10638,28.2,not a steady tone,D4: nothing left without the strongest sample,D4: 72% of the track's power is in one time sample
+near-miss,q00697,Hip31167,1647.645107,1.0810,57645.60065,28.2,not a steady tone,D4: half or more of the power in one sample,D4: 66% of the track's power is in one time sample
+near-miss,q00698,Hip104139,1695.302468,3.0134,57580.35025,28.1,not a steady tone,D4: nothing left without the strongest sample,D4: 58% of the track's power is in one time sample
+near-miss,q00699,HIP88574,1511.876035,-2.0593,57446.62456,28.0,shown to be local,D1,D1: stacked OFF 49.6 above control maximum 12.6
+near-miss,q00700,HIP64725,2226.315825,0.2870,58174.35854,27.9,shown to be local,D1,D1: stacked OFF 31.5 above control maximum 13.3
+near-miss,q00701,HIP53486,2201.664893,0.0383,57751.49485,27.9,shown to be local,D1,D1: stacked OFF 63.6 above control maximum 10.7
+near-miss,q00702,Hip42438,1705.139281,0.4783,57598.82083,27.8,not a steady tone,D4: half or more of the power in one sample,D4: 100% of the track's power is in one time sample
+near-miss,q00703,HIP10723,2172.544385,3.8840,57723.13764,27.8,shown to be local,D1,D1: OFF scan margin over controls scan 3: +1.8
+near-miss,q00704,HIP100064,1342.282239,2.4238,57529.38579,27.8,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00705,HIP76375,2254.303901,-1.5075,57714.76009,27.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 126 noise units at t = 36.0 s
+near-miss,q00706,HIP103800,2612.090441,-0.0383,57691.02581,27.6,not explained,,
+near-miss,q00707,HIP15919,2258.417228,-0.0765,57661.46275,27.5,shown to be local,D2,"D2: a tooth of a comb of stronger lines: 3 lines at least 10 times stronger, of the same drift, sit at whole multiples of 2.048031 MHz (2.048 MHz (2^11 kHz)) from it in its scan (strongest S/N 55742), and are there off the star too"
+near-miss,q00708,HIP90979,2173.377542,-3.3770,57825.52097,27.5,shown to be local,D1,D1: a line at the candidate's drift within 1000 Hz of the predicted place in 1 of 3 OFF scans (scan 1: S/N 43.2 at -579 Hz); chance of an unrelated line 0.030
+near-miss,q00709,Hip75761,1699.856197,3.7309,57598.05711,27.4,not explained,,
+near-miss,q00710,HIP37349,1459.501137,-0.0099,57446.15803,27.3,shown to be local,D1,D1: stacked OFF 22.7 above control maximum 20.8
+near-miss,q00711,Gj280,2173.198896,-3.6735,57635.61615,27.3,shown to be local,D1,D1: stacked OFF 43.2 above control maximum 13.5
+near-miss,q00712,HIP7339,2251.207681,-0.4592,57879.77242,27.2,shown to be local,D1,D1: stacked OFF 105.0 above control maximum 11.7
+near-miss,q00713,HIP7535,2212.668300,-1.7698,57899.70419,27.2,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+near-miss,q00714,HIP36357,2441.189698,1.7507,57807.06066,27.2,not a steady tone,D4: nothing left without the strongest sample,D4: 60% of the track's power is in one time sample
+near-miss,q00715,HIP6917,2438.359534,0.2009,57899.67980,27.2,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00716,HIP916,1643.747093,-0.0788,57482.87615,27.0,shown to be local,D1,D1: stacked OFF 39.4 above control maximum 11.6
+near-miss,q00717,Hip42220,1633.197548,3.1665,57598.80535,26.9,not explained,,
+near-miss,q00718,HIP104139,2438.970728,-2.3629,57669.11579,26.9,not a steady tone,D4: half or more of the power in one sample,D4: 97% of the track's power is in one time sample
+near-miss,q00719,Hip116971,2234.531939,3.6927,57608.40128,26.8,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00720,HIP69414,1485.001684,-0.2266,57508.19847,26.8,shown to be local,D7,"D7: the same line toward other stars in 1 of 5 scans within half an hour (e.g. HIP68682, -12 min: +3.6 over controls at -255 Hz); chance of unrelated lines 0.049"
+near-miss,q00721,HIP59496,1642.016200,-0.1971,57548.97927,26.8,not a steady tone,D4: nothing left without the strongest sample,"D4: nothing is left of the track without its strongest time sample (S/N 6.64 on the whole scan, 3.04 without it, against 3.31 in its control windows): a flash"
+near-miss,q00722,HIP52469,2250.438021,-3.0134,57869.95782,26.7,not a steady tone,D4: nothing left without the strongest sample,D4: 100% of the track's power is in one time sample
+near-miss,q00723,HIP82817,2274.505620,3.1282,58019.00978,26.7,not a steady tone,D4: nothing left without the strongest sample,D4: 57% of the track's power is in one time sample
+near-miss,q00724,HIP29432,1110.995979,-0.2583,57886.90606,26.7,shown to be local,D1,D1: a line at the candidate's drift within 300 Hz of the predicted place in 1 of 3 OFF scans (scan 1: S/N 34.4 at +95 Hz); chance of an unrelated line 0.030
+near-miss,q00725,Hip56630,1617.279120,3.8553,57626.83264,26.6,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00726,HIP13402,1112.111837,-0.0690,57541.70550,26.5,shown to be local,D1,D1: OFF scan margin over controls scan 1: +1.5
+near-miss,q00727,HIP14293,2224.463074,3.4822,57992.41979,26.5,not a steady tone,D4: half or more of the power in one sample,D4: 63% of the track's power is in one time sample
+near-miss,q00728,HIP92549,1847.798990,-2.0389,57445.68073,26.4,shown to be local,D1,D1: stacked OFF 125.8 above control maximum 20.7
+near-miss,q00729,HIP12706,2248.864690,2.6308,57824.84271,26.3,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 282 noise units at t = 255.6 s
+near-miss,q00730,HIP50485,2412.999361,-0.7175,57927.91406,26.3,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00731,HIP59608,1700.897924,-3.8722,57454.37356,26.3,not explained,,
+near-miss,q00732,HIP37349,2272.467399,0.6410,57810.12811,26.3,not a steady tone,D4: half or more of the power in one sample,D4: 58% of the track's power is in one time sample
+near-miss,q00733,HIP114622,1345.805425,-1.0045,57803.82799,26.2,not a steady tone,D4: half or more of the power in one sample,D4: 96% of the track's power is in one time sample
+near-miss,q00734,HIP19859,2216.989716,0.5453,57722.29558,26.2,shown to be local,D1,D1: stacked OFF 48.7 above control maximum 11.7
+near-miss,q00735,HIP75722,2214.909529,3.7596,58008.74828,26.1,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00736,Hip42438,1629.801067,0.2105,57598.83631,26.1,shown to be local,D1,D1: stacked OFF 1023.0 above control maximum 11.6
+near-miss,q00737,HIP86036,1104.409902,-0.6697,57683.86056,26.1,not a steady tone,D4: nothing left without the strongest sample,D4: 97% of the track's power is in one time sample
+near-miss,q00738,HIP41307,2152.428660,3.3196,57838.09981,26.1,shown to be local,D1,D1: stacked OFF 43.7 above control maximum 39.5
+near-miss,q00739,HIP73457,1839.797231,-0.6897,57477.38926,26.0,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00740,HIP104139,1626.656880,-3.5779,57574.40047,26.0,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00741,HIP117712,1437.170992,-3.3770,57752.85988,26.0,not a steady tone,D4: nothing left without the strongest sample,D4: 84% of the track's power is in one time sample
+near-miss,q00742,HIP9487,2798.956186,-0.0096,57900.65042,25.9,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 2 of 3 OFF scans (scan 3: S/N 11.0 at +4.3 Hz, where 5 of 46 control windows hold one as strong); chance of an unrelated line that close 0.032"
+near-miss,q00743,HIP85365,1823.556038,-0.0191,57915.29441,25.9,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 3 of 3 OFF scans (scan 5: S/N 81.6 at +2.0 Hz, where 2 of 46 control windows hold one as strong); chance of an unrelated line that close 0.007"
+near-miss,q00744,HIP116727,2263.796929,-1.4063,57826.68106,25.8,not reproduced,no line; a strong burst in the cutout,D4: no tone at the catalogue position; the scan holds a burst of 460 noise units at t = 73.0 s
+near-miss,q00745,Hip54426,1489.730517,2.9656,57591.88878,25.8,not a steady tone,D4: half or more of the power in one sample,D4: 55% of the track's power is in one time sample
+near-miss,q00746,GJ380,1158.686762,-2.7391,57535.96528,25.8,not a steady tone,D4: nothing left without the strongest sample,D4: 98% of the track's power is in one time sample
+near-miss,q00747,HIP17414,2251.378402,2.9369,57668.43897,25.7,not a steady tone,D4: half or more of the power in one sample,D4: 77% of the track's power is in one time sample
+near-miss,q00748,HIP17378,2282.540856,-2.4108,57668.36648,25.7,shown to be local,D1,D1: stacked OFF 52.1 above control maximum 12.9
+near-miss,q00749,HIP10644,1929.074878,0.0765,57723.08792,25.7,shown to be local,D7,"D7: the same line toward other stars in 1 of 4 scans within half an hour (e.g. HIP110870, -9 min: +1.5 over controls at +193 Hz); chance of unrelated lines 0.039"
+near-miss,q00750,Hip17496,1146.974229,0.2774,57592.57213,25.7,not explained,,
+near-miss,q00751,HIP90959,2286.469007,3.3483,57815.67300,25.7,not a steady tone,D4: nothing left without the strongest sample,D4: 84% of the track's power is in one time sample
+near-miss,q00752,HIP19859,2214.944730,0.5453,57722.29558,25.6,shown to be local,D1,D1: stacked OFF 24.2 above control maximum 12.0
+near-miss,q00753,HIP21029,2500.146929,-0.4783,57740.25514,25.5,not a steady tone,D4: half or more of the power in one sample,D4: 75% of the track's power is in one time sample
+near-miss,q00754,HIP26505,2488.034785,-3.7788,57764.24612,25.5,not a steady tone,D4: half or more of the power in one sample,D4: 99% of the track's power is in one time sample
+near-miss,q00755,HIP60965,2248.439268,2.8891,57701.68264,25.4,not a steady tone,D4: half or more of the power in one sample,D4: 53% of the track's power is in one time sample
+near-miss,q00756,HIP58576,2286.401617,2.3534,57692.68800,25.2,not explained,,
+near-miss,q00757,HIP45688,2491.734898,-1.1384,57665.69778,25.2,not a steady tone,D4: nothing left without the strongest sample,D4: 61% of the track's power is in one time sample
+near-miss,q00758,HIP96895,1646.293117,3.4631,57755.87741,25.2,not a steady tone,D4: nothing left without the strongest sample,D4: 96% of the track's power is in one time sample
+near-miss,q00759,HIP22498,1631.731363,2.2768,57927.70122,25.2,not explained,,
+near-miss,q00760,HIP19990,1648.843732,3.8033,57445.05336,25.1,not explained,,
+near-miss,q00761,HIP5938,2273.464201,-3.0421,57866.72208,25.1,not a steady tone,D4: nothing left without the strongest sample,D4: 72% of the track's power is in one time sample
+near-miss,q00762,Hip14150,2229.488098,-1.6933,57655.45953,25.0,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+near-miss,q00763,HIP113368,1592.164103,0.0394,57400.86461,28.3,no public data,,
+near-miss,q00764,HIP93805,1868.471764,0.0197,57504.43594,84.0,shown to be local,D1,D1: stacked OFF 458.9 above control maximum 430.6
+near-miss,q00765,HIP93805,1868.345635,0.0197,57504.44353,37.8,shown to be local,D1,D1: stacked OFF 313.6 above control maximum 278.1
+near-miss,q00766,HIP93805,1974.317163,-0.0788,57504.43594,99.5,not explained,,
+near-miss,q00767,HIP93805,1974.325165,-0.0690,57504.43594,82.0,shown to be local,D8,"D8: its companion at 1974.349164 MHz, which rises and falls with it, is itself closed: D1: the line followed from scan to scan reaches off-star scan 1 (S/N 12.6, drift +0.049 Hz/s, -6 Hz from where it was heading); chance of an unrelated line that close 0.036"
+near-miss,q00768,HIP93805,2191.799957,-0.0788,57504.43594,26.2,shown to be local,D1,D1: stacked OFF 22.3 above control maximum 11.7
+near-miss,q00769,HIP93805,1868.036824,0.0197,57504.44353,82.0,shown to be local,D1,"D1: a line of S/N 8 or more at the predicted place in 3 of 3 OFF scans (scan 1: S/N 73.2 at -6.0 Hz, where 5 of 46 control windows hold one as strong); chance of an unrelated line that close 0.019"
+near-miss,q00770,HIP93805,2073.158720,0.0394,57504.44353,29.5,shown to be local,D1,"D1: the line followed from scan to scan reaches off-star scan 3 (S/N 34.8, drift -0.049 Hz/s, -1 Hz from where it was heading); chance of an unrelated line that close 0.034"
+near-miss,q00771,HIP56445,2253.862141,3.4631,57908.90361,34.2,not a steady tone,D4: half or more of the power in one sample,D4: 57% of the track's power is in one time sample
+flagged,f001,HIP109427,1554.807010,0.0096,57574.45634,24.9,shown to be local,D7,"D7: the same line toward other stars in 5 of 5 scans within half an hour (e.g. HIP108550, -6 min: +157.6 over controls at +0 Hz); chance of unrelated lines 0.000"
+flagged,f002,HIP109427,1560.002921,-0.0096,57574.45634,78.0,not explained,,
+flagged,f003,HIP109427,1559.670947,-0.0096,57580.41418,22.2,not explained,,
+flagged,f004,HIP17420,1691.080688,0.0000,57585.60308,91.3,shown to be local,D8,"D8: its companion at 1691.036311 MHz, which rises and falls with it, is itself closed: D1: a line at the candidate's drift within 300 Hz of the predicted place in 2 of 3 OFF scans (scan 5: S/N 62.1 at -285 Hz); chance of an unrelated line 0.045; D1: a line of S/N 8 or more at the predicted place in 1 of 3 OFF scans (scan 5: S/N 9.4 at -2.8 Hz, where 8 of 46 control windows hold one as strong); chance of an unrelated line that close 0.041"
+flagged,f005,HIP3998,1559.502410,0.0191,57585.55220,21.6,shown to be local,D1,"D1: the line followed from scan to scan reaches off-star scan 1 (S/N 13.6, drift +0.019 Hz/s, -1 Hz from where it was heading); chance of an unrelated line that close 0.035"
+flagged,f006,HIP100064,1562.507159,0.0099,57529.38579,36.9,shown to be local,D1,D1: stacked OFF 15.3 above control maximum 10.2
+flagged,f007,HIP100064,1560.944652,0.0099,57529.38579,11.3,shown to be local,D9,D9: the line at the event's telescope frequency stands out in 10 of 108 scans of other stars within 62 h of the event (window +-50 Hz); 7 of 7150 other windows of the same spectra do as well; chance 0.0034
+flagged,f008,HIP113409,1684.933736,-0.0296,57530.53902,57.6,shown to be local,D1,D1: stacked OFF 17.5 above control maximum 13.5
+flagged,f009,HIP113409,1693.935685,-0.0197,57530.53902,66.3,shown to be local,D1,D1: stacked OFF 17.9 above control maximum 10.5
+flagged,f010,HIP113409,1694.072479,-0.0197,57530.53902,61.9,shown to be local,D1,D1: stacked OFF 19.7 above control maximum 10.0
+flagged,f011,HIP1444,1437.505488,-0.0690,57522.64080,26.4,shown to be local,D1,D1: stacked OFF 17.8 above control maximum 10.8
+flagged,f012,HIP18280,1597.373478,-0.0394,57543.74476,45.5,shown to be local,D1,D1: stacked OFF 24.0 above control maximum 10.8
+flagged,f013,HIP114233,1554.807009,0.0099,57544.54634,28.7,shown to be local,D1,D1: stacked OFF 76.0 above control maximum 10.9
+flagged,f014,HIP68469,1682.183692,0.0197,57543.17679,84.0,shown to be local,D1,D1: stacked OFF 27.9 above control maximum 11.0
+flagged,f015,HIP68469,1556.852337,0.0099,57543.17679,20.5,shown to be local,D1,D1: stacked OFF 54.2 above control maximum 10.1
+flagged,f016,HIP68469,1555.837000,-0.0099,57543.17679,13.0,shown to be local,D1,D1: stacked OFF 31.3 above control maximum 10.2
+flagged,f017,HIP68469,1554.683957,0.0099,57543.17679,18.8,shown to be local,D1,D1: stacked OFF 25.5 above control maximum 10.9
+flagged,f018,HIP29432,1556.346387,0.0191,57886.89817,10.1,not explained,,
+flagged,f019,HIP42173,1538.712228,0.0096,57750.20174,13.0,not explained,,
+flagged,f020,HIP69414,1555.180985,0.0096,57955.09222,67.0,shown to be local,D1,D1: stacked OFF 40.8 above control maximum 10.8
+flagged,f021,HIP44722,1533.333781,-0.0099,57515.97242,23.1,shown to be local,D1,D1: stacked OFF 81.5 above control maximum 14.7
+flagged,f022,HIP54677,1439.067720,-0.0394,57517.10172,24.0,shown to be local,D1,D1: stacked OFF 12.4 above control maximum 11.2
+flagged,f023,HIP99572,1449.986370,0.0099,57514.47037,20.9,shown to be local,D1,D1: stacked OFF 18.6 above control maximum 11.2
+flagged,f024,HIP54677,1435.942708,-0.0394,57517.10172,18.8,shown to be local,D9,D9: the line at the event's telescope frequency stands out in 11 of 30 scans of other stars within 11 h of the event (window +-50 Hz); 0 of 7150 other windows of the same spectra do as well; chance 0.00042
+flagged,f025,HIP56802,1595.883387,-0.1872,57522.15274,10.9,shown to be local,D1,D1: stacked OFF 41.1 above control maximum 16.7
+flagged,f026,HIP116758,1573.371767,-0.3744,57516.65424,10.1,shown to be local,D1,D1: stacked OFF 12.5 above control maximum 11.3
+flagged,f027,HIP100064,1595.877668,-0.4237,57529.38579,10.2,shown to be local,D9,D9: the line at the event's telescope frequency stands out in 43 of 54 scans of other stars within 27 h of the event (window +-2000 Hz); 0 of 174 other windows of the same spectra do as well; chance 0.017
+flagged,f028,HIP36827,1624.756392,0.5715,57446.09728,15.2,not a steady tone,D4: nothing left without the strongest sample,D4: 95% of the track's power is in one time sample
+flagged,f029,HIP1803,1625.861072,0.6010,57550.58451,15.7,not a steady tone,D4: nothing left without the strongest sample,D4: 99% of the track's power is in one time sample
+flagged,f030,HIP42438,1420.440795,-1.1193,57598.82083,13.8,not reproduced,no line at the catalogue position,
+flagged,f031,HIP14293,1420.325181,-1.2809,57523.75457,10.6,not reproduced,no line at the catalogue position,
+flagged,f032,HIP103039,1618.377831,-3.7979,57580.27001,11.9,not a steady tone,D4: nothing left without the strongest sample,D4: 71% of the track's power is in one time sample
+flagged,f033,HIP95501,2257.476725,0.0574,57852.55321,19.2,shown to be local,D1,D1: stacked OFF 20.0 above control maximum 18.1
+flagged,f034,HIP87108,2199.097440,3.3674,57907.37801,15.2,not explained,,

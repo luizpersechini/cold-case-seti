@@ -1,0 +1,958 @@
+%% Cold Case: re-examining near-miss hits and flagged events of the
+%% Breakthrough Listen nearby-star survey. AASTeX 6.3.1; pdflatex + bibtex.
+%% Numbers: paper/paper_numbers.py. Figures: paper/make_figures.py.
+%% Referee reports and responses: paper/REVIEW.md.
+\documentclass[twocolumn]{aastex631}
+
+\newcommand{\hzs}{Hz\,s$^{-1}$}
+\newcommand{\sn}{S/N}
+
+\shorttitle{Near-miss hits and flagged events of the BL 1327-star survey}
+\shortauthors{Persechini}
+
+\begin{document}
+
+\title{Cold Case: Re-examining 771 Near-miss Hits and 34 Flagged Events from the Breakthrough Listen 1327-star Survey Using Public Data}
+
+\author{Luiz Persechini}
+\affiliation{Independent researcher}
+%% \email{} % AUTHOR: fill in before submission
+
+\begin{abstract}
+Radio technosignature searches discard almost all of their detections with
+automatic filters, and the physical nature of an individual discarded
+detection is rarely examined. Using only public data, we re-measure 771
+near-miss hits from the Breakthrough Listen search of 1327 nearby stars with
+the Green Bank Telescope, chosen because they failed the survey's filter
+narrowly, and the 34 events flagged ``Requires follow up'' in the survey's
+public inspection table. Each case is measured again in the spectra of its
+six-scan cadence against about 46 control windows and is closed by coded
+rules that need direct evidence; the frequency band of a signal never closes
+a case. We find no candidate. Of the 771 hits, 131 are shown to be local,
+450 are single-sample bursts and not steady tones, 113 could not be
+reproduced, 5 are carriers with sidebands, 2 have no public data, and 70
+hits in 51 events are not explained. Of the 34 flagged events, 29 are
+explained, 19 of them as measurable off the source; the survey's authors had
+already rejected at least three of the 34 by cross-reference to other stars,
+and our measurements agree. Hidden synthetic signals rode on every download:
+the rules wrongly closed 4 of 918 recovered sky-only injections (0.4\%; 1.0\%
+if injections masked by real signals are counted) and caught 72\% of weak
+off-source leaks, but no injection drifts faster than 0.5\,\hzs, where three
+quarters of the cases lie. We describe a frequency-permutation statistic for
+the test of whether an event's line is seen toward other stars over days,
+which needs no assumption about scan independence; it explains three flagged
+events and shows that in crowded bands the test has little power. We also
+document that the released hit files carry the drift-rate sign error noted
+in the search software's documentation, characterize several interfering
+clocks, and describe one unexplained event, toward HIP\,36357 at
+2051.617\,MHz, whose frequency maps through the 240/221 transponder ratio to
+within 0.2\,kHz of 2228.000\,MHz. A local or orbital transmitter is its
+most likely origin. The code is public.
+\end{abstract}
+
+\keywords{Search for extraterrestrial intelligence (2127) --- Technosignatures (2128) --- Radio astronomy (1338) --- Astronomy data analysis (1858)}
+
+\section{Introduction} \label{sec:intro}
+
+Searches for narrowband radio technosignatures \citep{Tarter2001} produce
+detections in very large numbers, and nearly all of them are radio-frequency
+interference (RFI) from human technology. The Breakthrough Listen (BL)
+program \citep{Worden2017,Isaacson2017,MacMahon2018} copes with this at the
+Green Bank Telescope (GBT) by observing in cadences: three five-minute scans
+of the target (ON) alternate with three scans of other positions (OFF). A
+signal that is present in every ON scan and in no OFF scan is consistent
+with a source fixed on the sky at the target's position
+\citep{Enriquez2017,Price2020}. The \texttt{turboSETI} pipeline
+\citep{turboseti} applies this as a filter on its list of hits, and what
+survives is inspected by eye.
+
+The filter is conservative by design. In the form used for the nearby-star
+survey, a set of hits is discarded when any OFF hit lies within
+$\pm600$\,Hz of the first ON hit, whether or not the two have the same
+drift, and an event must be detected above threshold in every ON scan
+\citep{Price2020}. \citet{Price2020} discuss the limitations of this
+approach themselves, and its consequences for completeness have been
+measured by injection and recovery: \citet{Margot2023} find that a process
+imitating the BL pipeline recovers about 6\% of injected signals
+\citep[see also][]{Margot2021}, and \citet{Pinchuk2019} discuss how much of
+the band such blanking removes. The
+same pipeline, with variations, underlies later BL searches
+\citep[e.g.,][]{Gajjar2021,Choza2024}. Other work has re-searched the same
+archive with different detection algorithms
+\citep{Ma2023,Painter2025,JacobsonBell2025}.
+
+This paper asks a narrower question about individual detections. For a
+sample of hits that failed the filter narrowly, and for the events the
+survey flagged for follow-up, what is each one? The filter is deterministic
+and its decision can be reproduced from the hit tables; what is not recorded
+is what the discarded detection physically was. We re-measure each case in
+the public spectra and sort it into one of three classes: shown to be local
+(a measurement that a source fixed on the sky cannot produce, such as the
+same line with the telescope pointed elsewhere); shown not to be a steady
+narrowband tone; or not reproduced. A case in none of them stays open, which
+means only ``not explained by these checks''. A single observation can never
+confirm a signal, so the product is the record of why each case was closed,
+a short list of what was not, and measured error rates for the rules.
+
+The project is the work of one person with a large-language-model coding
+assistant on a desktop computer. It therefore leans on safeguards described
+in Section~\ref{sec:method}: rules applied by code, hidden test signals
+injected into every download, and cases with known answers. Before
+submission the manuscript was also put through two adversarial reviews
+against the code and the literature, which changed several conclusions; the
+reports and responses are in the repository. The re-examination found no
+candidate. Sections~\ref{sec:queue} and \ref{sec:followup} give the fate of
+the 771 hits and the 34 flagged events; Section~\ref{sec:probe} describes
+the statistic for the test over days; Sections~\ref{sec:emitters} and
+\ref{sec:hip36357} describe the interfering clocks met along the way and
+the one event we could not explain.
+
+\section{Data} \label{sec:data}
+
+\subsection{Hit tables and event tables}
+
+\citet{Price2020} searched 1327 nearby stars between 1.10 and 3.45\,GHz and
+released the products of the search \citep{PriceZenodo}. We use the
+\texttt{turboSETI} hit files for the GBT L band (1.10--1.90\,GHz, with a
+notch at 1.20--1.34\,GHz) and S band (1.80--2.80\,GHz, with a notch at
+2.30--2.36\,GHz): 47.3 million unique hits in 13,286 scans, after removing a
+duplicated copy of every scan. Each hit lists a frequency, a drift rate and
+a signal-to-noise ratio (\sn). Only the strongest hit within $\pm600$\,Hz is
+recorded \citep{Price2020}, so the absence of a catalogued hit is not the
+absence of a line; this limits every use we make of the hit tables as
+evidence of absence.
+
+The same release holds the table of events that the survey inspected by eye:
+6094 at the GBT (4522 at L band and 1572 at S band, the event groups of
+Table~4 of \citealt{Price2020}). The table has a label field. It is
+``None'' for 5363 events (88\%); 583 are labelled ``Hits in off'', 64
+``Plotting issue'', 50 ``Interesting but not ET'', and 34 ``Requires follow
+up'' (32 at L band and 2 at S band). We treat the label as a working
+annotation and not as the survey's final judgment: \citet{Price2020} report
+that every event group was inspected and that none survived, and their
+Appendix~A discusses and rejects, by cross-reference to similar signals
+toward other stars, at least three of the 34 (the events of their Figures
+7a--7c, toward HIP\,54677 at 1435.943 and 1439.068\,MHz and toward
+HIP\,100064 at 1595.878\,MHz). \citet{Painter2025} later reached the same
+verdict on the HIP\,54677 and HIP\,100064 signals.
+
+\subsection{A note on the sign of the drift rate} \label{sec:sign}
+
+In the released hit files the listed drift rate has the opposite sign to
+the motion of the line in the data: a line listed with a positive drift
+moves down in frequency from one scan to the next. The tables show this
+without raw data. We paired hits of the same line in two ON scans of one
+cadence (the first and third, or the third and fifth) and asked which sign
+of the listed drift predicts the second hit's frequency. Pairs were kept
+when the first hit had \sn\ of 20 or more, a drift between 0.05 and
+1\,\hzs, and a unique match within 1\,kHz. Of 1,129,865 pairs, the frequency
+of the second hit matched the prediction of the reversed sign in 1,024,573
+and that of the listed sign in 12,246; the rest matched neither. That is
+98.8\% of the decided pairs.
+
+The cause is documented. The \texttt{turboSETI}
+documentation\footnote{\url{https://github.com/UCBerkeleySETI/turbo_seti/blob/master/docs/find_event.rst}}
+notes that hit files produced before version 0.8.2 of the software and
+version 1.1.7 of \texttt{blimpy} (about mid-2019) recorded drift rates with
+the incorrect sign, to be flipped when events are built. The survey did so:
+in the released event table the drift rates have the opposite sign to the
+hit files in every one of 2809 entries we compared, so the survey's results
+are unaffected. The hit files themselves are not flagged, and the record
+does not state the software version. Anyone who extrapolates a hit to
+another scan from these files alone, as our pipeline first did
+(Section~\ref{sec:errors}), follows every drifting line the wrong way.
+\citet{Margot2023} report a similar sign reversal in the drift rates of
+\citet{Ma2023}, which derive from the same archive.
+
+\subsection{Spectra}
+
+The raw data are the public high-spectral-resolution filterbank products
+\citep{Lebofsky2019}: about 2.79\,Hz per channel and about 18\,s per time
+sample, 16 samples in a five-minute scan. One scan is about 15\,GB. The
+files are HDF5 with one storage chunk per coarse channel (2.9\,MHz) and time
+sample, and the archive honours HTTP range requests, so the pipeline reads
+only the chunks around a hit: about 60\,MB per scan. No complete file was
+downloaded.
+
+\section{Method} \label{sec:method}
+
+\subsection{Selection of cases} \label{sec:selection}
+
+From the hit tables we built tracks: a hit in an ON scan followed along its
+drift into the other five scans of its cadence. We selected tracks with a
+drift-consistent hit in only one or two of the three ON scans and no OFF hit
+on the track. Cuts kept tracks inside the receiver band and outside its
+notch, with $|{\rm drift}|<3.9$\,\hzs, with no hit toward any other target
+of the survey within about 1\,kHz, from scans that contribute at most 20
+such tracks, and with \sn\ of 25 or more. That gave 781 tracks. Nineteen
+were used in a pilot in which the first thresholds were set and are not
+counted further; 762 entered the queue. When the selection was repeated with
+the drift sign corrected (Section~\ref{sec:sign}), 740 of the 781 were
+selected either way, 41 dropped out (they were kept) and 9 were new and
+were added, for 771 cases toward 296 stars.
+
+In 697 of the 771 no OFF hit lies within 1.2\,kHz of the track at all; in 74
+one does, but off the track. Our 1.2\,kHz is the window of the current
+software and is twice the $\pm600$\,Hz the survey used, so the 697 are clean
+by a stricter standard than the survey's and failed only its requirement of
+a hit in every ON scan.
+
+The sample is not a random sample of the discarded hits, and two of the
+cuts shape the results. The median drift is 1.7\,\hzs; only 192 cases drift
+by 0.5\,\hzs\ or less. And the cut on hits toward other targets removes by
+construction the lines that the tables show toward other stars, so a later
+finding that the hit tables hold nothing near a queue case toward other
+stars is largely guaranteed and is not evidence.
+
+The 34 flagged events were entered separately, each at its strongest hit,
+and run through the same code unchanged. None of them is among the 771.
+
+\subsection{Forced measurement against control windows}
+
+All \sn\ values of this work are on one scale, which is not that of the hit
+tables. A cutout is divided by its bandpass (a running median along
+frequency), summed along a trial drift, and expressed as the deviation from
+the median of the summed spectrum in units of 1.4826 times its median
+absolute deviation. On this scale the HIP\,36357 line of
+Section~\ref{sec:hip36357} has \sn\ 75 and 134 where the hit table lists 17
+and 30.
+
+For each case the pipeline first finds the catalogued hit in the data (the
+seed): the strongest line within 50\,Hz of the catalogue position, plus the
+drift over one time sample, at either sign of the catalogue drift; every ON
+scan is searched and the strongest kept. It then measures every one of the
+six scans at the place predicted from the seed, whether or not the hit
+table lists a hit there. The measurement is the largest \sn\ over start
+frequencies within a tolerance of the predicted one (20\,Hz, growing with
+the time from the seed scan and with the drift) and over drifts within
+$\pm(0.05+0.25|d|)$\,\hzs\ of the seed's drift $d$. The same maximum is
+taken in 46 control windows of the same width at other frequencies of the
+cutout. A track is present in a scan when it exceeds the strongest control
+window by 1.5. The three OFF scans are also stacked. Taking the strongest
+control as the reference is conservative in crowded spectra, at the cost of
+missing lines there; that cost recurs throughout this paper.
+
+\subsection{Rules that close a case} \label{sec:rules}
+
+A case is closed by code when one of the kinds of evidence in
+Table~\ref{tab:rules} is found. The rules fall into three classes, and the
+distinction matters for what a closure means. Rules D1, D3, D5, D7 and D9
+show a line with the telescope pointed elsewhere, and D2 and D6 show the
+arithmetic of a human clock: these are evidence of a local origin. Rule D4
+shows that the catalogued hit is not a steady tone: its power lies in one
+18\,s sample. A source on the sky could in principle pulse, so D4 is not
+evidence of locality; it establishes that a de-Doppler search over a
+five-minute scan reported a short burst as a drifting tone. A case with no
+line at the catalogue position is ``not reproduced''.
+
+Where a rule depends on a coincidence, such as a line near the predicted
+place in an OFF scan, it closes the case only when the chance of an
+unrelated line doing the same is below 5\%, with that chance estimated from
+the same data and never taken below 1\% per scan. The allocation or
+occupancy of the band is never used to close a case.
+
+\begin{deluxetable*}{llp{11.5cm}}
+\tabletypesize{\footnotesize}
+\tablecaption{Evidence that closes a case \label{tab:rules}}
+\tablehead{\colhead{Rule} & \colhead{Evidence} & \colhead{Meaning}}
+\startdata
+D1 & Seen off the source & The line is measurable in the OFF scans: on its predicted track in two scans or in their stack; as a line of the same drift and \sn\ of 8 or more within 300\,Hz to 1\,kHz; or by following a line whose drift changes \\
+D2 & A comb at a round rate & Companion lines spaced by a round number of hertz \\
+D3 & Other stars, hit tables & The same frequency and drift toward two or more other stars in the hit tables \\
+D4 & A burst, not a tone & Half or more of the track's power is in one 18\,s sample, or nothing is left of the track without its strongest sample \\
+D5 & Another day & The line is back at the same topocentric frequency when the star was observed again \\
+D6 & Harmonics of one clock & Lines of one scan at whole multiples of one clock rate, all the same fraction off nominal \\
+D7 & The same half hour & The line is within 300\,Hz in scans of other stars, at least 1 degree away, within 30 minutes \\
+D8 & An explained companion & A line that rises and falls with the event in the same scans is itself closed by D1, D4, D5 or D7; or the event and two such lines are equally spaced, as a carrier and its sidebands \\
+D9 & The days around & The line is at the event's topocentric frequency toward other stars over days, more consistently than at other frequencies of the same spectra (Section~\ref{sec:probe}) \\
+\enddata
+\tablecomments{D1--D4 are applied automatically and are the rules exercised by the hidden test signals; D5--D9 run afterwards on what is still open. D3 can hardly fire on the queue, because of the selection (Section~\ref{sec:selection}).}
+\end{deluxetable*}
+
+Rule D5 has a counterpart that is never decided by code: a line that
+reappears at the frequency shifted by the Earth's motion, where a
+transmitter fixed in the barycentric frame would have moved, is flagged for
+a person. Not seeing a line again changes nothing.
+
+\subsection{Hidden test signals} \label{sec:controls}
+
+Injection and recovery is the standard way to measure a search's efficiency
+\citep{Margot2021,Brzycki2022}. Here 476 of the 485 download groups
+received three synthetic narrowband signals each, injected into the cached
+data before measurement and passed through the same code as the real cases.
+Two are present in ON scans only, in all three scans or in one or two of
+them, and should stay open. The third is also present in the OFF scans at
+12\% to 25\% of its ON strength (a weak leak) and should be closed. The
+nominal injected \sn\ is 12 to 60 for the sky-only signals and 25 to 80 for
+the leaks; drifts are 0.01 to 0.5\,\hzs\ with a small curvature, and the
+signals scintillate between scans and flicker within them. They sit at
+random frequencies at least 20\,kHz from the real cases. An injection is set
+aside as ``masked'' when what was measured at its position is a real signal
+more than three times stronger or of a different drift; that category was
+defined after the first failures were inspected.
+
+The test signals have limits that matter for every rate quoted below. They
+are injected with the pipeline's own conventions, so they cannot reveal a
+misreading of the catalogue (Section~\ref{sec:errors}). They exercise rules
+D1 to D4 only. And none drifts faster than 0.5\,\hzs, while three quarters of
+the queue and 32 of the 51 open events do.
+
+\subsection{Other stars in the days around} \label{sec:probe}
+
+A local emitter does not know where the telescope points, so the same line
+toward a different target is evidence of a local origin. The idea is old.
+The Allen Telescope Array searches used anticoincidence between
+simultaneous beams \citep{Harp2016}; direction-of-origin filters compare
+detections across pointings \citep{PinchukMargot2022,Margot2021};
+\citet{Price2020} rejected their best events by cross-reference to similar
+signals toward other stars, as did \citet{Painter2025}; and an archival
+search at the same frequency is a step of the verification framework of
+\citet{Sheikh2021}. What we add is a forced measurement in the spectra of
+other targets' scans over days, with a chance estimate that does not assume
+those scans are independent.
+
+For an event at topocentric frequency $f_e$ and drift $d_e$, the pipeline
+lists the scans of other stars in the same receiver band within seven days,
+nearest in time first, excluding the event's own cadence, and reads a cutout
+of at least $\pm355$\,kHz around $f_e$ from each until a 3\,GB cap (30 to
+108 scans here). The Earth-shifted frequency is not measured, because it
+has no meaning toward a different star.
+
+Our first statistic for these data was wrong, and the way it failed is
+instructive. It asked in how many scans the event's window exceeded its
+strongest control window, and took the chance of that from null frequencies
+chosen where the hit tables list nothing. The review found three faults:
+nulls chosen to be clean bias the chance low, since the event's frequency
+is by construction not clean; where the control windows hold strong lines
+neither the event nor a null can ever match, so ``no null matched'' carries
+no information; and the nulls' control windows overlapped the event's
+window and each other. It produced probabilities as small as $10^{-135}$.
+
+The statistic we use instead compares the event's frequency with every
+other frequency of the same cutouts, taken as they are. Each cutout is laid
+out in adjacent windows of half-width $W$, one of them centred on $f_e$. In
+scan $s$ the strongest line of drift within $\pm(0.05+0.25|d_e|)$\,\hzs\ of
+$d_e$ is found in each window, and the event's window is ranked among the
+$N$ others: $p_s$ is the fraction at least as strong, counting itself. The
+statistic for a window is $T=-\sum_s\ln p_s$, computed in the same way for
+every window, and
+\begin{equation}
+P=\frac{1+\#\{j: T_j\ge T_e\}}{1+N}
+\end{equation}
+is the fraction of windows that show a line as consistently as the event's
+does. A persistent unrelated line earns a high $T$ at its own window, as it
+should, so scans need not be independent; nothing is conditioned on the hit
+tables; and no control window or threshold enters. $P$ cannot be smaller
+than $1/(1+N)$. We use $W=50$, 500 and 2000\,Hz, the last for lines that
+wander between nights, and multiply the smallest $P$ by three. Rule D9
+closes an event when this corrected $P$ is below 0.05 and its window is in
+the top 1\% of its scan in at least two scans.
+
+The statistic was designed after the data were seen, in response to the
+review, and the three widths were informed by the offsets observed, so it is
+not a pre-registered test. Its null hypothesis is that the event's
+frequency is unrelated to the lines seen toward other stars; under it, $f_e$
+is exchangeable with the other windows of the cutout, which holds for a sky
+signal whatever the local RFI. It was run on nine events, so a further
+factor of nine applies to any one of them taken as a discovery.
+
+\subsection{Use of language models} \label{sec:ai}
+
+Two language-model readers (Anthropic's Claude Sonnet) wrote up and rated
+each open event. They rank; they cannot close a case. That boundary was set
+after a test: asked what an injected sky-only signal was ``most likely'' to
+be, the readers called 12 of 21 interference, arguing from the band and its
+surroundings; under the instruction to close only on direct evidence they
+kept 20 of 21. The readers also failed to connect lines that belonged to one
+device (Section~\ref{sec:emitters}). The pipeline, its tests and a first
+draft of this text were written with a language-model coding assistant, and
+the two reviews mentioned above were made by further instances of such
+models (Section~\ref{sec:ack}).
+
+\section{Validation} \label{sec:validation}
+
+\subsection{Known answers}
+
+The Voyager~1 carrier at 8419.297\,MHz, in the public GBT observation of
+2016 September 19 that accompanies the \texttt{turboSETI} software, is left
+open, with a measured drift of $-0.37$\,\hzs\ against $-0.374$\,\hzs\
+predicted from the Earth's motion alone. The signal of interest blc1 toward
+Proxima Centauri \citep{Smith2021}, which \citet{Sheikh2021} identified as
+an intermodulation product of local oscillators, is closed: five other lines
+in the same data are spaced as multiples of a 2\,MHz clock running 2.5\,ppm
+fast.
+
+Of the eight signals of interest of \citet{Ma2023}, four are closed as
+measurable in the OFF scans (MLc3, MLc5, MLc6 and MLc7) and four are left
+open (MLc1, MLc2, MLc4 and MLc8). \citet{Margot2023} had already examined
+these: they detect MLc3, MLc4, MLc7 and MLc8 in the OFF scans and attribute
+MLc5 to interference by its similarity to MLc4. We agree on MLc3, MLc5 and
+MLc7, and our off-source test misses two (MLc4 and MLc8) that theirs finds,
+which is a measured example of its limited sensitivity. MLc6 lies 2.4\,kHz
+from the HIP\,54677 line at 1435.943\,MHz.
+
+\subsection{Injections}
+
+Table~\ref{tab:controls} gives the outcome of the 1428 hidden test signals
+of the queue, and Figure~\ref{fig:controls} shows it against injected
+strength and drift. Of the 952 sky-only injections, 914 were left open, 24
+were not recovered, 10 were masked by a stronger real signal, and 4 were
+recovered and closed by a rule: 4 of 918, or 0.4\% (95\% interval 0.2\% to
+1.1\%). Three of the four were closed as seen off the source, in crowded
+spectra where real interference sat near the predicted track in an OFF
+scan. One of the unrecovered signals was also closed, as a burst, under a
+real burst ten times its strength. In real data one cannot know that a
+signal is masked: counting the 5 masked signals that were closed, the rate
+is 9 of 928, or 1.0\% (0.5\% to 1.8\%). Counted unconditionally, 33 of 952
+sky-only signals (3.5\%) did not stay open, most of them because they were
+too weak to recover.
+
+Of the 469 unmasked leaks, 340 were caught (72\%; 68\% to 76\%). That
+figure describes the chosen mix of injections more than the rules. The
+catch rate rises with the nominal off-source \sn\ from 8\% below 4, through
+34\% (4 to 6) and 64\% (6 to 8), to 92\% (8 to 12) and 99\% above 12; and
+it falls with drift, from 95\% below 0.1\,\hzs\ to 47\% at 0.4 to
+0.5\,\hzs\ (Figure~\ref{fig:controls}). Recovery of sky-only signals also
+falls at the fastest drifts tested, and 22 of the 24 unrecovered signals
+drift faster than 0.35\,\hzs. Extrapolated to the 1 to 4\,\hzs\ of most of
+the queue, the off-source test probably has little sensitivity, so ``not
+seen off the source'' carries little weight for the fast-drifting open
+events, and the false-closure rate of the rules there is unknown. A missed
+leak stays on the open list, so this error inflates the open list and does
+not remove signals.
+
+These rates are in-sample. The count of false closures was 13 before the
+controls were examined one by one; eight had been closed by rule D3 on a
+single weak catalogued hit toward one other star, which is why that rule
+now needs two stars, and the masked category removed others. The only fresh
+sample is the set of test signals carried by the flagged events' downloads:
+none of 59 recovered sky-only signals was closed (95\% upper limit about
+6\%), and 14 of 30 leaks were caught, the missed ones being weak off the
+source or in crowded spectra.
+
+\begin{deluxetable}{lrrr}
+\tablecaption{Outcome of the hidden test signals \label{tab:controls}}
+\tablehead{\colhead{Set} & \colhead{Sky-only} & \colhead{Closed} & \colhead{Leaks} \\
+\colhead{} & \colhead{left open} & \colhead{by a rule} & \colhead{caught}}
+\startdata
+Pilot & 20 of 21 & 0 & 9 of 10 \\
+Holdout, random frequencies & 18 of 20 & 0 & 4 of 10 \\
+Queue, running & 914 of 952 & 4\tablenotemark{a} & 340 of 476 \\
+Flagged events & 59 of 60 & 0 & 14 of 30 \\
+\enddata
+\tablenotetext{a}{Of 918 recovered and unmasked. A further 24 were not recovered (one of them closed as a burst) and 10 were masked (5 of them closed). Seven of the 476 leaks were masked.}
+\end{deluxetable}
+
+\begin{figure*}
+\plotone{figures/controls.pdf}
+\caption{Fraction of the hidden test signals of the queue decided as
+intended, against nominal injected \sn\ (left) and against drift (right),
+in bins of equal count: sky-only signals left open (blue; unrecovered
+signals count as failures) and weak leaks closed (red). Masked injections
+are left out. Error bars are 68\% Wilson intervals. No injection drifts
+faster than 0.5\,\hzs. \label{fig:controls}}
+\end{figure*}
+
+\subsection{Two errors of our own} \label{sec:errors}
+
+Two errors were found by hand, not by the controls, and every stored case
+was measured again from cached data after each.
+
+Until the drift sign of Section~\ref{sec:sign} was noticed, the pipeline
+followed every drifting case in the wrong direction. A wrong-way track
+crosses a steady line for an instant, so steady lines looked like bursts.
+After the correction the seed moved to another track in 610 of 761 cases
+and 125 changed status, in both directions (66 that had been closed as
+bursts were reopened or closed for another reason; 13 open cases were
+closed).
+
+The second error was a seed search that looked too far from the catalogue
+position for fast drifters. At 484 places with nothing catalogued it
+returned a seed 43\% of the time. Restricted to 50\,Hz plus the drift over
+one time sample, it returns one 14\% of the time, mostly from bursts, and
+recovers injected fast tones slightly more often.
+
+\section{Results} \label{sec:results}
+
+\subsection{The 771 near-miss hits} \label{sec:queue}
+
+Table~\ref{tab:queue} gives the outcome by class. None is a candidate.
+
+\emph{Shown to be local: 131.} In 102 cases the line is measurable in the
+OFF scans once the predicted track is measured there directly. Twenty-three
+are lines of clocks (Section~\ref{sec:emitters}). Five were found toward
+another star within half an hour, and one moves with a companion that is
+seen off the source.
+
+\emph{Not a steady tone: 450.} In 243 cases the track stood above its
+controls over the whole scan and does not without its strongest 18\,s
+sample. In 202 the rule fired only on its other condition, half or more of
+the power in one sample; in 84 of those the track still stands above its
+controls without that sample, so these are steady or slowly varying lines
+with a burst on top, or strongly varying lines, and they are the weakest of
+the closures (73 have a share between 50\% and 60\%). Five move with a
+companion that is itself a burst. Most of these cases drift fast: 85\% of
+the burst closures have $|{\rm drift}|>0.5$\,\hzs, outside the range of the
+test signals.
+
+\emph{Not reproduced: 113.} In 33 cases no line was found at the catalogue
+position. In 80 more no line was found and the cutout holds a strong
+single-sample burst, which is the likely origin of the catalogued hit. We
+have not measured how often the seed search recovers an ordinary catalogued
+hit of this strength at these drifts, so a failure to reproduce is not
+evidence that the hit was spurious.
+
+\emph{Carriers with sidebands: 5.} Five were closed by the clause of rule
+D8 that takes three equally spaced lines rising and falling together as a
+carrier and its sidebands. That is evidence of modulation and not of a
+local origin (the Voyager~1 signal has sidebands), and we list these
+separately.
+
+\emph{Open: 70 hits in 51 events.} By the criterion of
+Section~\ref{sec:method}, 30 events are present in one ON scan, 2 in two,
+none in all three, and 19 in none: in those 19 the line was found by the
+seed search but does not exceed its strongest control window by 1.5 in any
+scan. Twenty-seven of the 51 drift faster than 1\,\hzs.
+
+Three further checks were run on the open events. For 18 events the star
+was observed again in the same band, on 27 other days in all, and the line
+was absent every time at both the topocentric and the Earth-shifted
+frequency. A comparison of each line of sight with the orbits of catalogued
+satellites flagged about as many close passes as chance predicts and closes
+nothing. The half-hour test (D7) closed five hits, and these closures are
+weak: with the 1\% floor on the per-scan chance, one matching scan closes a
+case exactly when five or fewer scans were available, so the quoted chance
+of 4\% to 5\% is arithmetic and not a measurement; the single matches lie
+138 to 304\,Hz from the event, two of them at the edge of the 300\,Hz
+window, where the matches of Section~\ref{sec:days} lie within tens of
+hertz; and with some sixty events tested, about three such matches are
+expected by chance. They should be read as flags.
+
+\begin{deluxetable}{lr}
+\tablecaption{Outcome for the 771 near-miss hits \label{tab:queue}}
+\tablehead{\colhead{Outcome} & \colhead{Hits}}
+\startdata
+\multicolumn{2}{l}{\emph{Shown to be local}} \\
+\quad Seen off the source (D1) & 102 \\
+\quad Lines of human clocks (D2, D6) & 23 \\
+\quad Toward another star within half an hour (D7) & 5 \\
+\quad Companion seen off the source (D8) & 1 \\
+\multicolumn{2}{l}{\emph{Not a steady narrowband tone}} \\
+\quad Nothing left without the strongest sample (D4) & 243 \\
+\quad Half or more of the power in one sample (D4) & 202 \\
+\quad Companion is a burst (D8) & 5 \\
+\multicolumn{2}{l}{\emph{Not reproduced}} \\
+\quad No line; a strong burst in the cutout & 80 \\
+\quad No line at the catalogue position & 33 \\
+\multicolumn{2}{l}{\emph{Other}} \\
+\quad Carrier with sidebands (D8) & 5 \\
+\quad No public data & 2 \\
+\quad Not explained by these checks & 70 \\
+\enddata
+\end{deluxetable}
+
+\subsection{The 34 flagged events} \label{sec:followup}
+
+Table~\ref{tab:followup} gives the outcome for the events labelled
+``Requires follow up''. Nineteen are measurable in the OFF scans when the
+predicted track is measured there directly; two of those rest on the
+stacked OFF scans alone, at a margin of 1.2 over the strongest control where
+1.0 is required. Three are bursts. Two, both near
+1420.4\,MHz at drifts of about $-1.2$\,\hzs, have no line at the catalogue
+position; they lie on the neutral-hydrogen line, where the emission differs
+between ON and OFF positions, and at a drift where our recovery is
+untested. One event (HIP\,109427 at 1554.807\,MHz) has its line toward
+other stars in all five scans of the same half hour, at the same frequency.
+One (1691.081\,MHz toward HIP\,17420) has three lines 45 to 172\,kHz below
+it that switch on and off with it (correlation 0.97 to 0.99 between time
+samples), each at \sn\ above 400 and each seen off the source.
+
+\begin{deluxetable}{lr}
+\tablecaption{Outcome for the 34 flagged events \label{tab:followup}}
+\tablehead{\colhead{Outcome} & \colhead{Events}}
+\startdata
+Seen off the source (D1) & 19 \\
+A burst, not a tone (D4) & 3 \\
+No line at the catalogue position & 2 \\
+Toward other stars within half an hour (D7) & 1 \\
+Moves with an explained companion (D8) & 1 \\
+Toward other stars in the days around (D9) & 3 \\
+Not explained by these checks & 5 \\
+\enddata
+\end{deluxetable}
+
+\subsection{Other stars in the days around} \label{sec:days}
+
+Table~\ref{tab:probe} and Figure~\ref{fig:probe} give the statistic of
+Section~\ref{sec:probe} for the nine events probed: the eight flagged
+events that the automatic rules had left open, and the HIP\,36357 event.
+
+Three flagged events meet the criterion. For HIP\,100064 at 1595.877\,MHz
+the line is in the top 1\% of its scan in 43 of 54 scans of other stars
+over the following 27 hours, moving through the 2\,kHz window within each
+observing session, toward 28 stars; $T$ is nearly twice the largest value among the 174
+other windows, and $P$ is at the floor that number sets. For HIP\,54677 at
+1435.943\,MHz the line is within 40\,Hz of the event's frequency toward
+seven other stars, mostly 10 to 11 hours earlier; none of 7150 other windows
+reaches its $T$. These are the two events that \citet{Price2020} rejected on the
+same grounds from the hit tables; the measurement in the spectra confirms
+their verdict and adds how long and toward how many stars the lines
+persist. The third, HIP\,100064 at 1560.945\,MHz, has its line within
+51\,Hz in seven scans of four other stars 27 to 28.5 hours later, at \sn\
+up to 21, in spectra crowded enough that seven of 7150 other windows do as
+well.
+
+For the other five flagged events the criterion is not met, and for three
+of them that is a statement about the method and not about the sky. Toward
+HIP\,109427 at 1559.671\,MHz a line of the event's drift is within 17\,Hz
+in eleven scans of other stars in the hour and a half before, at \sn\ of 67
+to 448; but 2.7\% of the other 100\,Hz windows of those spectra hold a line
+as consistent, and the corrected $P$ is 0.08. Toward the same star at
+1560.003\,MHz there is one at 25 to 28\,Hz in two scans ($P=0.16$). Toward
+HIP\,29432 at 1556.346\,MHz there is one in ten consecutive scans, sliding
+from 78 to 117\,Hz at \sn\ of 35 to 92, in spectra where a third of the
+windows of that width hold something comparable. In these bands a line near
+any chosen frequency is common, so its presence cannot be told from chance
+and the events stay open. For HIP\,42173 and HIP\,87108 nothing stands
+out. Only for HIP\,36357 is absence informative: its spectra are clean
+(strongest control window below \sn\ 6 in every scan), and its line is
+not there.
+
+Four of the five events left open lie between 1538 and 1561\,MHz and drift
+by 0.02\,\hzs\ or less.
+
+\begin{deluxetable*}{llrrrrl}
+\tabletypesize{\footnotesize}
+\tablecaption{The line at the event's topocentric frequency in scans of other stars within seven days \label{tab:probe}}
+\tablehead{\colhead{Event} & \colhead{Frequency} & \colhead{Scans} & \colhead{$W$} & \colhead{Scans in} & \colhead{Corrected} & \colhead{Outcome} \\
+\colhead{} & \colhead{(MHz)} & \colhead{} & \colhead{(Hz)} & \colhead{top 1\%} & \colhead{$P$} & \colhead{}}
+\startdata
+HIP\,100064 & 1595.877 & 54 & 2000 & 43 & 0.017\tablenotemark{a} & Local \\
+HIP\,54677 & 1435.943 & 30 & 50 & 11 & 0.0004\tablenotemark{a} & Local \\
+HIP\,100064 & 1560.945 & 108 & 50 & 10 & 0.003 & Local \\
+HIP\,109427 & 1559.671 & 30 & 50 & 7 & 0.08 & Open; a line within 17\,Hz in 11 scans \\
+HIP\,109427 & 1560.003 & 30 & 50 & 2 & 0.16 & Open; a line at 25--28\,Hz in 2 scans \\
+HIP\,29432 & 1556.346 & 47 & 500 & 0 & 0.96 & Open; a line at 78--117\,Hz in 10 scans \\
+HIP\,42173 & 1538.712 & 54 & 500 & 0 & 1 & Open \\
+HIP\,87108 & 2199.097 & 30 & 2000 & 0 & 1 & Open \\
+HIP\,36357 & 2051.617 & 54 & 500 & 1 & 0.49 & Open; clean spectra (Section~\ref{sec:hip36357}) \\
+\enddata
+\tablenotetext{a}{At the floor set by the number of windows: no other window reaches the event's $T$.}
+\tablecomments{$W$ is the window half-width that gives the smallest $P$; the corrected $P$ is three times that value. The first eight rows are flagged events; the last is from the queue.}
+\end{deluxetable*}
+
+\begin{figure*}
+\plotone{figures/probe.pdf}
+\caption{Left: the event toward HIP\,100064 at 1595.877\,MHz in 54 scans of
+35 other stars after the event: offset of the strongest line of the event's
+drift within 2\,kHz. Filled points are scans in which that window is in the
+top 1\% of the 2\,kHz windows of its spectrum. Right: the statistic $T$ of
+Section~\ref{sec:probe} for the nine events probed (red), against the other
+windows of the same spectra: the bar spans their median to their 99th
+percentile, and the tick marks their maximum. \label{fig:probe}}
+\end{figure*}
+
+The test signals carried by the flagged events' downloads were decided
+less well than in the queue (Table~\ref{tab:controls}), so ``open'' is
+weaker evidence here than there.
+
+\subsection{Where the flagged events were observed} \label{sec:belt}
+
+The flagged events are not spread over the survey. Of the 22 L-band stars
+with a flagged event, 19 were pointed within 13 degrees of the
+geostationary belt as seen from Green Bank (median 7.3 degrees), against
+33\% of the 890 L-band stars of the survey (median 26 degrees;
+Figure~\ref{fig:belt}). They are also clustered in time: 18 of the 22 were
+observed between MJD 57510 and 57600 (2016 May to July), when 34\% of the
+L-band stars were.
+
+We report this as a pattern and attach no probability to it. The 13 degree
+threshold was chosen after looking: a binomial comparison with the survey
+rate gives values from 0.06 at 5 degrees to $10^{-7}$ at 15 degrees. From
+Green Bank a pointing within 13 degrees of the belt is a pointing at
+declination $-19$ to $+7$ degrees, so angle from the belt and declination
+are the same variable. And the stars share observing sessions, so they are
+not independent. What the data support is that the events flagged for
+follow-up come mostly from low-declination targets observed in a few months
+of 2016. An emitter on or near the geostationary belt would produce that,
+and so would a ground source toward the south or one active in that season.
+\citet{Price2020} already associate the hit density at 1.525--1.560\,GHz
+with satellite downlinks. The belt does not single out the open events: the
+four between 1538 and 1561\,MHz lie 6 to 13 degrees from it, no closer than
+the closed events of the same band. That range straddles 1559\,MHz, the
+boundary between the mobile-satellite downlink allocation and the
+radionavigation-satellite allocation, and a satellite transmitter is a
+natural hypothesis for nearly undrifting lines there; we did not test it
+against the positions of individual satellites, and by our rule a band does
+not close a case.
+
+\begin{figure}
+\plotone{figures/belt.pdf}
+\caption{Angle between the pointing and the geostationary belt as seen from
+Green Bank, for all L-band stars of the survey (grey) and for the L-band
+stars with an event flagged for follow-up (red). Ticks mark the stars of
+the flagged events still open. \label{fig:belt}}
+\end{figure}
+
+\subsection{Interfering clocks} \label{sec:emitters}
+
+Several groups of hits trace to one device each (Table~\ref{tab:emitters}).
+We can characterize these devices but not place them: they may be at the
+site, on a satellite, or in the instrument itself.
+
+Eight hits in one scan toward HIP\,17420 are lines spaced by exactly
+131.072\,kHz, which is $2^{17}$\,Hz; in that scan, 24 of the 29 catalogued
+hits within 60 teeth of the comb sit on a tooth, and none do when the grid
+is shifted. Eleven events in five scans toward three stars, between 2016
+February 29 and March 3, sit at 59, 62, 69 and 77 times 24\,MHz, every line
+of a scan the same fraction below nominal to 0.1\,ppm or better: a 24\,MHz
+clock running 70 to 103\,ppm slow, or a submultiple of it. A twelfth event,
+toward a fourth star (HIP\,87108) on March 3, sits at 59 times 24\,MHz with
+companions at 58 and 62 times, all 108\,ppm slow. The rule tries every
+whole number of megahertz from 4 to 50 with an allowance of 200\,ppm, so a
+single line is near some multiple by chance; it therefore needs two lines
+of one scan that agree to 0.3\,ppm, and it was checked on predictions it had
+not used: at three other multiples per scan the spectra hold a line at the
+predicted frequency in 13 of 15 measurements, and the hit tables hold a hit
+at 48 of 144 other predicted multiples against 3 of 2880 shifted control
+positions. A weak line at 2258.417\,MHz toward HIP\,15919 is one tooth of a
+comb of far stronger lines spaced by 2.048031\,MHz, the rate of the E1
+telecommunication clock and of common audio converters, running 15\,ppm
+fast.
+
+The language-model readers had read eight of the 24\,MHz lines one at a
+time and left all eight open. Connecting lines that are tens of megahertz
+apart, in different downloads, is a job for a rule that looks across cases.
+
+\begin{deluxetable*}{lll}
+\tabletypesize{\footnotesize}
+\tablecaption{Interfering devices characterized \label{tab:emitters}}
+\tablehead{\colhead{Signature} & \colhead{Where and when} & \colhead{Evidence}}
+\startdata
+Comb at 131.072\,kHz ($2^{17}$\,Hz) & L band, toward HIP\,17420 & 24 of 29 catalogued hits on a tooth \\
+24\,MHz clock, 70--108\,ppm slow & L band, 2016 Feb 29--Mar 3, four stars & Harmonics 58 to 77; 13 of 15 predicted lines found \\
+Comb at 2.048031\,MHz (15\,ppm fast) & S band, toward HIP\,15919 & Lines at 1, 2, 3 teeth, \sn\ up to 55,742, on and off source \\
+Drifting line near 1595.88\,MHz & L band, 27 hours, 28 stars & Table~\ref{tab:probe}; also \citet{Price2020} \\
+Pulsed lines 6\,kHz apart near 2051.62\,MHz & S band, 2018 Apr 15 & More than twenty lines in one OFF scan (Section~\ref{sec:hip36357}) \\
+\enddata
+\end{deluxetable*}
+
+\subsection{An event not yet explained: HIP 36357 at 2051.617 MHz} \label{sec:hip36357}
+
+One event of the queue stands apart (Figure~\ref{fig:hip36357}). On 2017
+February 23, between 01:27 and 02:01 UT, a narrow line toward HIP\,36357 at
+2051.616734\,MHz appears in the first two ON scans, at \sn\ of 75 and 134,
+and in none of the OFF scans (\sn\ 2.5 to 3.1, with controls up to 4.8). It
+is absent from the third ON scan. The two detections lie on one straight
+track of $-0.124$\,\hzs\ to within 0.5\,Hz over 12 minutes. The hit table
+lists it in both of those scans, at \sn\ 17 and 30 and frequencies 89\,Hz
+apart, and not in the third, so a filter that requires a hit in every ON
+scan does not retain it.
+
+The line switches on and off by itself. In the first ON scan it is on from
+the first sample, varying tenfold, and off in the last two samples. In the
+second ON scan it is off for the first 110\,s and then on to the end,
+rising. The first OFF scan falls entirely inside a gap of the line, and the
+second began 45\,s after it was last seen, when it had fallen from \sn\ 134
+to below 4.8. Its absence off the source therefore does not show that it
+comes from the sky, and we do not count it as evidence either way.
+
+Checks that found nothing, with their limits. The star was observed again
+three days later, in a single five-minute scan, and the line was absent at
+the topocentric frequency and at the Earth-shifted one (8.75\,kHz lower).
+It was absent toward the one other star observed within 30 minutes; that
+star, HIP\,36366, is 12.6 arcminutes away, about two beam widths, so for an
+emitter in a far sidelobe it is the same pointing at another time and not
+an independent direction. The nearest catalogued satellite at the strongest
+moment was 4.0 degrees from the line of sight, which is ordinary for that
+night. The line was absent in 54 scans of 36 other stars from 31 hours
+before to 5.5 hours after, in clean spectra (Table~\ref{tab:probe}). The
+hit tables list nothing within 2\,kHz toward other stars within 30 days,
+which the selection largely guarantees. A transmitter at rest in the
+barycentric frame would drift at $-0.179$\,\hzs\ in that direction; the
+line drifts at $-0.124$, which neither supports nor excludes a sky origin,
+since the source may have an acceleration or an oscillator drift of its
+own.
+
+Two leads in the hit tables point to human transmitters. Three catalogued
+lines of the same drift 128\,MHz below the event turned out, in the
+spectra, to belong to a forest of several hundred lines about 101\,Hz apart
+that is present in every scan and unrelated to the event. And on 2018 April
+15, fourteen months later, one OFF scan toward HIP\,99221 holds more than
+twenty lines within 15\,kHz of the event's frequency, in a pattern that
+repeats every 6\,kHz, all carrying their power in the same five time
+samples: a pulsed, multi-line emitter. The event is different, a single
+line on for minutes at a time on one steady drift, so this identifies a
+human user of the frequency and not the event.
+
+A third lead came from the review of this manuscript. The frequency lies in
+2025--2110\,MHz, allocated to Earth-to-space and space-to-space links (and,
+in the United States, shared with electronic news gathering). Spacecraft
+transponders in this band pair an uplink with a downlink at 240/221 times
+its frequency. The line's frequency times 240/221 is 2228.00007\,MHz at the
+start of the second ON scan, and stays within 0.2\,kHz of 2228.000\,MHz
+throughout the detection. A frequency chosen at random would fall that
+close to a whole number of megahertz about once in 2500 times. This
+suggests the uplink or forward-link carrier of a spacecraft whose downlink
+is assigned 2228.000\,MHz, and such a carrier would also account for a line
+that is on for minutes at a time and for a slow, steady drift, if the
+transmitter compensates for Doppler shift. We found no published assignment
+at 2228.0\,MHz to identify the spacecraft, and the hit tables hold nothing
+within 50\,kHz of 2228.000\,MHz in that cadence. The coincidence was looked
+for after the fact and is not direct evidence under our rules.
+
+We consider a local or orbital transmitter the most likely origin, on the
+allocation, the on-off behaviour and the transponder coincidence. The event
+stays open. Several steps of the verification framework of
+\citet{Sheikh2021} remain undone: asking the observatory's interference
+group and consulting licence records for a transmitter near 2051.6\,MHz in
+February 2017; testing the track for the curvature that the Earth's
+rotation imposes on a sky source (about 1\,Hz over these 12 minutes,
+comparable to our fit residual); and searching the scans for other lines
+with the same on-off envelope and a drift proportional to frequency, since
+our companion search required equal drift. The public products carry no
+polarization information. The elevation was 76.5 degrees and the pointing
+was 38 degrees from the geostationary belt.
+
+\begin{figure*}
+\plotone{figures/hip36357.png}
+\caption{The six scans of the cadence of HIP\,36357 on 2017 February 23
+around 2051.616734\,MHz: frequency across, time down, ON and OFF scans
+alternating. Red triangles mark where the track of $-0.124$\,\hzs\ enters
+and leaves each panel. The line is present in the first two ON scans only,
+and switches off at the end of the first and on during the second.
+\label{fig:hip36357}}
+\end{figure*}
+
+\section{Discussion} \label{sec:discussion}
+
+\subsection{What the open list means}
+
+The open list is where the method has least power, which is not the same as
+where the signals are most interesting. Events stay open in crowded
+spectra, where control levels are high and a line near any frequency is
+common; at fast drifts, where the place of a line a few minutes later
+cannot be predicted well and no test signal reaches; and when a line's
+drift wanders between scans. Three of the five open flagged events have a
+line of their drift toward other stars near their frequency and stay open
+because that cannot be told from chance in those bands. Nineteen of the 51
+open events of the queue do not exceed their control windows in any scan. A
+reader interested in candidates should discount the open list accordingly;
+a reader interested in the method should take it as a map of where forced
+measurement against the strongest control fails.
+
+The converse holds for closures. They are of unequal strength, and we have
+tried to say which are weak: the 84 burst closures in which the line
+survives the removal of its strongest sample, the five closures on
+sidebands, the single-scan half-hour closures, and the two off-source
+closures of flagged events that rest on a stacked margin just over the
+threshold.
+
+\subsection{What the re-examination confirms for searches}
+
+None of the following is new as an idea; the re-examination measures how
+much each is worth on this sample.
+
+First, a forced measurement on the predicted track in every scan resolves
+many cases that a threshold on independent detections leaves ambiguous: 19
+of the 34 flagged events are measurably present off the source.
+\citet{Price2020} note that signals below the detection threshold in the
+OFF scans pass their filter, and visual inspection is step 2 of the
+framework of \citet{Sheikh2021}. Second, time samples within a scan carry
+information that a scan-integrated search discards
+\citep[see also][]{Brzycki2023}: 450 of 771 near-miss hits, and 3 of the 34
+flagged events, are dominated by a single 18\,s sample. Third, scans of
+other targets hours or days away are a free control for local emitters, as
+\citet{Price2020} and \citet{Painter2025} used them; a statistic over
+frequency, and not over scans, turns a match into a probability and shows
+where the test has no power.
+
+The work also shows the limits of injection tests. Ours measured the rules
+within their range and missed both of our serious errors, because the
+injections shared the pipeline's assumptions, and they did not cover the
+drifts of most of the sample. Known real signals, predictions checked on
+data a rule had not seen, and an adversarial reading of the manuscript
+against the code caught what the injections could not: the review found
+that our first statistic for the test over days was invalid and that two
+events we had called absent toward other stars were not.
+
+\subsection{Limitations}
+
+The sample is not random, and its selection makes two of the checks nearly
+vacuous for it. Thresholds were chosen on small samples, and some on the
+same controls that score them, so the quoted error rates are in-sample. No
+test signal drifts faster than 0.5\,\hzs, and rules D5 to D9 were never run
+on test signals. The burst rule closes on a 50\% share alone, which a
+steady line under one unrelated burst would meet. The off-source test
+missed two signals of \citet{Ma2023} that another pipeline finds off the
+source. The statistic of Section~\ref{sec:probe} was designed after the
+data were seen. The satellite comparison knows catalogued payloads only and
+cannot see a satellite in a sidelobe. The work used only the L- and S-band
+GBT products. Nothing here can confirm a signal: that needs new telescope
+time.
+
+\section{Conclusions} \label{sec:conclusions}
+
+Using public data and partial file reads, we re-measured 771 near-miss hits
+from the Breakthrough Listen 1327-star survey and the 34 events flagged for
+follow-up in its inspection table, and found no candidate.
+
+\begin{enumerate}
+\item Of the 771 hits, 131 are shown to be local, 450 are dominated by a
+single 18\,s sample and are not steady tones, 113 could not be reproduced,
+and 70 hits in 51 events are not explained. Most of the unexplained events
+lie where the method has little power.
+\item Of the 34 flagged events, 29 are explained, 19 as measurable off the
+source. Three of the 34 had been rejected by the survey's authors by
+cross-reference to other stars, and the spectra confirm it.
+\item A frequency-permutation statistic for the presence of an event's line
+toward other stars over days explains three flagged events and makes
+explicit that in crowded bands a line near the event's frequency is not
+evidence.
+\item The released hit files carry the drift-rate sign error noted in the
+software's documentation; the survey's event table is corrected, the hit
+files are not flagged.
+\item The flagged events come mostly from low-declination targets observed
+in mid-2016, a pattern these data cannot attribute.
+\item One event, toward HIP\,36357 at 2051.617\,MHz, is unexplained. Its
+frequency corresponds through the 240/221 transponder ratio to
+2228.000\,MHz; a local or orbital transmitter is the most likely origin,
+and site records could decide it.
+\end{enumerate}
+
+Within their range, the rules wrongly closed 0.4\% to 1.0\% of sky-only
+test signals and caught 72\% of weak leaks. The code, the rules, the scripts
+that produce every number and figure of this paper, the definitions of the
+known-answer cases and the review reports are public at
+\url{https://github.com/luizpersechini/cold-case-seti}; a table of the
+outcome of every case accompanies the paper, and the per-case evidence is
+available on request.
+
+\section{Acknowledgments} \label{sec:ack}
+
+This work rests entirely on the open data policy of Breakthrough Listen and
+on the public products of \citet{Price2020} and \citet{Lebofsky2019}. It is
+not affiliated with Breakthrough Listen, the SETI Institute or the
+University of California, Berkeley.
+%% AUTHOR: state here whether the findings were sent to the Breakthrough
+%% Listen team, when, and what they replied.
+The idea of donating idle computer time to this problem is that of
+SETI@home \citep{Anderson2002,Anderson2025}.
+
+The pipeline, its tests, the analysis scripts and a first draft of this
+manuscript were written with a large-language-model coding assistant
+(Claude Code, Anthropic, with Claude Opus and Fable models, November 2026).
+Instances of Claude Sonnet served as the readers of Section~\ref{sec:ai},
+and further instances reviewed the manuscript against the code and the
+literature. Statements about prior work were checked against the cited
+sources. The author directed the work, approved every closure made by hand,
+and is responsible for the content.
+
+\facility{GBT}
+
+\software{turboSETI \citep{turboseti}, NumPy, Astropy, h5py, Matplotlib, DuckDB}
+
+\bibliography{refs}{}
+\bibliographystyle{aasjournal}
+
+\end{document}
