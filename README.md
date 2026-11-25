@@ -393,11 +393,11 @@ apart, so the queue numbers above do not include them.
 | No signal at the catalogue position        | 2      |
 | Seen toward other stars in the half hour   | 1      |
 | Moves with a companion that is explained   | 1      |
-| Seen toward other stars in the days around | 2      |
-| Not explained by these checks              | 6      |
+| Seen toward other stars in the days around | 3      |
+| Not explained by these checks              | 5      |
 
 The two with no signal sit near 1420.4 MHz, at drifts of about -1.2 Hz/s.
-Five of the six left open lie between 1538 and 1561 MHz and drift by
+Four of the five left open lie between 1538 and 1561 MHz and drift by
 0.02 Hz/s or less. The companion search found partners for one event only:
 f004 (1691.081 MHz toward HIP17420) has three lines 45 to 172 kHz below it
 that switch on and off with it (r 0.97 to 0.99), each at S/N above 400 and
@@ -446,7 +446,22 @@ applied only by hand, to cases named.
   frequencies matched 0 of 1,080. Still open; absence proves little for a
   line that switches itself off.
 
-With these, 28 of the survey's 34 follow-up events are closed and 6 open.
+The same probe then ran on the six follow-up events still open, whether or
+not the hit tables had flagged them:
+
+- f003 (HIP109427, 1559.671 MHz): the line is there toward 6 other stars in
+  7 of 30 scans made 0.7 to 1.4 hours before the event, at S/N 136 to 221,
+  steady and within 17 Hz. The 90 nearby measurements matched none. Closed
+  by D9.
+- f007 (HIP100064, 1560.945 MHz): the line is there toward 4 other stars in
+  8 of 108 scans, 27 to 29 hours after the event, 17 to 85 Hz off. Every
+  frequency within 475 kHz holds a catalogued hit in some scan, so there
+  are no nearby frequencies to measure and no chance estimate; D9 cannot
+  apply. Still open.
+- f002, f018, f019, f034: absent in 30 to 54 scans each; nearby frequencies
+  matched 0 of 150 to 1,080. Still open.
+
+With these, 29 of the survey's 34 follow-up events are closed and 5 open.
 
 ### Errors found and fixed
 

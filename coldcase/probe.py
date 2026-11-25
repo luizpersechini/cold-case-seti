@@ -101,14 +101,14 @@ def null_freqs(con, f_e, file_ids):
     return out
 
 
-def half_khz(drift_reach):
+def half_khz(drift_reach, null_reach_hz=NULLS / 2 * NULL_STEP_HZ):
     """Cutout half-width that holds the farthest null, its controls and the
     drift across a scan."""
     ctol = int(np.ceil(WINDOW_HZ / repeat.CHAN_HZ))
     ch = (
         (CTRL + 0.5) * (2 * ctol + 3) + ctol + drift_reach * 320.0 / repeat.CHAN_HZ + 30
     )
-    return float(np.ceil(NULLS / 2 * NULL_STEP_HZ / 1e3 + ch * repeat.CHAN_HZ / 1e3))
+    return float(np.ceil(null_reach_hz / 1e3 + ch * repeat.CHAN_HZ / 1e3))
 
 
 def measure(cu, freqs, drift, dtol):
@@ -175,10 +175,12 @@ def summarise(rows):
     if not ev:
         out["text"] = "no scan of another star measured"
     elif match:
+        ch = out["chance_of_this_many"]
+        ch = "unknown" if ch is None else f"{ch:.2g}"
         out["text"] = (
             f"the line at the event's telescope frequency toward {len(stars)} other "
             f"star(s) in {len(match)} of {len(ev)} scans; chance of unrelated lines "
-            f"{out['chance_of_this_many']:.2g} (from {len(nul)} null measurements)"
+            f"{ch} (from {len(nul)} null measurements)"
         )
     else:
         out["text"] = (
@@ -222,7 +224,8 @@ def run(case_id, days=DAYS, max_gb=MAX_GB, save=True, say=print):
         )
     todo = scans(con, cad, case["target"], t_e, days)
     out["nulls"] = nulls = null_freqs(con, f_e, [s["file_id"] for s in todo])
-    half = half_khz(abs(d_e) + dtol)
+    reach = max([abs(f - f_e) * 1e6 for f in nulls], default=0.0)
+    half = half_khz(abs(d_e) + dtol, max(reach, NULLS / 2 * NULL_STEP_HZ))
     say(
         f"{len(todo)} scans of other stars within {days:g} d; {len(nulls)} null "
         f"frequencies; cutouts +-{half:g} kHz"
