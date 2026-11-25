@@ -177,13 +177,14 @@ def test_d8_closes_on_a_local_member():
     assert text and text.startswith("D8")
 
 
-def test_d8_needs_truly_equal_spacing():
+def test_d8_flags_sidebands_and_closes_nothing_on_them():
     f0 = 1600.0
     sym = {"leads": [_lead(f0 - 0.011), _lead(f0 + 0.011 + 3e-6)]}
     asym = {"leads": [_lead(f0 - 0.011198), _lead(f0 + 0.010599)]}
-    assert triage.companion_rule(_bundle(f0), sym)[0].startswith("D8")
+    text, flag = triage.companion_rule(_bundle(f0), sym)
+    assert text is None and "sidebands" in flag  # modulation is not locality
     text, flag = triage.companion_rule(_bundle(f0), asym)
-    assert text is None and flag
+    assert text is None and flag and "sidebands" not in flag
 
 
 def test_d8_is_silent_without_companions():
@@ -408,3 +409,50 @@ def test_probe_perm_ranks_a_line_that_persists_and_not_a_crowded_band():
     assert empty["P"] > 0.02
     crowded = probe_perm.one_width(scans(12, False, True), 50.0)
     assert crowded["P"] > 0.02
+
+
+def _session(margins):
+    return {
+        "scans": [
+            {
+                "source": f"S{i}",
+                "minutes_from_event": -6.0 * (i + 1),
+                "offset_hz": 10.0,
+                "separation_deg": 5.0,
+                "margin_over_control_max": m,
+                "controls": {"n": 46, "max_snr": 5.0, "second_snr": 4.8},
+            }
+            for i, m in enumerate(margins)
+        ]
+    }
+
+
+def test_d7_needs_two_matching_scans():
+    one, st = triage.session_rule(_bundle(), _session([9.0, -1.0, -0.5, -0.8]))
+    assert one is None and st["scans_matched"] == 1  # one scan is only a flag
+    assert st["chance_of_this_many"] < triage.CHANCE_MAX
+    two, _ = triage.session_rule(_bundle(), _session([9.0, 4.0, -0.5, -0.8]))
+    assert two.startswith("D7")
+
+
+def _burst_bundle(without):
+    row = {
+        "pos": 0,
+        "role": "ON",
+        "track": {"snr": 60.0},
+        "control_windows": {"max_snr": 5.0},
+        "track_time_profile": {"largest_single_sample_share": 0.55},
+        "track_without_strongest_sample": without,
+    }
+    return {"seed": {"recovered": True, "seed_pos": 0, "freq_mhz": 1600.0, "drift": 0.1}, "scans": [row]}
+
+
+def test_d4_share_alone_does_not_close_a_line_that_survives():
+    survives = {"snr": 40.0, "control_max_snr": 5.0, "full_snr": 60.0,
+                "full_control_max_snr": 5.0, "share_of_full_snr": 0.67}
+    dec = triage.decide(_burst_bundle(survives))
+    assert dec["status"] == "open" and any("still stands" in f for f in dec["flags"])
+    gone = {"snr": 4.0, "control_max_snr": 5.0, "full_snr": 60.0,
+            "full_control_max_snr": 5.0, "share_of_full_snr": 0.07}
+    dec = triage.decide(_burst_bundle(gone))
+    assert dec["status"] == "closed" and dec["verdict"] == "not_a_tone"

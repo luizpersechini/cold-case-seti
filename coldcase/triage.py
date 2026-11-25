@@ -301,6 +301,13 @@ def session_scans(sess):
     ]
 
 
+# D7 needs this many matching scans. With one, the chance it reports is only
+# the arithmetic of SESSION_BASE (one match closes a case exactly when five or
+# fewer scans were read), and the single matches found sat 138 to 304 Hz from
+# the event, where a true match sits within tens of hertz. One scan is a flag.
+SESSION_MIN_SCANS = 2
+
+
 def session_rule(b, sess):
     """D7, from a session check (coldcase/session.py). A scan of another star
     is a match when it holds a signal within SAME_HZ of the event's telescope
@@ -333,7 +340,7 @@ def session_rule(b, sess):
         "chance_per_scan": round(p, 4),
         "chance_of_this_many": round(tail, 4),
     }
-    if not k or tail >= CHANCE_MAX:
+    if k < SESSION_MIN_SCANS or tail >= CHANCE_MAX:
         return None, stats
     best = max(hits, key=lambda r: r["margin_over_control_max"])
     return (
@@ -381,9 +388,10 @@ def companion_rule(b, comp):
     """D8, from a companion measurement (coldcase/companions.py). comp: the
     record companions.py writes, with "leads" and, once measured, "members"
     (each companion as a case of its own). The event closes when a member is
-    closed by D1, D4, D5 or D7, or when two companions and the event make three
-    lines spaced equally to within the measurement's accuracy: a carrier and
-    its sidebands. Returns (text or None, flag or None)."""
+    closed by D1, D4, D5 or D7. Two companions and the event making three
+    lines spaced equally to within the measurement's accuracy, a carrier and
+    its sidebands, is flagged and closes nothing. Returns (text or None, flag
+    or None)."""
     f0 = b["seed"]["freq_mhz"]
     found = [x for x in comp.get("leads", []) if x.get("outcome") == "companion"]
     if not found:
@@ -405,11 +413,13 @@ def companion_rule(b, comp):
                     continue
                 a, c = (lines[j] - lines[i]) * 1e6, (lines[k] - lines[j]) * 1e6
                 if abs(a - c) <= tol:
-                    return (
-                        f"D8: with two lines that rise and fall with it, it forms three "
+                    # modulation, which a transmitter on the sky may have too
+                    # (Voyager 1 has sidebands): a flag, not a closure
+                    return None, (
+                        f"with two lines that rise and fall with it, it forms three "
                         f"lines spaced equally to within {tol:.0f} Hz ({a / 1e3:.3f} and "
                         f"{c / 1e3:.3f} kHz apart): a carrier and its sidebands"
-                    ), None
+                    )
     return None, (
         f"{len(found)} line(s) elsewhere in the band rise and fall with it: "
         + ", ".join(
@@ -525,7 +535,17 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
     row = next((s for s in b["scans"] if s["pos"] == seed["seed_pos"]), {})
     share = (row.get("track_time_profile") or {}).get("largest_single_sample_share", 0)
     if share >= BURST_SHARE:
-        direct.append(f"D4: {share:.0%} of the track's power is in one time sample")
+        w = row.get("track_without_strongest_sample")
+        if w and w["snr"] > w["control_max_snr"]:
+            # a line with a burst on top, or one that varies strongly: the
+            # line is still there without the sample, so it is not a burst
+            flags.append(
+                f"{share:.0%} of the track's power is in one time sample, but the track "
+                f"still stands above its controls without it (S/N {w['snr']} against "
+                f"{w['control_max_snr']})"
+            )
+        else:
+            direct.append(f"D4: {share:.0%} of the track's power is in one time sample")
     text, flag = flash(row)
     if text:
         direct.append(text)
@@ -536,9 +556,15 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
         if text:
             direct.append(text)
     if session:
-        text, _ = session_rule(b, session)
+        text, st = session_rule(b, session)
         if text:
             direct.append(text)
+        elif st.get("scans_matched") == 1 and st["chance_of_this_many"] < CHANCE_MAX:
+            flags.append(
+                f"a line near the event's frequency toward another star in 1 of "
+                f"{st['scans_counted']} scans within half an hour; one scan is not "
+                "enough to close a case"
+            )
     if satellites:
         text, _ = satellite_rule(satellites)
         if text:

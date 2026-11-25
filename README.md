@@ -71,7 +71,8 @@ survey of 1,327 nearby stars with the Green Bank Telescope.
    few minutes. The event's frequency is measured in the scans of other stars
    made in the same band within 30 minutes of it. A line that is still there
    with the telescope pointed degrees away is local, and the case closes when
-   unrelated lines are unlikely to explain the match. Seeing nothing changes
+   it is there in two or more scans and unrelated lines are unlikely to
+   explain the match. Seeing nothing changes
    nothing. A second check compares the line of sight, at the moment the
    signal was strongest, with the orbits of catalogued satellites. A close
    pass is flagged and never closes a case. Both are run by hand for now.
@@ -94,21 +95,33 @@ far" below).
 
 ### In short
 
-No candidate. Of 771 discarded hits audited, 701 are explained or have no
-data, and 70 hits in 51 events are not explained by these checks. One of
-those, toward HIP36357 at 2051.617 MHz, is the hardest to explain and was
-sent to the Breakthrough Listen team with the drift-sign finding below.
+No candidate. Of 771 discarded hits audited, 606 are explained, 2 have no
+data, and 163 hits in 125 events are not explained by these checks. One of
+those, toward HIP36357 at 2051.617 MHz, is the hardest to explain.
 
-| Outcome                                          | Hits |
-| ------------------------------------------------ | ---- |
-| A burst, not a tone                              | 526  |
-| Seen off the star                                | 102  |
-| No signal at the catalogue position              | 33   |
-| Lines of human clocks                            | 23   |
-| Moves with a companion line that is explained    | 10   |
-| Seen only toward other stars within half an hour | 5    |
-| No public data                                   | 2    |
-| Not explained by these checks                    | 70   |
+The numbers below are those of 25 November, after a review of the paper
+draft (`paper/REVIEW.md`) led to 93 weak closures being opened again (see
+"Weak closures opened again"). The sections further down tell the story in
+the order it happened and still carry the counts of their day.
+
+| Outcome                                              | Hits |
+| ---------------------------------------------------- | ---- |
+| **Shown to be local**                                | 127  |
+| Seen off the star                                    | 102  |
+| Lines of human clocks                                | 23   |
+| Toward other stars within half an hour, in two scans | 1    |
+| Moves with a companion that is seen off the star     | 1    |
+| **A burst, not a steady tone**                       | 366  |
+| Nothing left of it without its strongest 18 seconds  | 361  |
+| Moves with a companion that is a burst               | 5    |
+| **Not reproduced**                                   | 113  |
+| No line; a strong burst in the same data             | 80   |
+| No line at the catalogue position                    | 33   |
+| **No public data**                                   | 2    |
+| **Not explained by these checks**                    | 163  |
+
+A burst is not shown to be local: a source in the sky could pulse. What it
+shows is that the search reported a flash of 18 seconds as a drifting tone.
 
 How far to trust it: of 952 hidden sky-only test signals, 914 were left
 open and 5 were wrongly closed by a rule; of 476 hidden leaks, 340 were
@@ -230,6 +243,7 @@ moves: 740 cases are selected either way, 41 drop out and 9 are new. Of the
 closed as seen off the star, one as a burst, one has no public data, and two
 lines 8 kHz apart toward HIP93805 stay open.
 
+(Counts of 21 November; today's are under "In short".)
 Of the 771 cases, 699 are now closed: 526 bursts, 33 with no signal at the
 catalogue position, 102 seen off the star, 5 seen only toward other stars in
 the same half hour, 23 lines of human clocks (below), and 10 that rise and
@@ -516,6 +530,35 @@ them out. f002 and f003 share a pointing with f001 (HIP109427), which is
 explained as local. None of this closes a case. The numbers come from
 `paper/paper_numbers.py`.
 
+### Weak closures opened again
+
+The same review looked at what each kind of closure rests on, and three
+kinds did not hold up. On 25 November the rules were changed and 93 hits
+were opened again (`coldcase/triage.py`; nothing was measured anew).
+
+- **A burst that leaves a line behind (84 hits).** The burst rule closed a
+  case when half or more of its power sat in one 18-second sample. In 84 of
+  those the track still stands above its control windows with that sample
+  taken out: a line with a flash on top, or a line that varies strongly,
+  but not a flash. The share now closes a case only when nothing is left
+  without the sample.
+- **One matching scan in the half hour (4 hits).** The half-hour check
+  never assumes less than a 1% chance per scan, so one match closed a case
+  exactly when five or fewer scans were read: the 4 to 5% it reported was
+  arithmetic, not a measurement. The single matches sat 138 to 304 Hz from
+  the event, where the matches of the days-around check sit within tens of
+  hertz, and about three were to be expected by chance among sixty events.
+  The rule now needs two scans; one is a flag.
+- **A carrier and its sidebands (5 hits of one event).** Three equally
+  spaced lines that rise and fall together show a modulated transmitter,
+  not a local one. Voyager 1 has sidebands. This is now a flag.
+
+No hidden test signal changes outcome under the new rules, and neither does
+any of the survey's 34 follow-up events. The queue stands at 606 closed, 2
+without data and 163 hits open in 125 events. Of those events, 94 stand
+above their control windows in one on-star scan, 2 in two and 29 in none,
+and 77 drift faster than 1 Hz/s.
+
 ### Errors found and fixed
 
 **A drift-sign error, found and fixed.** Until 19 November every case was
@@ -526,6 +569,16 @@ between two scans while its catalogue drift pointed up. The hit tables
 confirm it on their own: of 1.04 million lines catalogued in two on-star
 scans of one cadence, 98.8% moved against the catalogue's sign
 (`tools/drift_sign.py`).
+
+This turned out to be known, though not flagged where the data are
+published. turboSETI's documentation
+([docs/find_event.rst](https://github.com/UCBerkeleySETI/turbo_seti/blob/master/docs/find_event.rst))
+notes that hit files made before version 0.8.2 recorded drift rates with the
+wrong sign, to be flipped when events are built. The survey did flip it: its
+event tables carry the opposite sign to its hit files in all 2,809 entries
+compared, so its results are not affected. The hit files on Zenodo carry no
+such note. So this is a caution for anyone using those files, not an error
+in the survey.
 
 A wrong-way track crosses a steady line for an instant, so a steady line
 looked like a burst, and the places predicted in the other five scans were
@@ -755,8 +808,9 @@ trigger.
   assumes unrelated lines are spread evenly over those windows. Four of the
   eight events it closed rest on one off-star scan, two of them at a chance
   above 3%.
-- Most of the 51 open events have no AI reading of their present
-  measurements. The two events added last have had none of the three
+- Most of the 125 open events have no AI reading of their present
+  measurements, and the 93 hits opened again on 25 November have not had
+  the other-day, half-hour or satellite checks at their new status. The two events added last have had none of the three
   follow-up checks yet.
 - No hidden test signal drifts faster than 0.5 Hz/s, and more than half of the
   open events do. The fast-drift check tests the seed search only, not the
@@ -784,9 +838,8 @@ trigger.
   open lines in one scan. A closed comb's grid comes from a few lines, so a
   tooth far from them can fall outside the 120 Hz allowed and be missed.
 - The session check needs another star observed within 30 minutes: 13 of the
-  60 open events had none. Five of its six closures rest on one matching
-  scan, the weakest of them 3.6 above its control windows, and three of
-  them sit at a chance of 4.9%, just under the limit.
+  60 open events had none. Since 25 November it needs two matching scans;
+  the four closures that rested on one were opened again.
 - The satellite check knows catalogued payloads only, from orbits published
   up to 7 days from the observation. It cannot tell a working satellite from
   a dead one, and it cannot see one picked up far from the beam by the

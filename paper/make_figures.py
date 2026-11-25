@@ -7,7 +7,6 @@ Writes paper/figures/*.pdf and prints the numbers each figure shows.
 
 import json
 import re
-import shutil
 from pathlib import Path
 
 import matplotlib
@@ -220,6 +219,7 @@ if __name__ == "__main__":
     fig_probe()
     fig_belt()
     fig_controls()
-    shutil.copy(
-        ROOT / "cases" / "evidence" / "q00671" / "waterfall.png", OUT / "hip36357.png"
-    )
+    from PIL import Image
+
+    im = Image.open(ROOT / "cases" / "evidence" / "q00671" / "waterfall.png")
+    im.crop((0, 45, im.width, im.height)).save(OUT / "hip36357.png")  # no title line

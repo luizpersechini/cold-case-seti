@@ -28,10 +28,10 @@ narrowly, and the 34 events flagged ``Requires follow up'' in the survey's
 public inspection table. Each case is measured again in the spectra of its
 six-scan cadence against about 46 control windows and is closed by coded
 rules that need direct evidence; the frequency band of a signal never closes
-a case. We find no candidate. Of the 771 hits, 131 are shown to be local,
-450 are single-sample bursts and not steady tones, 113 could not be
-reproduced, 5 are carriers with sidebands, 2 have no public data, and 70
-hits in 51 events are not explained. Of the 34 flagged events, 29 are
+a case. We find no candidate. Of the 771 hits, 127 are shown to be local,
+366 are single-sample bursts and not steady tones, 113 could not be
+reproduced, 2 have no public data, and 163 hits in 125 events are not
+explained. Of the 34 flagged events, 29 are
 explained, 19 of them as measurable off the source; the survey's authors had
 already rejected at least three of the 34 by cross-reference to other stars,
 and our measurements agree. Hidden synthetic signals rode on every download:
@@ -240,7 +240,7 @@ distinction matters for what a closure means. Rules D1, D3, D5, D7 and D9
 show a line with the telescope pointed elsewhere, and D2 and D6 show the
 arithmetic of a human clock: these are evidence of a local origin. Rule D4
 shows that the catalogued hit is not a steady tone: its power lies in one
-18\,s sample. A source on the sky could in principle pulse, so D4 is not
+18\,s sample and no line is left without it. A source on the sky could in principle pulse, so D4 is not
 evidence of locality; it establishes that a de-Doppler search over a
 five-minute scan reported a short burst as a drifting tone. A case with no
 line at the catalogue position is ``not reproduced''.
@@ -259,14 +259,14 @@ occupancy of the band is never used to close a case.
 D1 & Seen off the source & The line is measurable in the OFF scans: on its predicted track in two scans or in their stack; as a line of the same drift and \sn\ of 8 or more within 300\,Hz to 1\,kHz; or by following a line whose drift changes \\
 D2 & A comb at a round rate & Companion lines spaced by a round number of hertz \\
 D3 & Other stars, hit tables & The same frequency and drift toward two or more other stars in the hit tables \\
-D4 & A burst, not a tone & Half or more of the track's power is in one 18\,s sample, or nothing is left of the track without its strongest sample \\
+D4 & A burst, not a tone & Nothing is left of the track without its strongest 18\,s sample: the track stood above its controls on the whole scan and does not without that sample, or half or more of its power is in that sample and it does not stand above its controls without it \\
 D5 & Another day & The line is back at the same topocentric frequency when the star was observed again \\
 D6 & Harmonics of one clock & Lines of one scan at whole multiples of one clock rate, all the same fraction off nominal \\
-D7 & The same half hour & The line is within 300\,Hz in scans of other stars, at least 1 degree away, within 30 minutes \\
-D8 & An explained companion & A line that rises and falls with the event in the same scans is itself closed by D1, D4, D5 or D7; or the event and two such lines are equally spaced, as a carrier and its sidebands \\
+D7 & The same half hour & The line is within 300\,Hz in two or more scans of other stars, at least 1 degree away, within 30 minutes \\
+D8 & An explained companion & A line that rises and falls with the event in the same scans is itself closed by D1, D4, D5 or D7 \\
 D9 & The days around & The line is at the event's topocentric frequency toward other stars over days, more consistently than at other frequencies of the same spectra (Section~\ref{sec:probe}) \\
 \enddata
-\tablecomments{D1--D4 are applied automatically and are the rules exercised by the hidden test signals; D5--D9 run afterwards on what is still open. D3 can hardly fire on the queue, because of the selection (Section~\ref{sec:selection}).}
+\tablecomments{D1--D4 are applied automatically and are the rules exercised by the hidden test signals; D5--D9 run afterwards on what is still open. D3 can hardly fire on the queue, because of the selection (Section~\ref{sec:selection}). Three conditions that closed cases in the first version of these rules are now flags only (Section~\ref{sec:queue}).}
 \end{deluxetable*}
 
 Rule D5 has a counterpart that is never decided by code: a line that
@@ -295,7 +295,7 @@ The test signals have limits that matter for every rate quoted below. They
 are injected with the pipeline's own conventions, so they cannot reveal a
 misreading of the catalogue (Section~\ref{sec:errors}). They exercise rules
 D1 to D4 only. And none drifts faster than 0.5\,\hzs, while three quarters of
-the queue and 32 of the 51 open events do.
+the queue and 86 of the 125 open events do.
 
 \subsection{Other stars in the days around} \label{sec:probe}
 
@@ -367,7 +367,7 @@ kept 20 of 21. The readers also failed to connect lines that belonged to one
 device (Section~\ref{sec:emitters}). The pipeline, its tests and a first
 draft of this text were written with a language-model coding assistant, and
 the two reviews mentioned above were made by further instances of such
-models (Section~\ref{sec:ack}).
+models (see the Acknowledgments).
 
 \section{Validation} \label{sec:validation}
 
@@ -478,20 +478,17 @@ recovers injected fast tones slightly more often.
 
 Table~\ref{tab:queue} gives the outcome by class. None is a candidate.
 
-\emph{Shown to be local: 131.} In 102 cases the line is measurable in the
+\emph{Shown to be local: 127.} In 102 cases the line is measurable in the
 OFF scans once the predicted track is measured there directly. Twenty-three
-are lines of clocks (Section~\ref{sec:emitters}). Five were found toward
-another star within half an hour, and one moves with a companion that is
-seen off the source.
+are lines of clocks (Section~\ref{sec:emitters}). One was found toward
+other stars in two scans of the same half hour, and one moves with a
+companion that is seen off the source.
 
-\emph{Not a steady tone: 450.} In 243 cases the track stood above its
+\emph{Not a steady tone: 366.} In 243 cases the track stood above its
 controls over the whole scan and does not without its strongest 18\,s
-sample. In 202 the rule fired only on its other condition, half or more of
-the power in one sample; in 84 of those the track still stands above its
-controls without that sample, so these are steady or slowly varying lines
-with a burst on top, or strongly varying lines, and they are the weakest of
-the closures (73 have a share between 50\% and 60\%). Five move with a
-companion that is itself a burst. Most of these cases drift fast: 85\% of
+sample. In 118 more, half or more of the power is in one sample and the
+track does not stand above its controls without it. Five move with a
+companion that is itself a burst. Most of these cases drift fast: 86\% of
 the burst closures have $|{\rm drift}|>0.5$\,\hzs, outside the range of the
 test signals.
 
@@ -502,31 +499,36 @@ have not measured how often the seed search recovers an ordinary catalogued
 hit of this strength at these drifts, so a failure to reproduce is not
 evidence that the hit was spurious.
 
-\emph{Carriers with sidebands: 5.} Five were closed by the clause of rule
-D8 that takes three equally spaced lines rising and falling together as a
-carrier and its sidebands. That is evidence of modulation and not of a
-local origin (the Voyager~1 signal has sidebands), and we list these
-separately.
-
-\emph{Open: 70 hits in 51 events.} By the criterion of
-Section~\ref{sec:method}, 30 events are present in one ON scan, 2 in two,
-none in all three, and 19 in none: in those 19 the line was found by the
+\emph{Open: 163 hits in 125 events.} By the criterion of
+Section~\ref{sec:method}, 94 events are present in one ON scan, 2 in two,
+none in all three, and 29 in none: in those 29 the line was found by the
 seed search but does not exceed its strongest control window by 1.5 in any
-scan. Twenty-seven of the 51 drift faster than 1\,\hzs.
+scan. Seventy-seven of the 125 drift faster than 1\,\hzs.
 
-Three further checks were run on the open events. For 18 events the star
-was observed again in the same band, on 27 other days in all, and the line
-was absent every time at both the topocentric and the Earth-shifted
-frequency. A comparison of each line of sight with the orbits of catalogued
-satellites flagged about as many close passes as chance predicts and closes
-nothing. The half-hour test (D7) closed five hits, and these closures are
-weak: with the 1\% floor on the per-scan chance, one matching scan closes a
-case exactly when five or fewer scans were available, so the quoted chance
-of 4\% to 5\% is arithmetic and not a measurement; the single matches lie
-138 to 304\,Hz from the event, two of them at the edge of the 300\,Hz
-window, where the matches of Section~\ref{sec:days} lie within tens of
-hertz; and with some sixty events tested, about three such matches are
-expected by chance. They should be read as flags.
+Ninety-three of the open hits had been closed by the first version of the
+rules and were reopened after the review of this manuscript, when three
+conditions were changed from closures to flags. Eighty-four had half or
+more of their power in one sample but still stand above their controls
+without it: a line with a burst on top, or a line that varies strongly, is
+not a burst. Four had been found toward another star in a single scan of
+the same half hour; with a 1\% floor on the per-scan chance one matching
+scan closes a case exactly when five or fewer scans were read, so the
+quoted chance was arithmetic and not a measurement, the matches lay 138 to
+304\,Hz from the event where the matches of Section~\ref{sec:days} lie
+within tens of hertz, and with some sixty events tested about three such
+matches are expected by chance. And five lines of one event had been closed
+because three of them are equally spaced, as a carrier and its sidebands,
+which is evidence of modulation and not of a local origin (the Voyager~1
+signal has sidebands). None of the hidden test signals changed outcome
+under the new rules, so the rates of Section~\ref{sec:validation} stand.
+
+Two further checks were run on the open events. For 18 of the 51 events
+that were open before the reopening, the star was observed again in the
+same band, on 27 other days in all, and the line was absent every time at
+both the topocentric and the Earth-shifted frequency. A comparison of each
+line of sight with the orbits of catalogued satellites flagged about as
+many close passes as chance predicts and closes nothing. The reopened
+events have not had these checks at their present status.
 
 \begin{deluxetable}{lr}
 \tablecaption{Outcome for the 771 near-miss hits \label{tab:queue}}
@@ -535,19 +537,18 @@ expected by chance. They should be read as flags.
 \multicolumn{2}{l}{\emph{Shown to be local}} \\
 \quad Seen off the source (D1) & 102 \\
 \quad Lines of human clocks (D2, D6) & 23 \\
-\quad Toward another star within half an hour (D7) & 5 \\
+\quad Toward other stars within half an hour (D7) & 1 \\
 \quad Companion seen off the source (D8) & 1 \\
 \multicolumn{2}{l}{\emph{Not a steady narrowband tone}} \\
-\quad Nothing left without the strongest sample (D4) & 243 \\
-\quad Half or more of the power in one sample (D4) & 202 \\
+\quad Stands on the whole scan, not without its strongest sample (D4) & 243 \\
+\quad Half the power in one sample, nothing without it (D4) & 118 \\
 \quad Companion is a burst (D8) & 5 \\
 \multicolumn{2}{l}{\emph{Not reproduced}} \\
 \quad No line; a strong burst in the cutout & 80 \\
 \quad No line at the catalogue position & 33 \\
 \multicolumn{2}{l}{\emph{Other}} \\
-\quad Carrier with sidebands (D8) & 5 \\
 \quad No public data & 2 \\
-\quad Not explained by these checks & 70 \\
+\quad Not explained by these checks & 163 \\
 \enddata
 \end{deluxetable}
 
@@ -835,18 +836,19 @@ common; at fast drifts, where the place of a line a few minutes later
 cannot be predicted well and no test signal reaches; and when a line's
 drift wanders between scans. Three of the five open flagged events have a
 line of their drift toward other stars near their frequency and stay open
-because that cannot be told from chance in those bands. Nineteen of the 51
-open events of the queue do not exceed their control windows in any scan. A
+because that cannot be told from chance in those bands. Twenty-nine of the
+125 open events of the queue do not exceed their control windows in any
+scan, and 93 open hits are there because a condition that once closed them
+was judged too weak. A
 reader interested in candidates should discount the open list accordingly;
 a reader interested in the method should take it as a map of where forced
 measurement against the strongest control fails.
 
-The converse holds for closures. They are of unequal strength, and we have
-tried to say which are weak: the 84 burst closures in which the line
-survives the removal of its strongest sample, the five closures on
-sidebands, the single-scan half-hour closures, and the two off-source
-closures of flagged events that rest on a stacked margin just over the
-threshold.
+The converse holds for closures. They are of unequal strength. The weakest
+kinds found in review were reopened (Section~\ref{sec:queue}); of what
+remains, the least secure are the 113 cases that were not reproduced, the
+five closed through a companion's burst, and the two off-source closures of
+flagged events that rest on a stacked margin just over the threshold.
 
 \subsection{What the re-examination confirms for searches}
 
@@ -860,8 +862,9 @@ of the 34 flagged events are measurably present off the source.
 OFF scans pass their filter, and visual inspection is step 2 of the
 framework of \citet{Sheikh2021}. Second, time samples within a scan carry
 information that a scan-integrated search discards
-\citep[see also][]{Brzycki2023}: 450 of 771 near-miss hits, and 3 of the 34
-flagged events, are dominated by a single 18\,s sample. Third, scans of
+\citep[see also][]{Brzycki2023}: 366 of 771 near-miss hits, and 3 of the 34
+flagged events, are single 18\,s bursts with no line left without that
+sample. Third, scans of
 other targets hours or days away are a free control for local emitters, as
 \citet{Price2020} and \citet{Painter2025} used them; a statistic over
 frequency, and not over scans, turns a match into a probability and shows
@@ -882,8 +885,8 @@ The sample is not random, and its selection makes two of the checks nearly
 vacuous for it. Thresholds were chosen on small samples, and some on the
 same controls that score them, so the quoted error rates are in-sample. No
 test signal drifts faster than 0.5\,\hzs, and rules D5 to D9 were never run
-on test signals. The burst rule closes on a 50\% share alone, which a
-steady line under one unrelated burst would meet. The off-source test
+on test signals. The burst rule removes one time sample, so a signal that is
+on for two or three samples escapes it. The off-source test
 missed two signals of \citet{Ma2023} that another pipeline finds off the
 source. The statistic of Section~\ref{sec:probe} was designed after the
 data were seen. The satellite comparison knows catalogued payloads only and
@@ -898,10 +901,11 @@ from the Breakthrough Listen 1327-star survey and the 34 events flagged for
 follow-up in its inspection table, and found no candidate.
 
 \begin{enumerate}
-\item Of the 771 hits, 131 are shown to be local, 450 are dominated by a
-single 18\,s sample and are not steady tones, 113 could not be reproduced,
-and 70 hits in 51 events are not explained. Most of the unexplained events
-lie where the method has little power.
+\item Of the 771 hits, 127 are shown to be local, 366 are single 18\,s
+bursts and not steady tones, 113 could not be reproduced, and 163 hits in
+125 events are not explained. Most of the unexplained events lie where the
+method has little power, and 93 of the hits are unexplained because the
+review of this work found the evidence that had closed them too weak.
 \item Of the 34 flagged events, 29 are explained, 19 as measurable off the
 source. Three of the 34 had been rejected by the survey's authors by
 cross-reference to other stars, and the spectra confirm it.
@@ -928,7 +932,7 @@ known-answer cases and the review reports are public at
 outcome of every case accompanies the paper, and the per-case evidence is
 available on request.
 
-\section{Acknowledgments} \label{sec:ack}
+\begin{acknowledgments}
 
 This work rests entirely on the open data policy of Breakthrough Listen and
 on the public products of \citet{Price2020} and \citet{Lebofsky2019}. It is
@@ -947,6 +951,7 @@ and further instances reviewed the manuscript against the code and the
 literature. Statements about prior work were checked against the cited
 sources. The author directed the work, approved every closure made by hand,
 and is responsible for the content.
+\end{acknowledgments}
 
 \facility{GBT}
 

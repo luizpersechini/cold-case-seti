@@ -11,8 +11,8 @@ allocation tables.
 Both recommended major revision. This file lists each point, whether it was
 checked independently before acting on it, and what changed. "Checked" means
 the claim was recomputed or read at the source by the author's assistant, not
-taken from the report. Points that need a decision by the author are marked
-**OPEN**.
+taken from the report. The decisions the author took are at the end; nothing is marked
+open.
 
 ## Changes that altered a result
 
@@ -20,11 +20,11 @@ taken from the report. Points that need a decision by the author are marked
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | A-M1, B-M2 | The chance estimate of the days-around test (rule D9) was invalid: null frequencies chosen clean, no power where control windows are saturated, overlapping controls. For the HIP 109427 event at 1559.671 MHz all 90 null measurements had a control maximum above S/N 90, so "0 of 90" carried no information. | Yes (`probe_week.json`: null control maxima 93 to 6000)                                                                        | The statistic was replaced by a frequency-permutation statistic (`coldcase/probe_perm.py`, Section 3.5, Table 5, Figure 2). Probabilities such as 1e-135 are gone. |
 | A-M2       | Two events reported as "absent toward other stars" have a line there: HIP 29432 at 1556.346 MHz (ten scans, 78 to 117 Hz off, S/N 35 to 92) and HIP 109427 at 1560.003 MHz (two scans, 25 to 28 Hz off).                                                                                                         | Yes                                                                                                                            | Section 5.3 now says so, and says they stay open because in those bands such a line is not unusual.                                                                |
-| A-M1       | Under the new statistic the HIP 109427 event at 1559.671 MHz does not meet the criterion (corrected P 0.08) and the HIP 100064 event at 1560.945 MHz does (0.003).                                                                                                                                               | Yes                                                                                                                            | The paper reports these outcomes. **OPEN: the ledger still has the first closed and the second open; see "Decisions for the author".**                             |
+| A-M1       | Under the new statistic the HIP 109427 event at 1559.671 MHz does not meet the criterion (corrected P 0.08) and the HIP 100064 event at 1560.945 MHz does (0.003).                                                                                                                                               | Yes                                                                                                                            | The paper reports these outcomes. The ledger was changed to match on 25 November.                             |
 | B-M1       | Price et al. (2020), Appendix A, already rejected three of the 34 flagged events (their Fig. 7a to 7c) by cross-reference to other stars, and most events in the table carry no label.                                                                                                                           | Yes (arXiv:1906.07750 text; label counts from the event CSVs)                                                                  | Abstract, Sections 2.1, 5.2, 5.3 and the conclusions now say so. The label is called a working annotation.                                                               |
 | B-M3       | The survey's filter used +-600 Hz, not 1.2 kHz, and only the strongest hit within +-600 Hz is recorded.                                                                                                                                                                                                          | Yes (Price et al. text)                                                                                                        | Introduction, Sections 2.1 and 3.1 corrected; the top-hit caveat added.                                                                                            |
 | B-M4       | The drift-sign reversal is a documented turboSETI issue, and the survey's event table carries the corrected sign.                                                                                                                                                                                                | Yes (turboSETI `docs/find_event.rst`; 0 of 2809 event-table entries share the hit files' sign)                                 | The section was shortened, moved to Section 2 as a note, and now says the survey's results are unaffected.                                                         |
-| A-M3, B-M5 | Most closures are not "direct evidence of a local origin": the burst rule shows a hit is not a steady tone, and it closes on a 50% share alone; 80 "bursts" are cases with no line recovered; the sideband clause of D8 is evidence of modulation.                                                               | Yes (202 share-only, of which 84 still stand without the strongest sample; 80 not recovered with a burst; 5 sideband closures) | Results are now given in three classes (local 131, not a steady tone 450, not reproduced 113) plus 5 sideband closures. Table 1 describes D4 as coded.             |
+| A-M3, B-M5 | Most closures are not "direct evidence of a local origin": the burst rule shows a hit is not a steady tone, and it closes on a 50% share alone; 80 "bursts" are cases with no line recovered; the sideband clause of D8 is evidence of modulation.                                                               | Yes (202 share-only, of which 84 still stand without the strongest sample; 80 not recovered with a burst; 5 sideband closures) | Results are given in three classes. After the reopening: local 127, not a steady tone 366, not reproduced 113. Table 1 describes D4 as coded.             |
 | B-M8       | HIP 36357: the line is catalogued in both of the first two ON scans; the "other star within 30 minutes" is 12.6 arcmin away; the re-observation is one scan; the frequency times 240/221 is 2228.00007 MHz.                                                                                                      | Yes (hit table; scan coordinates; arithmetic)                                                                                  | Section 5.6 rewritten. The drift was removed from the reasons for a local origin. Missing verification steps are listed.                                           |
 | B-M6       | Margot et al. (2023) had already examined the Ma et al. signals.                                                                                                                                                                                                                                                 | Yes (arXiv:2308.02712 text; rules rerun on MLc1 to MLc8)                                                                       | Section 4.1 names the four closed and four open and compares with Margot et al.; two that they find off the source are missed here, which is stated.               |
 
@@ -34,7 +34,7 @@ taken from the report. Points that need a decision by the author are marked
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | A-M4                        | No test signal drifts faster than 0.5 Hz/s; three quarters of the queue does; leak catch falls from 95% to 47% across the tested range.                                                                 | Yes                                                                                                | Stated in the abstract, Sections 3.1, 3.4, 4.2 and 6.3; Figure 1 gained a panel against drift. **Not done: injections at 0.5 to 3.9 Hz/s.**                                   |
 | A-M5, B-M9                  | "5 of 918": only 4 of the 5 closed signals are among the 918; masking is unknowable in real data; the rate is in-sample; 71% includes masked leaks in the denominator and depends on the injection mix. | Yes                                                                                                | Now 4/918 = 0.4% (0.2 to 1.1%), 9/928 = 1.0% counting masked, 33/952 unconditional; leaks 340/469 = 72% with the curve against off-source S/N and drift; stated as in-sample. |
-| A-M6, B-M9                  | Single-scan closures by the half-hour rule are arithmetic of the 1% floor, lie 138 to 304 Hz from the event, and about three are expected by chance.                                                    | Yes (verdict texts)                                                                                | Section 5.1 says they should be read as flags. **OPEN: whether to reopen them in the ledger.**                                                                                |
+| A-M6, B-M9                  | Single-scan closures by the half-hour rule are arithmetic of the 1% floor, lie 138 to 304 Hz from the event, and about three are expected by chance.                                                    | Yes (verdict texts)                                                                                | Section 5.1 says they should be read as flags. The rule now needs two scans and the four single-scan closures were opened again.                                                                                |
 | A-M7, B-M7                  | The belt probability used a poor baseline and a threshold chosen after the fact; angle from the belt is declination; the flagged events cluster in date.                                                | Yes (all 890 L-band stars; 19 of 22 within 13 degrees against 33%; 18 of 22 in MJD 57510 to 57600) | Section 5.4 rewritten with the all-pointings baseline, no probability, and the date clustering.                                                                               |
 | A-M8                        | 781 tracks were selected, 19 went to a pilot; the isolation cut makes D3 and the hit-table absence nearly vacuous for the queue.                                                                        | Yes (`cases/pilot`)                                                                                | Section 3.1 and Table 1 notes; the HIP 36357 hit-table absence is no longer listed as evidence.                                                                               |
 | A-M9                        | The open list was described with margin > 0, not the stated 1.5.                                                                                                                                        | Yes (30, 2, 0, 19)                                                                                 | Section 5.1 gives the counts at 1.5.                                                                                                                                          |
@@ -62,22 +62,22 @@ taken from the report. Points that need a decision by the author are marked
 - For HIP 36357: the per-sample light curve as a figure, the curvature test,
   a search for companions with drift proportional to frequency, a forced
   measurement near 2228.000 MHz, and an inquiry to the observatory (B-M8).
-- The manuscript has not been compiled: no LaTeX is installed on the machine
-  it was written on.
 
-## Decisions for the author
+## Decisions taken by the author on 25 November 2026
 
-1. **HIP 109427 at 1559.671 MHz (f003)** was closed on 24 November under the
-   first D9 statistic, which is invalid for it. Under the new statistic it
-   stays open (corrected P 0.08). The paper treats it as open.
-2. **HIP 100064 at 1560.945 MHz (f007)** is open in the ledger. Under the new
-   statistic it meets the criterion (corrected P 0.003, 10 of 108 scans in
-   the top 1%). The paper treats it as local.
-3. **Single-scan half-hour closures** (five hits in the queue): keep as
-   closed with the caveat now in the paper, or reopen as flagged.
-4. **Burst closures on the 50% share alone** in which the line survives
-   without its strongest sample (84 hits): keep, or reopen as "varies
-   strongly".
-5. **Sideband closures** (5 hits): keep as their own class, or reopen.
-6. The README and the note to Breakthrough Listen still describe the first
-   D9 statistic, the drift sign as an open question, and f003 as closed.
+1. **Rule D9 goes by the new statistic.** HIP 109427 at 1559.671 MHz (f003)
+   was opened again; HIP 100064 at 1560.945 MHz (f007) was closed. The
+   ledger, the README, the note to Breakthrough Listen and the paper agree.
+2. **The three kinds of weak closure were opened again**, 93 hits in all,
+   by changing the rules in `coldcase/triage.py` and running them over the
+   stored evidence: 84 burst closures in which the line survives without its
+   strongest sample, 4 half-hour closures on a single matching scan (the
+   rule now needs two), and 5 lines of one event closed as a carrier with
+   sidebands. No hidden test signal and no flagged event changed outcome.
+   The queue stands at 606 closed, 2 without data, 163 hits open in 125
+   events.
+3. **The drift sign** is described everywhere as the documented turboSETI
+   issue, and the question to Breakthrough Listen is now a request to note
+   it on the Zenodo record.
+
+The manuscript compiles with `tectonic coldcase.tex` (14 pages).
