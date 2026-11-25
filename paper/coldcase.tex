@@ -37,8 +37,10 @@ already rejected at least three of the 34 by cross-reference to other stars,
 and our measurements agree. Hidden synthetic signals rode on every download:
 the rules wrongly closed 4 of 918 recovered sky-only injections (0.4\%; 1.0\%
 if injections masked by real signals are counted) and caught 72\% of weak
-off-source leaks, but no injection drifts faster than 0.5\,\hzs, where three
-quarters of the cases lie. We describe a frequency-permutation statistic for
+off-source leaks. Those injections drift by 0.5\,\hzs\ at most, and three
+quarters of the cases drift faster; in a separate test at 0.5 to 3.9\,\hzs,
+beside the real fast cases, the rules wrongly closed 3.0\% of 1087 sky-only
+injections. We describe a frequency-permutation statistic for
 the test of whether an event's line is seen toward other stars over days,
 which needs no assumption about scan independence; it explains three flagged
 events and shows that in crowded bands the test has little power. We also
@@ -295,7 +297,8 @@ The test signals have limits that matter for every rate quoted below. They
 are injected with the pipeline's own conventions, so they cannot reveal a
 misreading of the catalogue (Section~\ref{sec:errors}). They exercise rules
 D1 to D4 only. And none drifts faster than 0.5\,\hzs, while three quarters of
-the queue and 86 of the 125 open events do.
+the queue and 86 of the 125 open events do; a separate test, made afterwards,
+covers those drifts (Section~\ref{sec:fast}).
 
 \subsection{Other stars in the days around} \label{sec:probe}
 
@@ -414,12 +417,11 @@ catch rate rises with the nominal off-source \sn\ from 8\% below 4, through
 it falls with drift, from 95\% below 0.1\,\hzs\ to 47\% at 0.4 to
 0.5\,\hzs\ (Figure~\ref{fig:controls}). Recovery of sky-only signals also
 falls at the fastest drifts tested, and 22 of the 24 unrecovered signals
-drift faster than 0.35\,\hzs. Extrapolated to the 1 to 4\,\hzs\ of most of
-the queue, the off-source test probably has little sensitivity, so ``not
-seen off the source'' carries little weight for the fast-drifting open
-events, and the false-closure rate of the rules there is unknown. A missed
-leak stays on the open list, so this error inflates the open list and does
-not remove signals.
+drift faster than 0.35\,\hzs. The fall is one of strength: a drifting tone
+is smeared over the channels it crosses within a time sample, and these
+injections are not made stronger to make up for it. A missed leak stays on
+the open list, so this error inflates the open list and does not remove
+signals.
 
 These rates are in-sample. The count of false closures was 13 before the
 controls were examined one by one; eight had been closed by rule D3 on a
@@ -439,8 +441,10 @@ Pilot & 20 of 21 & 0 & 9 of 10 \\
 Holdout, random frequencies & 18 of 20 & 0 & 4 of 10 \\
 Queue, running & 914 of 952 & 4\tablenotemark{a} & 340 of 476 \\
 Flagged events & 59 of 60 & 0 & 14 of 30 \\
+Fast drifts, beside real cases & 1054 of 1158 & 33\tablenotemark{b} & 1114 of 1158 \\
 \enddata
 \tablenotetext{a}{Of 918 recovered and unmasked. A further 24 were not recovered (one of them closed as a burst) and 10 were masked (5 of them closed). Seven of the 476 leaks were masked.}
+\tablenotetext{b}{Of 1087 found and unmasked (Section~\ref{sec:fast}). Of the leaks, 1126 were found and unmasked.}
 \end{deluxetable}
 
 \begin{figure*}
@@ -449,9 +453,38 @@ Flagged events & 59 of 60 & 0 & 14 of 30 \\
 intended, against nominal injected \sn\ (left) and against drift (right),
 in bins of equal count: sky-only signals left open (blue; unrecovered
 signals count as failures) and weak leaks closed (red). Masked injections
-are left out. Error bars are 68\% Wilson intervals. No injection drifts
-faster than 0.5\,\hzs. \label{fig:controls}}
+are left out. Error bars are 68\% Wilson intervals. These signals drift by
+0.5\,\hzs\ at most. \label{fig:controls}}
 \end{figure*}
+
+\subsection{Fast drifts} \label{sec:fast}
+
+Because the running test signals stop at 0.5\,\hzs, a separate test was
+made from cached data after the rules had their present form. Beside each
+of the 579 queue cases whose catalogue drift is 0.5\,\hzs\ or more, on
+tracks parallel to its own and 1.5 and 2.5\,kHz away, four test signals
+were injected at the case's drift: two present on the source only and two
+with a weak leak, with the strengths and variability of the running
+signals. Here the smearing was made up for, so that the \sn\ along the
+track is the nominal one (measured, 1.1 to 1.4 times nominal). Each went
+through the seed search, the six-scan measurement and rules D1, D2 and D4.
+
+Of the 1158 sky-only signals, 1108 were found (96\%), 21 of them masked. Of
+the 1087 found and unmasked, 1054 were left open and 33 were closed by a
+rule: 3.0\% (95\% interval 2.2\% to 4.2\%), rising from 1.1\% at 0.5 to
+1\,\hzs\ to 3.9\% at 3 to 4\,\hzs. Twenty-six of the 33 were closed as
+seen off the source and seven as bursts. Of the 1126 leaks found and
+unmasked, 1114 were closed (99\%), which reflects their strength: with the
+smearing made up for, their off-source part is stronger than that of the
+slower running signals.
+
+The places of this test are not random. They lie in the spectra of the
+real fast cases, most of which hold bursts and other interference, and that
+is where the rules are applied. There the rules wrongly close about seven
+times as many sky-only signals as they do at the random places of the
+running test. Real fast-drifting signals are also weaker along their track
+than these, by the smearing, so the 99\% is an upper bound on how often a
+real leak of the same nominal strength would be caught.
 
 \subsection{Two errors of our own} \label{sec:errors}
 
@@ -833,7 +866,8 @@ The open list is where the method has least power, which is not the same as
 where the signals are most interesting. Events stay open in crowded
 spectra, where control levels are high and a line near any frequency is
 common; at fast drifts, where the place of a line a few minutes later
-cannot be predicted well and no test signal reaches; and when a line's
+cannot be predicted well and the rules wrongly close several times more
+test signals; and when a line's
 drift wanders between scans. Three of the five open flagged events have a
 line of their drift toward other stars near their frequency and stay open
 because that cannot be told from chance in those bands. Twenty-nine of the
@@ -872,8 +906,8 @@ where the test has no power.
 
 The work also shows the limits of injection tests. Ours measured the rules
 within their range and missed both of our serious errors, because the
-injections shared the pipeline's assumptions, and they did not cover the
-drifts of most of the sample. Known real signals, predictions checked on
+injections shared the pipeline's assumptions, and until a separate test was
+added they did not cover the drifts of most of the sample. Known real signals, predictions checked on
 data a rule had not seen, and an adversarial reading of the manuscript
 against the code caught what the injections could not: the review found
 that our first statistic for the test over days was invalid and that two
@@ -883,9 +917,10 @@ events we had called absent toward other stars were not.
 
 The sample is not random, and its selection makes two of the checks nearly
 vacuous for it. Thresholds were chosen on small samples, and some on the
-same controls that score them, so the quoted error rates are in-sample. No
-test signal drifts faster than 0.5\,\hzs, and rules D5 to D9 were never run
-on test signals. The burst rule removes one time sample, so a signal that is
+same controls that score them, so the quoted error rates are in-sample. The
+running test signals stop at 0.5\,\hzs; the test at fast drifts was made
+once, beside real cases, with strengths held along the track. Rules D5 to D9
+were never run on test signals. The burst rule removes one time sample, so a signal that is
 on for two or three samples escapes it. The off-source test
 missed two signals of \citet{Ma2023} that another pipeline finds off the
 source. The statistic of Section~\ref{sec:probe} was designed after the
@@ -924,8 +959,9 @@ frequency corresponds through the 240/221 transponder ratio to
 and site records could decide it.
 \end{enumerate}
 
-Within their range, the rules wrongly closed 0.4\% to 1.0\% of sky-only
-test signals and caught 72\% of weak leaks. The code, the rules, the scripts
+The rules wrongly closed 0.4\% to 1.0\% of slowly drifting sky-only test
+signals and 3.0\% of fast ones placed beside real cases, and caught 72\% of
+weak slow leaks. The code, the rules, the scripts
 that produce every number and figure of this paper, the definitions of the
 known-answer cases and the review reports are public at
 \url{https://github.com/luizpersechini/cold-case-seti}; a table of the

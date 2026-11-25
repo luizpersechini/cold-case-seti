@@ -812,10 +812,16 @@ trigger.
   measurements, and the 93 hits opened again on 25 November have not had
   the other-day, half-hour or satellite checks at their new status. The two events added last have had none of the three
   follow-up checks yet.
-- No hidden test signal drifts faster than 0.5 Hz/s, and more than half of the
-  open events do. The fast-drift check tests the seed search only, not the
-  rules that follow. At places where nothing is catalogued the search still
-  returns a seed 14% of the time, mostly from bursts.
+- The hidden test signals of the queue drift by 0.5 Hz/s at most, and more
+  than half of the open events drift faster. A separate test
+  (`tools/fast_drift_rules.py`) put 2,316 test signals of 0.5 to 3.9 Hz/s
+  beside the real fast cases, with their strength along the track held, and
+  ran the first-pass rules on them: of 1,087 sky-only signals found, 33 were
+  wrongly closed (3.0%, against 0.4% for the slow ones at random places),
+  26 as seen off the star and 7 as bursts; 1,114 of 1,126 leaks were caught.
+  A real fast signal is weaker along its track than these, so real leaks
+  are caught less often than that. At places where nothing is catalogued
+  the seed search still returns a seed 14% of the time, mostly from bursts.
 - Some open events cannot be told from their surroundings: in every on-star
   scan a few of the comparison windows hold a line as strong. They are
   flagged in the dossier, not closed: the same test marked injected
