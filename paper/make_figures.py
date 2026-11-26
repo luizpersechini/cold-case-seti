@@ -77,9 +77,7 @@ def fig_probe():
     b.set_yticks(range(len(PROBED)))
     b.set_yticklabels([n for _, n in PROBED], fontsize=7.5)
     b.invert_yaxis()
-    b.set_xlabel(
-        "statistic $T$"
-    )
+    b.set_xlabel("statistic $T$")
     fig.tight_layout()
     fig.savefig(OUT / "probe.pdf")
 
@@ -215,10 +213,53 @@ def fig_controls():
     fig.savefig(OUT / "controls.pdf")
 
 
+def fig_lightcurve():
+    """HIP 36357: the line's S/N in each 18 s sample of the six scans, along
+    its track, against time (from cases/evidence/q00671/lightcurve.json)."""
+    j = json.load(open(ROOT / "cases" / "evidence" / "q00671" / "lightcurve.json"))
+    rows = j["rows"]
+    fig, a = plt.subplots(figsize=(7.1, 2.3))
+    for pos in range(6):
+        r = [x for x in rows if x["pos"] == pos]
+        t = np.array([x["t_s"] for x in r]) / 60
+        s = np.array([x["snr"] for x in r])
+        on = r[0]["role"] == "ON"
+        a.axvspan(
+            t[0] - 0.15,
+            t[-1] + 0.15,
+            color="C3" if on else "0.85",
+            alpha=0.08 if on else 0.5,
+            lw=0,
+        )
+        a.step(t, s, where="mid", color="C3" if on else "0.4", lw=1)
+        a.text(
+            t.mean(),
+            108,
+            "ON" if on else "OFF",
+            ha="center",
+            fontsize=7.5,
+            color="C3" if on else "0.4",
+        )
+    a.set_ylim(-3, 118)
+    a.set_xlabel("minutes from the start of the cadence")
+    a.set_ylabel("S/N in one 18 s sample")
+    fig.tight_layout()
+    fig.savefig(OUT / "lightcurve.pdf")
+    print(
+        "light curve: curvature",
+        j["curvature_hz_s2"],
+        "+-",
+        j["curvature_err"],
+        "expected",
+        j["expected_sky_hz_s2"],
+    )
+
+
 if __name__ == "__main__":
     fig_probe()
     fig_belt()
     fig_controls()
+    fig_lightcurve()
     from PIL import Image
 
     im = Image.open(ROOT / "cases" / "evidence" / "q00671" / "waterfall.png")

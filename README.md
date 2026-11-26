@@ -338,6 +338,32 @@ its telescope frequency, and in the hit tables, where none of 2,484 scans of
 other stars within 30 days holds a hit within 2 kHz (see "Other stars in the
 days around" below).
 
+Four more checks were made on it on 25 November (`tools/hip36357_checks.py`):
+
+- **Its strength in each 18-second sample** (`paper/figures/lightcurve.pdf`)
+  confirms the on-off pattern. The line was still at S/N 76 in the last
+  sample of the second on-star scan and absent 45 seconds later in the next
+  off-star scan: it either switched off in between, as it had twice before,
+  or comes from the star's direction.
+- **The bend of its track.** The Earth's rotation bends the track of a sky
+  source by about 0.7 Hz over these 16 minutes; a ground transmitter with a
+  steady oscillator does not bend. The fit gives -3.7 +- 5.5 x 10^-6 Hz/s^2
+  against -2.9 x 10^-6 for the sky: either fits, so the test cannot decide.
+- **Lines of the same transmitter.** Lines from one moving transmitter
+  share its on-off pattern and have drifts in proportion to their
+  frequencies. In the hit tables of the two on-star scans, the only such
+  line is the event itself.
+- **The downlink.** Spacecraft transponders in this band answer at 240/221
+  times the uplink frequency. The event's frequency times 240/221 is
+  2228.00007 MHz, within 0.2 kHz of a round number, which a random
+  frequency would be about once in 2,500 times. In the same six scans
+  nothing of S/N 10 or more lies within 120 kHz of 2228.000 MHz, which is
+  expected if the downlink pointed at its own ground station.
+
+The Green Bank Observatory was asked through the NRAO helpdesk (ticket
+42714) whether a transmitter near 2051.6 MHz, or an uplink paired with
+2228.0 MHz, was active that night.
+
 **Other days.** Before the re-measurement, the star of 22 open events had
 been observed again in the same band, and the signal was absent every time,
 at the telescope frequency and at the Earth-shifted one. Those measurements
@@ -554,7 +580,16 @@ were opened again (`coldcase/triage.py`; nothing was measured anew).
   not a local one. Voyager 1 has sidebands. This is now a flag.
 
 No hidden test signal changes outcome under the new rules, and neither does
-any of the survey's 34 follow-up events. The queue stands at 606 closed, 2
+any of the survey's 34 follow-up events.
+
+Since then the satellite check was run on all 125 open events (a close pass
+is flagged for five, about what chance gives), and the half-hour and
+other-day checks are being run on the events that never had them. The two
+AI readers read 66 more open events on 25 November, within a budget of two
+million tokens, slowest drift first; besides HIP36357 both rated two of
+medium interest: a line toward HIP55718 at 1350.092 MHz (S/N 288 in one
+on-star scan, q00513) and one toward HIP116819 at 2271.215 MHz (S/N 307,
+q00491). They rank and close nothing; the 47 fastest drifters are unread. The queue stands at 606 closed, 2
 without data and 163 hits open in 125 events. Of those events, 94 stand
 above their control windows in one on-star scan, 2 in two and 29 in none,
 and 77 drift faster than 1 Hz/s.

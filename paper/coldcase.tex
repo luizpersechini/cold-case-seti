@@ -559,9 +559,22 @@ Two further checks were run on the open events. For 18 of the 51 events
 that were open before the reopening, the star was observed again in the
 same band, on 27 other days in all, and the line was absent every time at
 both the topocentric and the Earth-shifted frequency. A comparison of each
-line of sight with the orbits of catalogued satellites flagged about as
-many close passes as chance predicts and closes nothing. The reopened
-events have not had these checks at their present status.
+line of sight with the orbits of catalogued satellites, now made for all
+125 open events, flags a close pass in five, about as many as chance
+predicts, and closes nothing. The other-day and half-hour checks are being
+extended to the events reopened after review; in the first 19 of them the
+half-hour check proposed no closure.
+
+The two language-model readers have read 78 of the 125 open events: 12
+before the reopening, and 66 in one run with a budget of two million
+tokens, slowest drift first. In the run, both readers called 39 events
+bursts and rated 23 low; both rated two events of medium interest besides
+HIP\,36357, one reader a third. The two are a line toward HIP\,55718 at
+1350.092\,MHz, at \sn\ 288 in one ON scan and keeping 90\% of it without
+its strongest sample, and a line toward HIP\,116819 at 2271.215\,MHz, at
+\sn\ 307 in one ON scan and drifting at $-0.57$\,\hzs\ in a band used for
+satellite downlinks. The readers rank; their opinion closes and opens
+nothing, and the 47 fastest-drifting events remain unread.
 
 \begin{deluxetable}{lr}
 \tablecaption{Outcome for the 771 near-miss hits \label{tab:queue}}
@@ -783,13 +796,17 @@ lists it in both of those scans, at \sn\ 17 and 30 and frequencies 89\,Hz
 apart, and not in the third, so a filter that requires a hit in every ON
 scan does not retain it.
 
-The line switches on and off by itself. In the first ON scan it is on from
-the first sample, varying tenfold, and off in the last two samples. In the
-second ON scan it is off for the first 110\,s and then on to the end,
-rising. The first OFF scan falls entirely inside a gap of the line, and the
-second began 45\,s after it was last seen, when it had fallen from \sn\ 134
-to below 4.8. Its absence off the source therefore does not show that it
-comes from the sky, and we do not count it as evidence either way.
+The line switches on and off by itself (Figure~\ref{fig:lightcurve}). In
+the first ON scan it is on from the first sample, varying tenfold, weak for
+three samples in the middle, and off in the last two. In the second ON scan
+it is off for the first 110\,s and then on to the end, rising to \sn\ 102
+in one 18\,s sample. The first OFF scan falls entirely inside a gap of the
+line. The second began 45\,s after the end of the second ON scan, in whose
+last sample the line was still at \sn\ 76; in the OFF scan no sample
+exceeds 4. So the line either switched off within those 45\,s, as it had
+twice before, or it comes from the direction of HIP\,36357. Its absence off
+the source does not decide between the two, and we do not count it as
+evidence either way.
 
 Checks that found nothing, with their limits. The star was observed again
 three days later, in a single five-minute scan, and the line was absent at
@@ -833,20 +850,45 @@ that is on for minutes at a time and for a slow, steady drift, if the
 transmitter compensates for Doppler shift. We found no published assignment
 at 2228.0\,MHz to identify the spacecraft, and the hit tables hold nothing
 within 50\,kHz of 2228.000\,MHz in that cadence. The coincidence was looked
-for after the fact and is not direct evidence under our rules.
+for after the fact and is not direct evidence under our rules. A
+transponder that heard this uplink would answer near 2228.000\,MHz, Doppler
+shifted by the spacecraft's motion. A blind search of the same six scans
+within 120\,kHz of 2228.000\,MHz, at drifts up to 4\,\hzs, finds no line of
+\sn\ 10 or more. That is expected if the spacecraft points its downlink at
+its own ground station, and it cannot exclude a low-orbit spacecraft, whose
+drift would be larger.
+
+Three further steps of the verification framework of \citet{Sheikh2021}
+were taken. First, the curvature of the track: a source on the sky has its
+drift changed by the Earth's rotation, here by $-2.9\times10^{-6}$\,Hz\,s$^{-2}$,
+which bends the track by about 0.7\,Hz over the 16 minutes between the
+first and last samples in which the line is on; a ground transmitter with a
+steady oscillator does not bend. A quadratic fit to the line's frequency in
+the 15 samples where it is at \sn\ 15 or more (residuals 0.45\,Hz) gives
+$-3.7\pm5.5\times10^{-6}$\,Hz\,s$^{-2}$, consistent with either; the test
+is inconclusive. Second, lines from the same moving transmitter would share
+its on-off pattern and have drifts proportional to their frequencies. In
+the hit tables of the first two ON scans, the only line on the same track
+in both, at the event's drift scaled by frequency, and absent from the
+other four scans, is the event itself; at twelve other drift rates the
+same search finds 0 to 21 such lines, so its absence is informative only
+where the band is quiet, and lines below the catalogue's threshold are not
+covered. Third, we asked the Green Bank Observatory, through the NRAO
+helpdesk, whether a transmitter near 2051.6\,MHz or an uplink paired with
+2228.0\,MHz was active that night; we will report the answer.
 
 We consider a local or orbital transmitter the most likely origin, on the
 allocation, the on-off behaviour and the transponder coincidence. The event
-stays open. Several steps of the verification framework of
-\citet{Sheikh2021} remain undone: asking the observatory's interference
-group and consulting licence records for a transmitter near 2051.6\,MHz in
-February 2017; testing the track for the curvature that the Earth's
-rotation imposes on a sky source (about 1\,Hz over these 12 minutes,
-comparable to our fit residual); and searching the scans for other lines
-with the same on-off envelope and a drift proportional to frequency, since
-our companion search required equal drift. The public products carry no
-polarization information. The elevation was 76.5 degrees and the pointing
+stays open. Licence records remain unchecked, and the public products carry
+no polarization information. The elevation was 76.5 degrees and the pointing
 was 38 degrees from the geostationary belt.
+
+\begin{figure*}
+\plotone{figures/lightcurve.pdf}
+\caption{HIP\,36357: the \sn\ of the line in each 18\,s sample, measured
+along its track of $-0.124$\,\hzs\ in all six scans of the cadence, against
+time. ON scans are shaded red and OFF scans grey. \label{fig:lightcurve}}
+\end{figure*}
 
 \begin{figure*}
 \plotone{figures/hip36357.png}
