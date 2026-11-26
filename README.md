@@ -582,9 +582,14 @@ were opened again (`coldcase/triage.py`; nothing was measured anew).
 No hidden test signal changes outcome under the new rules, and neither does
 any of the survey's 34 follow-up events.
 
-Since then the satellite check was run on all 125 open events (a close pass
-is flagged for five, about what chance gives), and the half-hour and
-other-day checks are being run on the events that never had them. The two
+Since then all three follow-up checks were run on every open event that
+lacked them (14.9 GB downloaded), and none closed anything. The satellite
+check flags a close pass for five of the 125, about what chance gives. The
+half-hour check found the line absent toward other stars for 58 of 68
+events, no other star for 8, and a single matching scan, now only a flag,
+for 2. For 20 of 72 events the star was observed again on other days (36
+in all) and the line was absent every time; the other 52 have no such
+day. The two
 AI readers read 66 more open events on 25 November, within a budget of two
 million tokens, slowest drift first; besides HIP36357 both rated two of
 medium interest: a line toward HIP55718 at 1350.092 MHz (S/N 288 in one
