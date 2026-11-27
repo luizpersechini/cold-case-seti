@@ -360,8 +360,7 @@ Four more checks were made on it on 25 November (`tools/hip36357_checks.py`):
   nothing of S/N 10 or more lies within 120 kHz of 2228.000 MHz, which is
   expected if the downlink pointed at its own ground station.
 
-The Green Bank Observatory was asked through the NRAO helpdesk (ticket
-42714) whether a transmitter near 2051.6 MHz, or an uplink paired with
+The Green Bank Observatory was asked through the NRAO helpdesk (ticket 42714) whether a transmitter near 2051.6 MHz, or an uplink paired with
 2228.0 MHz, was active that night.
 
 **Other days.** Before the re-measurement, the star of 22 open events had
@@ -599,6 +598,37 @@ without data and 163 hits open in 125 events. Of those events, 94 stand
 above their control windows in one on-star scan, 2 in two and 29 in none,
 and 77 drift faster than 1 Hz/s.
 
+### How much the line bends
+
+A source on the sky drifts because the Earth turns, and its drift changes
+slowly: at most about 1e-5 Hz/s^2 at 2 GHz. Something moving past the
+telescope, like a satellite or an aircraft, changes its drift much faster.
+`coldcase/curvature.py` follows the line one 18 s sample at a time through
+each on-star scan, fits a curve to its frequency and compares the bend with
+the sky's. A case is flagged when the bend is more than five errors from the
+sky's and more than ten times as large. It is a flag, not a rule: a
+transmitter on a fast-spinning planet would bend as much.
+
+- The bend could be measured in 40 of the 163 open hits (24 events). In
+  the rest the line is too weak in single samples.
+- 12 hits in 8 events are flagged, at 90 to 15,000 times the sky's bend.
+  - The two the AI readers rated medium are among them. The line toward
+    HIP116819 (q00491) goes from -2.25 to -0.18 Hz/s within 4.6 minutes
+    while it brightens, then vanishes, in a downlink band: a passing
+    transmitter seen off-axis.
+  - The line toward Hip55718 (q00513) bends 530 times the sky's, at
+    1350 MHz, a radar band.
+- Neither of those two is seen toward other stars in the days around
+  (corrected P 0.14 and 0.21).
+- HIP36357 shows no measurable bend: -0.3 +- 4.1 x 10^-5 against
+  -3.0 x 10^-6 for the sky.
+- Among closed hits, 9 of the 10 measurable clock lines are flagged, and
+  12 of the 83 seen off the source.
+- No running test signal is flagged (272 measurable). The fit errors got a
+  floor of 3e-5 Hz/s^2 because three of them were flagged without it.
+- On 1158 new sky-like tones beside the fast cases (`tools/curvature_controls.py`),
+  2 of the 578 measurable are flagged (0.3%), both faster than 2.5 Hz/s.
+
 ### Errors found and fixed
 
 **A drift-sign error, found and fixed.** Until 19 November every case was
@@ -774,6 +804,11 @@ uv run python -I tools/fast_drift_check.py --every 4
 #    today's rules make of them (dry runs)
 uv run python -I -m coldcase.backfill
 uv run python -I -m coldcase.runner recheck
+
+#    Measure how much each open event's line bends within a scan, and test
+#    the flag on sky-like tones beside the fast cases (cached data only)
+uv run python -I -m coldcase.curvature open
+uv run python -I tools/curvature_controls.py
 
 # 9. Review every open event on one page (also linked from the dashboard)
 uv run python -I -m coldcase.dossier    # writes report/dossier.html

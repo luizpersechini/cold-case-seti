@@ -13,8 +13,9 @@ review of the paper asked for.
                the event's frequency, the downlink a transponder would pair
                with it. Downloads one chunk per scan (about 360 MB).
 
-usage: python tools/hip36357_checks.py lightcurve|scaled|downlink
-Writes cases/evidence/q00671/lightcurve.json and downlink_2228.json.
+usage: python tools/hip36357_checks.py lightcurve|scaled|downlink [CASE_ID]
+CASE_ID defaults to q00671; lightcurve and scaled work for any queue case.
+Writes cases/evidence/<id>/lightcurve.json and downlink_2228.json.
 """
 
 import bisect
@@ -26,12 +27,13 @@ import numpy as np
 from coldcase import checks, db, investigate, remote, runner
 from coldcase import dedoppler as dd
 
-EV = "cases/evidence/q00671/"
+CASE = sys.argv[2] if len(sys.argv) > 2 else "q00671"
+EV = f"cases/evidence/{CASE}/"
 
 
 def lightcurve():
     b = json.load(open(EV + "evidence.json"))
-    case = runner._case_from_queue(runner.queue_db(), "q00671")
+    case = runner._case_from_queue(runner.queue_db(), CASE)
     scans, cuts, half = investigate._cached_cuts(case, b)
     d = b["seed"]["drift"]
     t0 = min(c["tstart"] for c in cuts)
@@ -78,8 +80,8 @@ def lightcurve():
     curv = 2 * c2[0]; ecurv = 2 * np.sqrt(cov2[0, 0])
     p = b["pointing"]
     m0 = np.mean([x["mjd"] for x in on])
-    e0 = checks.expected_drift(p["ra_hours"], p["dec_deg"], m0 - 600 / 86400, "GBT", 2051.6167)["drift_hz_s"]
-    e1 = checks.expected_drift(p["ra_hours"], p["dec_deg"], m0 + 600 / 86400, "GBT", 2051.6167)["drift_hz_s"]
+    e0 = checks.expected_drift(p["ra_hours"], p["dec_deg"], m0 - 600 / 86400, "GBT", b["seed"]["freq_mhz"])["drift_hz_s"]
+    e1 = checks.expected_drift(p["ra_hours"], p["dec_deg"], m0 + 600 / 86400, "GBT", b["seed"]["freq_mhz"])["drift_hz_s"]
     exp_curv = (e1 - e0) / 1200.0
     span = t.max() - t.min()
     print(f"measured d(drift)/dt {curv:.2e} +- {ecurv:.2e} Hz/s^2; expected for a sky source {exp_curv:.2e}; span {span:.0f} s")

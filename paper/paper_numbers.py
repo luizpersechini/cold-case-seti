@@ -268,9 +268,47 @@ def belt(led):
     )
 
 
+def bends(led):
+    print("== bend of the line within a scan (coldcase/curvature.py)")
+    import json as _j
+    from collections import Counter
+
+    from coldcase import runner
+
+    q = runner.queue_db()
+    for label, st in (("open", "status like 'open%'"), ("closed", "status = 'closed'")):
+        meas, flag, grps = 0, 0, set()
+        for cid, grp in q.execute(f"select case_id, grp from queue where {st}"):
+            pth = ROOT / "cases" / "evidence" / cid / "curvature.json"
+            if not pth.exists():
+                continue
+            j = _j.loads(pth.read_text())
+            if "bend_hz_s2" in j:
+                meas += 1
+                if j["flag"]:
+                    flag += 1
+                    grps.add(grp)
+        print(f"  {label}: {meas} hits measurable, {flag} flagged, in {len(grps)} events")
+    kinds, fl = Counter(), Counter()
+    for kind, cid in led.execute("select kind, case_id from controls"):
+        pth = ROOT / "cases" / "evidence" / cid / "curvature.json"
+        if pth.exists():
+            j = _j.loads(pth.read_text())
+            if "bend_hz_s2" in j:
+                kinds[kind] += 1
+                fl[kind] += j["flag"]
+    print("  running test signals measurable / flagged:", dict(kinds), dict(fl))
+    fc = ROOT / "cases" / "curvature_controls.json"
+    if fc.exists():
+        r = _j.loads(fc.read_text())
+        m = [x for x in r if x["measured"]]
+        print(f"  fast sky-like tones: {len(r)} injected, {len(m)} measurable, {sum(x['flag'] for x in m)} flagged")
+
+
 if __name__ == "__main__":
     led = ledger.connect()
     queue_closures(led)
     open_presence(led)
     controls(led)
     belt(led)
+    bends(led)

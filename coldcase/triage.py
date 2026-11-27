@@ -51,6 +51,7 @@ usage: python -m coldcase.triage CASE_ID ...     (prints the decision)
 import json
 import sys
 
+from . import curvature
 from .remote import ROOT
 
 OFF_MARGIN, BURST_SHARE, SAME_HZ, BURST_UNITS = 1.5, 0.5, 300.0, 100.0
@@ -232,7 +233,9 @@ def not_distinct(b):
         cw = s.get("control_windows") or {}
         if s["role"] != "ON" or "error" in s or cw.get("at_least_track") is None:
             continue
-        shares.append(((cw["at_least_track"] + 1) / (cw["n"] + 1), s["pos"], s["track"]["snr"]))
+        shares.append(
+            ((cw["at_least_track"] + 1) / (cw["n"] + 1), s["pos"], s["track"]["snr"])
+        )
     if not shares or min(x[0] for x in shares) < NOT_DISTINCT_SHARE:
         return None
     return (
@@ -423,12 +426,13 @@ def companion_rule(b, comp):
     return None, (
         f"{len(found)} line(s) elsewhere in the band rise and fall with it: "
         + ", ".join(
-            f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']})" for x in found
+            f"{x['freq_mhz']:.6f} MHz (r = {x['correlation_with_event']})"
+            for x in found
         )
     )
 
 
-def decide(b, repeat=None, session=None, satellites=None, companions=None):
+def decide(b, repeat=None, session=None, satellites=None, companions=None, bend=None):
     seed = b["seed"]
     if not seed.get("recovered"):
         # no tone at the catalogue position; say so more precisely when the
@@ -569,6 +573,9 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
         text, _ = satellite_rule(satellites)
         if text:
             flags.append(text)
+    text = curvature.rule(bend)
+    if text:
+        flags.append(text)
     if companions:
         text, flag = companion_rule(b, companions)
         if text:
@@ -589,7 +596,10 @@ def decide(b, repeat=None, session=None, satellites=None, companions=None):
         }
     kinds = {x[:2] for x in direct}
     # D8 that rests only on a companion's burst says what D4 says
-    burst_only = kinds == {"D8"} and all("is itself closed: D4:" in x and "D1:" not in x and "D7:" not in x for x in direct)
+    burst_only = kinds == {"D8"} and all(
+        "is itself closed: D4:" in x and "D1:" not in x and "D7:" not in x
+        for x in direct
+    )
     verdict = (
         "rfi_identified"
         if "D2" in kinds
@@ -657,6 +667,7 @@ def decide_case(case_id):
     folder = ROOT / "cases" / "evidence" / case_id
     rp, sp = folder / "repeat.json", folder / "session.json"
     tp = folder / "satellites.json"
+    kp = folder / "curvature.json"
     cp = ROOT / "cases" / "companions" / f"{case_id}.json"
     b = json.loads((folder / "evidence.json").read_text())
     return decide(
@@ -665,4 +676,5 @@ def decide_case(case_id):
         session=json.loads(sp.read_text()) if sp.exists() else None,
         satellites=json.loads(tp.read_text()) if tp.exists() else None,
         companions=json.loads(cp.read_text()) if cp.exists() else None,
+        bend=json.loads(kp.read_text()) if kp.exists() else None,
     )

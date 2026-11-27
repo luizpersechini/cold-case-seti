@@ -456,3 +456,24 @@ def test_d4_share_alone_does_not_close_a_line_that_survives():
             "full_control_max_snr": 5.0, "share_of_full_snr": 0.07}
     dec = triage.decide(_burst_bundle(gone))
     assert dec["status"] == "closed" and dec["verdict"] == "not_a_tone"
+
+
+def test_curvature_measures_a_bend_and_not_a_straight_line():
+    from coldcase import curvature
+
+    rng = np.random.default_rng(5)
+    f0 = F_LOW + 1500 * FOFF_MHZ
+    for bend in (0.0, 4e-3):
+        cu = cutout(0, rng)
+        for i in range(NT):
+            t = (i + 0.5) * TSAMP
+            f = f0 + (-0.8 * t + 0.5 * bend * (t - 150.0) ** 2) * 1e-6
+            k = int(round((f - F_LOW) / FOFF_MHZ))
+            cu["data"][i, k] += 30.0
+        r = curvature.fit(curvature.follow_scan(cu, f0 + 0.5 * bend * 150.0**2 * 1e-6, -0.8))
+        assert r["n_samples"] == NT
+        assert abs(r["bend_hz_s2"] - bend) < 5 * r["bend_err"] + 2e-4
+    assert curvature.rule({"flag": False}) is None
+    assert "not enough to close" in curvature.rule(
+        {"flag": True, "bend_hz_s2": 5e-4, "bend_err": 7e-5, "times_sky": 500, "sky_hz_s2": -1e-6}
+    )

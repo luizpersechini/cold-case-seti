@@ -276,6 +276,22 @@ reappears at the frequency shifted by the Earth's motion, where a
 transmitter fixed in the barycentric frame would have moved, is flagged for
 a person. Not seeing a line again changes nothing.
 
+One more flag measures the bend of the line within a scan. A source at rest
+on the sky drifts because the Earth turns and moves, and its drift changes
+slowly: by at most about $10^{-5}$\,Hz\,s$^{-2}$ at 2\,GHz from Green Bank.
+A transmitter that moves past the telescope changes its drift much faster.
+In each ON scan the line is followed from its strongest sample outward, one
+18\,s sample at a time, from the power-weighted centre of the channels
+around the peak, and a quadratic in time is fitted to its frequency in the
+samples at \sn\ 10 or more, when there are at least eight. The bend of each
+scan is given an error that is the fit's and $3\times10^{-5}$\,Hz\,s$^{-2}$
+added in quadrature (below), the scans are averaged, and the result is
+compared with the bend the Earth's motion gives a source at the star's
+position at that time. A case is flagged when its bend differs from that by
+more than five errors and is more than ten times as large. It is not a rule,
+because a transmitter on a planet that turns once in a few hours would
+bend as much.
+
 \subsection{Hidden test signals} \label{sec:controls}
 
 Injection and recovery is the standard way to measure a search's efficiency
@@ -486,6 +502,21 @@ running test. Real fast-drifting signals are also weaker along their track
 than these, by the smearing, so the 99\% is an upper bound on how often a
 real leak of the same nominal strength would be caught.
 
+The bend flag was tested on both sets of test signals. The running ones
+carry a bend of up to $\pm3\times10^{-5}$\,Hz\,s$^{-2}$, drawn at random; 272
+of them were strong enough to be measured. Their pulls (measured minus
+injected bend, over the fit's error) have a Gaussian core, with a scaled
+median absolute deviation of 0.9, but a tail to six errors in scans of 8 to
+13 samples, and three of them would have been flagged on the fit's error
+alone; the term of $3\times10^{-5}$\,Hz\,s$^{-2}$ was added for that, and
+none is flagged with it. As an independent check, two tones present in all
+three ON scans, with bends between $\pm10^{-5}$\,Hz\,s$^{-2}$, were injected
+beside each of the 579 fast cases, 1.5\,kHz either side, and followed from
+where they were injected. Of the 1158, 578 could be measured and 2 were
+flagged (0.3\%), both at drifts above 2.5\,\hzs; their pulls have a scaled
+median absolute deviation of 1.2, so at those drifts the errors are about
+20\% too small.
+
 \subsection{Two errors of our own} \label{sec:errors}
 
 Two errors were found by hand, not by the controls, and every stored case
@@ -571,6 +602,18 @@ other days in all, and the line was absent every time at both
 frequencies; the other 52 have no such day. All 125 open events have now
 had all three checks.
 
+The bend of the line (Section~\ref{sec:rules}) could be measured in 40 of
+the 163 open hits, in 24 events; in the others the line is too weak in
+single samples. Twelve hits in eight events are flagged, with bends from
+$4.7\times10^{-4}$ to $4.5\times10^{-2}$\,Hz\,s$^{-2}$, 90 to 15{,}000 times
+what the Earth's motion gives. Lines of one event bend alike: three lines
+toward GJ\,876 near 2262.5\,MHz, and four toward HIP\,17496 near
+1144--1147\,MHz in two events of the same cadence. For comparison, 21 of the
+94 measurable closed hits are flagged: 9 of the 10 lines closed as clocks
+(D2), all nine on one comb at $2^{17}$\,Hz spacing, and 12 of the 83 lines
+seen off the source (D1). A strong bend is common in interference known to be local and
+absent in the test signals; it closes nothing.
+
 The two language-model readers have read 78 of the 125 open events: 12
 before the reopening, and 66 in one run with a budget of two million
 tokens, slowest drift first. In the run, both readers called 39 events
@@ -579,7 +622,17 @@ HIP\,36357, one reader a third. The two are a line toward HIP\,55718 at
 1350.092\,MHz, at \sn\ 288 in one ON scan and keeping 90\% of it without
 its strongest sample, and a line toward HIP\,116819 at 2271.215\,MHz, at
 \sn\ 307 in one ON scan and drifting at $-0.57$\,\hzs\ in a band used for
-satellite downlinks. The readers rank; their opinion closes and opens
+satellite downlinks. Both are present in the first ON scan only, both
+are flagged by their bend, and neither is seen toward other stars in the
+days around (corrected $P$ of 0.14 and 0.21). Followed sample by sample,
+the line toward HIP\,116819 brightens from \sn\ 56 to 425 per sample while
+its drift goes from $-2.25$ to $-0.18$\,\hzs\ in 4.6 minutes, a bend of
+$(7.8\pm0.2)\times10^{-3}$\,Hz\,s$^{-2}$, 2100 times the sky's; then it
+vanishes. That is the behaviour of a transmitter passing through the
+telescope's sidelobes, an aircraft or a satellite, in a downlink band. The
+line toward HIP\,55718 bends by $(5.3\pm0.8)\times10^{-4}$\,Hz\,s$^{-2}$,
+530 times the sky's, at 1350\,MHz, a band used by radars, with the
+telescope 83 degrees up. The readers rank; their opinion closes and opens
 nothing, and the 47 fastest-drifting events remain unread.
 
 \begin{deluxetable}{lr}
@@ -872,7 +925,9 @@ first and last samples in which the line is on; a ground transmitter with a
 steady oscillator does not bend. A quadratic fit to the line's frequency in
 the 15 samples where it is at \sn\ 15 or more (residuals 0.45\,Hz) gives
 $-3.7\pm5.5\times10^{-6}$\,Hz\,s$^{-2}$, consistent with either; the test
-is inconclusive. Second, lines from the same moving transmitter would share
+is inconclusive. The bend flag of Section~\ref{sec:rules}, which fits each
+scan separately, gives $(-0.3\pm4.1)\times10^{-5}$\,Hz\,s$^{-2}$ against
+$-3.0\times10^{-6}$ for the sky: no sign of a transmitter moving past. Second, lines from the same moving transmitter would share
 its on-off pattern and have drifts proportional to their frequencies. In
 the hit tables of the first two ON scans, the only line on the same track
 in both, at the event's drift scaled by frequency, and absent from the
