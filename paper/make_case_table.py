@@ -50,7 +50,9 @@ def main():
         verdict, refs = (v[0], json.loads(v[1]) if v[1] else []) if v else ("", [])
         st = "closed" if status == "closed" else "no_data" if status == "no_data" else "open"
         k, rule = klass(st, verdict, refs)
-        rows.append(["near-miss", cid, tgt, f"{f:.6f}", f"{d:.4f}", f"{mjd:.5f}", f"{snr:.1f}", k, rule,
+        # the hit files' drift sign is reversed (paper Section 2.2); the
+        # table gives every drift in the data's sense, as the event table does
+        rows.append(["near-miss", cid, tgt, f"{f:.6f}", f"{-d + 0.0:.4f}", f"{mjd:.5f}", f"{snr:.1f}", k, rule,
                      refs[0] if st == "closed" and refs else ""])
     for cid, tgt, f, d, mjd, snr, status, verdict, why in led.execute(
         "select case_id, target, freq_mhz, drift, mjd, snr, status, verdict, why from followup order by case_id"
@@ -61,7 +63,7 @@ def main():
                      refs[0] if status == "closed" and refs else ""])
     with open(OUT, "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["set", "case", "target", "freq_mhz", "listed_drift_hz_s", "mjd", "listed_snr",
+        w.writerow(["set", "case", "target", "freq_mhz", "drift_hz_s", "mjd", "listed_snr",
                     "class", "rule", "evidence"])
         w.writerows(rows)
     import collections

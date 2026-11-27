@@ -24,7 +24,7 @@ plt.rcParams.update({"font.size": 9, "axes.linewidth": 0.6, "figure.dpi": 150})
 
 # the nine events probed, as the paper names them
 PROBED = [
-    ("f027", "HIP 100064, 1595.877"),
+    ("f027", "HIP 100064, 1595.878"),
     ("f024", "HIP 54677, 1435.943"),
     ("f007", "HIP 100064, 1560.945"),
     ("f003", "HIP 109427, 1559.671"),
@@ -57,7 +57,7 @@ def fig_probe():
     )
     a.set_xlabel("hours after the event")
     a.set_ylabel("offset of the strongest line (Hz)")
-    a.set_title("HIP 100064, 1595.877 MHz", fontsize=9)
+    a.set_title("HIP 100064, 1595.878 MHz", fontsize=9)
     a.legend(frameon=False, fontsize=8)
     print("f027 at +-2 kHz:", len(t), "scans,", int(m.sum()), "stand out")
 

@@ -47,6 +47,14 @@ TOP = 0.01  # a scan "stands out" when its p_s is at most this
 NAME = "probe_perm.json"
 
 
+def events_probed():
+    """How many events have been probed this way. D9 multiplies each event's
+    corrected chance by this number: a sky signal is at risk of being closed
+    by chance once for every event tested (decided 2026-11-27, after the
+    second review, which reopened HIP100064 at 1595.878 MHz)."""
+    return max(1, len(list((remote.ROOT / "cases" / "evidence").glob("*/" + NAME))))
+
+
 def cached(url, f_center):
     """The widest cached cutout of this scan centred on f_center, or None."""
     stem = url.rsplit("/", 1)[-1]
@@ -149,7 +157,9 @@ def one_width(per_scan, half_hz):
         "T_event": round(float(T[0]), 2),
         "T_null_median": round(float(np.median(T[1:])), 2),
         "T_null_max": round(float(T[1:].max()), 2),
-        "T_null_q": [round(float(q), 2) for q in np.percentile(T[1:], [50, 90, 99, 99.9])],
+        "T_null_q": [
+            round(float(q), 2) for q in np.percentile(T[1:], [50, 90, 99, 99.9])
+        ],
         "P": P,
         "scans_standing_out": int(sum(r["p_scan"] <= TOP for r in rows)),
         "scans": rows,
@@ -228,22 +238,34 @@ def describe(out):
     if not out.get("widths"):
         return "no scan of another star in the cache"
     w = _best(out)
+    if out["P_corrected"] < CHANCE_MAX:
+        return (
+            f"toward other stars the event's frequency stands out in "
+            f"{w['scans_standing_out']} of {out['scans_used']} scans (window "
+            f"+-{w['half_hz']:g} Hz, chance {out['P_corrected']:.2g}), but not after the "
+            f"{events_probed()} events probed: "
+            f"{min(1.0, out['P_corrected'] * events_probed()):.2g}"
+        )
     return (
         f"toward other stars the event's frequency does not stand out from the rest of "
         f"the same spectra: {w['scans_standing_out']} of {out['scans_used']} scans, "
-        f"chance {out['P_corrected']:.2g} (window +-{w['half_hz']:g} Hz)"
+        f"chance {out['P_corrected']:.2g} (window +-{w['half_hz']:g} Hz), "
+        f"{min(1.0, out['P_corrected'] * events_probed()):.2g} over the "
+        f"{events_probed()} events probed"
     )
 
 
 def closure(out):
     """Rule D9: toward other stars in the days around, the event's telescope
     frequency holds a line more consistently than the other frequencies of
-    the same spectra do (chance below CHANCE_MAX after the three widths), and
+    the same spectra do (chance below CHANCE_MAX after the three widths and
+    the number of events probed), and
     stands out in at least MIN_SCANS scans. Returns the evidence text, or None."""
     if not out.get("widths"):
         return None
     w = _best(out)
-    p = out["P_corrected"]
+    n = events_probed()
+    p = min(1.0, out["P_corrected"] * n)
     if p >= CHANCE_MAX or w["scans_standing_out"] < MIN_SCANS:
         return None
     as_good = round(w["P"] * (w["windows"] + 1)) - 1
@@ -252,7 +274,8 @@ def closure(out):
         f"D9: the line at the event's telescope frequency stands out in "
         f"{w['scans_standing_out']} of {out['scans_used']} scans of other stars within "
         f"{max(hours):.0f} h of the event (window +-{w['half_hz']:g} Hz); {as_good} of "
-        f"{w['windows']} other windows of the same spectra do as well; chance {p:.2g}"
+        f"{w['windows']} other windows of the same spectra do as well; chance {p:.2g} "
+        f"over the {n} events probed"
     )
 
 

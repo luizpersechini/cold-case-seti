@@ -80,3 +80,59 @@ open.
    it on the Zenodo record.
 
 The manuscript compiles with `tectonic coldcase.tex` (14 pages).
+
+## Second review, 27 November 2026
+
+A third model referee read the revised manuscript and the code, blind to the
+first two reports. Recommendation: major revision. Its points, and what was
+done:
+
+1. The headline rate was the one at random frequencies, not beside the cases.
+   The abstract now leads with the beside-case rates; the beside-case test
+   was run on the 192 slow cases too (`tools/fast_drift_rules.py --max-drift
+   0.5`). Rules D5 to D9 are still untested on injections (Limitations).
+2. Thresholds set on half the controls. `python -m coldcase.controls halves`:
+   on the held-out half 1 of 472 sky-only signals closed and 180 of 239 leaks
+   caught. STACK_MARGIN's "2 of 59" predates the flagged-event test signals
+   (set 12 November, flagged-event set made 23 November), so that sample
+   stays fresh for D1 to D4. A frozen-rule fresh campaign is not done.
+3. D1 text did not list all six branches; now it does, with which have a
+   floor. 19 closures rest on a chance estimate alone; expected coincidences
+   0.43 (sum of their chances).
+4. D9 on HIP100064 1595.878 is at the window floor and the 2 kHz width was
+   chosen after its offsets were seen: now presented as corroborating Price
+   et al., not independent. Skipped neighbour windows and exchangeability
+   caveats added. Whether the closure stands under an 11-event trial factor
+   (0.017 x 11 = 0.19) is the author's decision.
+5. "Explained" for the two HI-line events changed to not reproduced; the
+   weak HIP54677 1439.068 closure (stack margin 1.2) said so; "candidate"
+   defined (above controls in all three ON scans, closed by no rule).
+6. HIP36357: predictions of each transmitter hypothesis added; look-elsewhere
+   over four turnaround ratios and a half-MHz grid (about 1 in 300); the
+   NRAO sentence no longer promises an answer. CCSDS/ITU citations not added
+   (issue not verified).
+7. Bend flag: oscillator settling named as an alternative; satellite reading
+   for HIP116819 dropped (LEO drifts far too large, GEO far too small),
+   aircraft only at ~200 km; flag sensitivity (~1.5e-4 Hz/s^2 per scan)
+   stated; the HIP55718 elevation/radar remarks removed.
+8. Drift signs: cases.csv now gives every drift in the data's sense; the
+   paper says so. The 66 D4 closures seeded at the listed sign were not
+   re-examined.
+9-15. D4 70% condition and the D4-labelled "not reproduced" cases described;
+   D5 wording; sidelobe limitation added; D7 offsets and expected count
+   (about one at 0.3% per scan); 0.35 Hz sagitta; Siemion 2013 cited;
+   HIP100064 1560.945 scans described in full; open-event check counts
+   reconciled (37 of 125 events, 60 other days); per-case evidence still
+   "on request" pending a deposit.
+
+Numbers the referee found inconsistent and their fixes: leaks 340 of 469 in
+the table; fast leaks 1114 of 1126; HIP36357 bend error 4.8e-5 with the
+systematic term; sky bend -3.0e-6 throughout; HIP100064 at 1595.878 MHz
+throughout. The referee's "93 vs 94" closed bends was its miscount (one
+measurable D8 hit).
+
+Decision taken by the author on 27 November 2026: HIP100064 at 1595.878 MHz
+(f027) is reopened. Rule D9 now multiplies each event's corrected P by the
+number of events probed (11, `probe_perm.events_probed()`); f027 goes to
+0.19, f024 (0.0046) and f007 (0.037) stay closed. Follow-up list: 28 closed,
+6 open.

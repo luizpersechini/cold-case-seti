@@ -432,11 +432,11 @@ apart, so the queue numbers above do not include them.
 | No signal at the catalogue position        | 2      |
 | Seen toward other stars in the half hour   | 1      |
 | Moves with a companion that is explained   | 1      |
-| Seen toward other stars in the days around | 3      |
-| Not explained by these checks              | 5      |
+| Seen toward other stars in the days around | 2      |
+| Not explained by these checks              | 6      |
 
 The two with no signal sit near 1420.4 MHz, at drifts of about -1.2 Hz/s.
-Four of the five left open lie between 1538 and 1561 MHz and drift by
+Four of the six left open lie between 1538 and 1561 MHz and drift by
 0.02 Hz/s or less. The companion search found partners for one event only:
 f004 (1691.081 MHz toward HIP17420) has three lines 45 to 172 kHz below it
 that switch on and off with it (r 0.97 to 0.99), each at S/N above 400 and
@@ -461,7 +461,7 @@ and two by far:
 
 | Event  | Star, MHz           | Other-star scans with a hit, +-7 days | Most at a nearby frequency |
 | ------ | ------------------- | ------------------------------------- | -------------------------- |
-| f027   | HIP100064, 1595.877 | 199 of 409                            | 0                          |
+| f027   | HIP100064, 1595.878 | 199 of 409                            | 0                          |
 | f024   | HIP54677, 1435.943  | 32 of 435                             | 0                          |
 | q00677 | HIP25578, 1642.324  | 2 of 385, at the wrong drift          | 1                          |
 
@@ -493,11 +493,12 @@ hand, to cases named. The reading was designed after the data were seen, so
 it is not a test fixed in advance.
 
 Nine events were probed: the eight follow-up events the other rules had left
-open, and q00671.
+open, and q00671. Two more (q00491, q00513) were probed later, making 11. The chance
+in the table is per event; D9 now needs it below 0.05 after multiplying by 11.
 
 | Event  | Star, MHz           | Scans | Scans where it stands out | Chance | Outcome |
 | ------ | ------------------- | ----- | ------------------------- | ------ | ------- |
-| f027   | HIP100064, 1595.877 | 54    | 43                        | 0.017  | Closed  |
+| f027   | HIP100064, 1595.878 | 54    | 43                        | 0.017  | Open    |
 | f024   | HIP54677, 1435.943  | 30    | 11                        | 0.0004 | Closed  |
 | f007   | HIP100064, 1560.945 | 108   | 10                        | 0.003  | Closed  |
 | f003   | HIP109427, 1559.671 | 30    | 7                         | 0.08   | Open    |
@@ -510,7 +511,8 @@ open, and q00671.
 - f027: the line is there toward 28 other stars over the next 27 hours,
   sliding across a 2 kHz window within each night like a drifting
   oscillator. None of the 174 other windows scores as high; 0.017 is the
-  smallest chance that many windows can give.
+  smallest chance that many windows can give. Over the 11 events probed
+  that is 0.19, so since 27 November D9 leaves it open.
 - f024: the line is within 40 Hz toward 7 other stars, mostly 10 to 11 hours
   before the event. None of 7,150 other windows scores as high.
 - f007: the line is within 51 Hz in seven scans of four stars 27 to 28.5
@@ -532,10 +534,19 @@ open, and q00671.
 
 Price et al. had already rejected f024 and f027 (and f022, which rule D1
 closes here) in the appendix of the survey paper, because similar signals
-were catalogued toward other stars. The raw data agree, and add for how
-long and toward how many stars.
+were catalogued toward other stars. The raw data agree for f024 and f022,
+and add for how long and toward how many stars.
 
-With these, 29 of the survey's 34 follow-up events are closed and 5 open.
+f027 was closed by D9 until 27 November. A second review of the paper
+pointed out that its chance (0.017) sits at the floor its 174 windows
+allow, and that the 2 kHz window was chosen after its offsets were seen.
+Rule D9 now also multiplies each event's chance by the number of events
+probed (11), because a sky signal risks a chance closure once for every
+event tested. That makes f027's chance 0.19, so it is open again, even
+though its line is plain toward 28 other stars. f024 (0.0046) and f007
+(0.037) stay closed.
+
+With these, 28 of the survey's 34 follow-up events are closed and 6 open.
 
 The follow-up list is not spread over the survey. Of its 22 L-band stars,
 19 were pointed within 13 degrees of the geostationary belt (median 7
@@ -614,8 +625,9 @@ transmitter on a fast-spinning planet would bend as much.
 - 12 hits in 8 events are flagged, at 90 to 15,000 times the sky's bend.
   - The two the AI readers rated medium are among them. The line toward
     HIP116819 (q00491) goes from -2.25 to -0.18 Hz/s within 4.6 minutes
-    while it brightens, then vanishes, in a downlink band: a passing
-    transmitter seen off-axis.
+    while it brightens, then vanishes, in a downlink band. That is what an
+    oscillator settling after switch-on does. A satellite fits poorly: a
+    low orbit would drift far faster, a geostationary one far slower.
   - The line toward Hip55718 (q00513) bends 530 times the sky's, at
     1350 MHz, a radar band.
 - Neither of those two is seen toward other stars in the days around
@@ -895,7 +907,11 @@ trigger.
   wrongly closed (3.0%, against 0.4% for the slow ones at random places),
   26 as seen off the star and 7 as bursts; 1,114 of 1,126 leaks were caught.
   A real fast signal is weaker along its track than these, so real leaks
-  are caught less often than that. At places where nothing is catalogued
+  are caught less often than that. The same test beside the 190 slow cases
+  (`--max-drift 0.5`) wrongly closed 10 of 314 sky-only signals (3.2%) and
+  caught 316 of 329 leaks. So the higher rate comes from where the signals
+  sit, beside real cases, not from their drift: about 3% is the rate that
+  applies to the queue. At places where nothing is catalogued
   the seed search still returns a seed 14% of the time, mostly from bursts.
 - Some open events cannot be told from their surroundings: in every on-star
   scan a few of the comparison windows hold a line as strong. They are

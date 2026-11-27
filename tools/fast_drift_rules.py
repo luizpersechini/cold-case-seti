@@ -19,7 +19,10 @@ is tested where it matters.
 Nothing is downloaded and the ledger is not touched. The outcome of every
 test signal goes to cases/fast_drift_rules.json.
 
-usage: python tools/fast_drift_rules.py [--min-drift 0.5] [--every N]
+usage: python tools/fast_drift_rules.py [--min-drift 0.5] [--max-drift X] [--every N] [--out PATH]
+
+With --max-drift 0.5 --min-drift 0 the same test runs beside the slow cases,
+where the running test signals were placed at random frequencies instead.
 """
 
 import copy
@@ -150,7 +153,7 @@ def one(job):
 
 
 def report(rows, say=print):
-    bins = ((0.5, 1), (1, 2), (2, 3), (3, 4))
+    bins = ((0, 0.1), (0.1, 0.25), (0.25, 0.5), (0.5, 1), (1, 2), (2, 3), (3, 4))
     by = defaultdict(list)
     for r in rows:
         for b in bins:
@@ -192,11 +195,15 @@ def report(rows, say=print):
 
 def main():
     args = sys.argv[1:]
+    out = Path(args[args.index("--out") + 1]) if "--out" in args else OUT
     if args[:1] == ["report"]:
-        report(json.loads(OUT.read_text()))
+        report(json.loads(out.read_text()))
         return
     min_drift = (
         float(args[args.index("--min-drift") + 1]) if "--min-drift" in args else 0.5
+    )
+    max_drift = (
+        float(args[args.index("--max-drift") + 1]) if "--max-drift" in args else 1e9
     )
     every = int(args[args.index("--every") + 1]) if "--every" in args else 1
     jobs = [
@@ -205,7 +212,7 @@ def main():
         if path.exists()
         and "inject" not in case
         and case.get("freq_exact")
-        and abs(case.get("drift", 0.0)) >= min_drift
+        and min_drift <= abs(case.get("drift", 0.0)) < max_drift
     ][::every]
     rows, skipped = [], 0
     with ProcessPoolExecutor(max_workers=6) as ex:
@@ -220,7 +227,7 @@ def main():
         f"{len(jobs)} cadences with catalogue drift of {min_drift} Hz/s or more; "
         f"{skipped} without cached cutouts; {len(rows)} test signals"
     )
-    OUT.write_text(json.dumps(rows, indent=1))
+    out.write_text(json.dumps(rows, indent=1))
     report(rows)
 
 
